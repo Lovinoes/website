@@ -2,22 +2,22 @@
 layout: home
 
 hero:
-  name: "Calagopus"
-  tagline: A management suite for your distributed (game) containers
+  name: Calagopus
+  tagline: Game server management - made simple
   actions:
     - theme: brand
       text: Documentation
       link: /docs
     - theme: alt
-      text: API
-      link: /api
+      text: Discord
+      link: https://discord.gg/uSM8tvTxBV
 
 features:
   - title: Feature A
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+    details: This page
   - title: Feature B
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+    details: is
   - title: Feature C
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+    details: Work in progress
 ---
 
