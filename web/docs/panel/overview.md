@@ -24,3 +24,30 @@ f5925cc2dd3f   rjns-control_cache   0.09%     3.832MiB / 91.99GiB   0.00%     29
 
 Keep in mind that when using extensions you will need additional resources for compiling the panel frontend and backend.
 This example only reflects the base panel usage without any extensions installed.
+
+## Technical Overview
+
+The Calagopus Panel is built using a modern web stack to ensure scalability, performance, and ease of use. Below is a high-level overview of its architecture:
+
+### Frontend
+
+The frontend of the Calagopus Panel is developed using React.js, providing a responsive and intuitive user interface. It communicates with the backend via RESTful APIs to perform various operations such as server management, user authentication, and configuration settings.
+
+- **Language**: TypeScript
+- **Framework**: [React.js](https://reactjs.org/)
+- **State Management**: [Zustand](https://zustand.docs.pmnd.rs/)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+- **Build Tool**: [Vite](https://vitejs.dev/)
+- **Linting**: [Biome](https://biomejs.dev/)
+
+### Backend
+
+The backend is powered by Rust, leveraging the axum crate for handling HTTP requests. It manages core functionalities such as user management, server orchestration, and database interactions.
+
+- **Language**: :crab: Rust
+- **Web Framework**: [`axum`](https://crates.io/crates/axum)
+- **Database**: PostgreSQL via [`sqlx`](https://crates.io/crates/sqlx)
+- **Caching**: Redis via [`rustis`](https://crates.io/crates/rustis)
+- **Runtime**: [`tokio`](https://crates.io/crates/tokio)
+
+Most of the other backend functionality is implemented from scatch or using smaller crates to keep dependencies minimal and avoid bloat.
