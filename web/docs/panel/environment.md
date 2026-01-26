@@ -131,6 +131,16 @@ Default value:
 APP_USE_INTERNAL_CACHE=true
 ```
 
+## APP_TRUSTED_PROXIES
+
+The `APP_TRUSTED_PROXIES` variable is used to specify a list of trusted proxy IP addresses or CIDR ranges that are allowed to forward requests to the Panel. This is particularly important when the Panel is deployed behind a reverse proxy or load balancer, as it ensures that the correct client IP addresses are logged and used for security purposes.
+
+You can provide multiple IP addresses or CIDR ranges separated by commas. For example:
+
+```plaintext
+APP_TRUSTED_PROXIES=192.168.178.0/24,10.0.0.0/8
+```
+
 ## APP_LOG_DIRECTORY
 
 The `APP_LOG_DIRECTORY` variable defines the directory path where the Panel will store its log files. This is unset by default, which means logs will not be stored by the panel. If you wish to enable logging, set this variable to a valid directory path where the Panel has write permissions.
