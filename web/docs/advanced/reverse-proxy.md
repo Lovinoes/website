@@ -12,7 +12,7 @@ We assume you already have Let’s Encrypt certificates generated for your domai
 
 ### APP_TRUSTED_PROXIES
 
-When running the Panel behind a reverse proxy, you must configure the [APP_TRUSTED_PROXIES](../panel/reverse-proxy.md#app-trusted-proxies) variable. This ensures that the Panel logs correct client IP addresses and operates securely.
+When running the Panel behind a reverse proxy, you must configure the [APP_TRUSTED_PROXIES](../panel/environment#app-trusted-proxies) variable. This ensures that the Panel logs correct client IP addresses and operates securely.
 
 ```yaml
 services:
@@ -23,7 +23,7 @@ services:
 
 ## Getting Started
 
-Create `/etc/nginx/sites-available/panel.conf` (or `/etc/nginx/conf.d/panel.conf` on RHEL-based systems) with the following content:
+Create `/etc/nginx/sites-available/panel.conf` *(or `/etc/nginx/conf.d/panel.conf` on RHEL-based systems)* with the following content:
 
 ::: code-group
 ```nginx [Nginx With SSL]
@@ -37,7 +37,7 @@ server {
 server {
     listen 443 ssl http2;
     listen [::]:443 ssl http2;
-    server_name &lt;domain&gt;;
+    server_name <domain>;
 
     access_log /var/log/nginx/calagopus.app-access.log;
     error_log  /var/log/nginx/calagopus.app-error.log error;
@@ -145,7 +145,7 @@ sudo systemctl restart nginx
 
 ## Verify Access
 
-Visit https://&lt;domain&gt; in your browser. You should now see the Panel login page served via Nginx.
+Visit `https://<domain>` in your browser. You should now see the Panel login page served via Nginx.
 
 ## Set Server URL
 
