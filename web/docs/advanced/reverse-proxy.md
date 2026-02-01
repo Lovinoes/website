@@ -1,6 +1,6 @@
 # Reverse Proxy
 
-This guide explains how to configure Nginx as a reverse proxy for the Calagopus Panel Docker installation. Reverse proxying allows the internal HTTP webserver (default port 8000) to be served over standard HTTP/HTTPS ports with SSL.
+This guide explains how to configure Nginx(More coming soon) as a reverse proxy for the Calagopus Panel Docker installation. Reverse proxying allows the internal HTTP webserver (default port 8000) to be served over standard HTTP/HTTPS ports with SSL.
 
 ::: warning
 Ensure that the Panel is already installed and running before continuing. Misconfigured proxy settings may make the Panel inaccessible.
@@ -145,7 +145,7 @@ sudo systemctl restart nginx
 
 ## Verify Access
 
-Visit `https://<domain>` in your browser. You should now see the Panel login page served via Nginx.
+Visit `https://<domain>` in your browser. You should now see the Panel login page.
 
 ## Set Server URL
 
