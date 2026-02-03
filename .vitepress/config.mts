@@ -1,10 +1,17 @@
 import { withMermaid } from "vitepress-plugin-mermaid";
+import { tabsMarkdownPlugin } from 'vitepress-plugin-tabs'
 
 // https://vitepress.dev/reference/site-config
 export default withMermaid({
   srcDir: "web",
   cleanUrls: true,
-  
+
+markdown: {
+    config(md) {
+      md.use(tabsMarkdownPlugin)
+    },
+  },
+
   title: "Calagopus",
   description: "Game server management - made simple",
   themeConfig: {
@@ -44,6 +51,7 @@ export default withMermaid({
         text: 'Advanced',
         items: [
           { text: 'Migrating from Pterodactyl', link: '/docs/advanced/migrating-from-pterodactyl' },
+          { text: 'Reverse Proxies', link: '/docs/advanced/reverse-proxies' },
         ]
       }
     ],
