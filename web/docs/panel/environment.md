@@ -161,7 +161,11 @@ The encryption key used to protect sensitive data such as tokens. Must be set - 
 
 ## SERVER_NAME
 
-A label for this Panel instance, used for identification in multi-panel setups and Sentry error tracking. Unset by default.
+A label for this Panel instance, used for identification in multi-panel setups and Sentry error tracking. When set, it is also shown to users in the footer as "Connected to {name}", which is handy for identifying which backend instance you are talking to. Unset by default.
+
+## AIO_BASE_WINGS_CONFIGURATION
+
+Only used by the all-in-one distribution. Path to a base Wings configuration file (YAML) that the Panel uses as a starting point for the bundled Wings instance. The Panel merges in the generated node UUID and tokens on top of this base. If unset, a minimal configuration is generated in the system temp directory.
 
 ## Other Settings
 
