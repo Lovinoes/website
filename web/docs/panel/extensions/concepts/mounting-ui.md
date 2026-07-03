@@ -125,6 +125,10 @@ The definition types form a small hierarchy, each level adding fields. These are
 - **`exact?: boolean`** - standard react-router exact-matching flag. Leave unset unless you know you need it.
 - **`filter?: () => boolean`** - called at render time; if it returns `false` the route is skipped as though it wasn't registered. Useful for feature flags ("only show this route if the extension's setting is enabled"), conditional UI ("only show if the server has a specific egg type"), or environment checks. The function runs on every render, so keep it cheap - a boolean check on a store value, not a network call.
 
+::: warning
+`filter` is not for egg route filtering, The Panel already has such system built-in via Egg Configurations. Use `filter` for extension-specific conditions only.
+:::
+
 **Additionally for named routes (`RouteDefinition` - account, admin, server):**
 
 - **`name: string | (() => string) | undefined`** - the label shown in the sidebar. A plain string works for untranslated labels. For translated labels, pass a function that returns the translated string - this way the label re-evaluates when the user switches language. `undefined` is valid if for some reason you want a route with no sidebar entry (though in that case you probably want `addGlobalRoute` instead).
