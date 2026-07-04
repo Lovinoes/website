@@ -15,7 +15,11 @@ const features = [
     icon: faLock,
     title: 'Security',
     details:
-      "Calagopus is built with security in mind, utilizing Rust's safety features to minimize vulnerabilities and protect your game servers from potential threats. Servers run in isolated Docker containers, and the panel itself follows best practices for secure web applications.",
+      'Calagopus is built with security in mind, utilizing best practices to minimize vulnerabilities and protect your game servers from potential threats. Servers run in isolated Docker containers, and the panel itself also follows best practices for secure web applications.',
+    link: {
+      href: '/docs/about/security',
+      label: 'Learn more about security',
+    },
   },
   {
     icon: faBolt,
@@ -42,6 +46,10 @@ const features = [
     title: 'Open Source',
     details:
       'Calagopus is open source and available on GitHub, allowing the community to contribute to its development and improvement. We welcome contributions from developers of all skill levels and encourage collaboration to make Calagopus the best game server management solution available.',
+    link: {
+      href: '/docs/about/licenses',
+      label: 'View the licenses',
+    },
   },
   {
     icon: faDesktop,

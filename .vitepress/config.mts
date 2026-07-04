@@ -150,6 +150,8 @@ export default withMermaid({
           { text: 'Feature Reference', link: '/docs/about/features' },
           { text: 'Benchmarks', link: '/docs/about/benchmarks' },
           { text: 'Architecture', link: '/docs/about/architecture' },
+          { text: 'Licenses', link: '/docs/about/licenses' },
+          { text: 'Security', link: '/docs/about/security' },
           { text: 'Branding', link: '/docs/about/branding' },
         ],
       },
