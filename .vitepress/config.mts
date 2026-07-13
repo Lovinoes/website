@@ -274,6 +274,25 @@ export default withMermaid({
         ],
       },
       {
+        text: 'DB Agent',
+        link: '/docs/db-agent/',
+        items: [
+          { text: 'Overview', link: '/docs/db-agent/overview' },
+          { text: 'Configuration', link: '/docs/db-agent/configuration' },
+          {
+            text: 'Installation',
+            link: '/docs/db-agent/installation/',
+            collapsed: true,
+            items: [
+              { text: 'Docker', link: '/docs/db-agent/installation/docker' },
+              { text: 'Binary', link: '/docs/db-agent/installation/binary' },
+              { text: 'Package Manager', link: '/docs/db-agent/installation/pkgmanager' },
+            ],
+          },
+          { text: 'Updating', link: '/docs/db-agent/updating' },
+        ],
+      },
+      {
         text: 'Additional',
         link: '/docs/additional/',
         items: [

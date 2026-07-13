@@ -36,21 +36,23 @@ public initialize(ctx: ExtensionContext): void {
 }
 ```
 
-`enterForms` gives you the `FormRegistry`. Calling `.extend(formId, slot)` registers a **slot**, a bundle of a field-list transform, Zod schema additions, and initial values. Multiple extensions can each register a slot for the same form and they all compose cleanly; slots are applied in registration order, with each `transform` receiving the field list produced by the previous one.
+`enterForms` gives you the `FormRegistry`. Calling `.extend(formId, slot)` registers a **slot**, a bundle of Zod schema additions, their initial values, and a field-list transform. Multiple extensions can each register a slot for the same form and they all compose cleanly; slots are applied in registration order, with each `transform` receiving the field list produced by the previous one.
 
 Form IDs are a typed union (`FormId`), so a typo is a compile error. The registered IDs cover the admin create/update forms (`admin.servers.create`, `admin.servers.update`, `admin.nodes.createOrUpdate`, `admin.users.createOrUpdate`, ...), the admin settings forms (`admin.settings.application`, `admin.settings.captcha.turnstile`, ...) and more - see `RegisteredFormIds` in `@/elements/form-engine/types.ts` for the authoritative list.
 
 ## The Slot
 
-Each `extend` call takes a `FormExtensionSlot` object. All three keys are optional, include only what your extension actually needs:
+Each `extend` call takes a `FormExtensionSlot` object. The slot is **Zod-first**: `zodShape` is the required source of truth for the fields your extension adds, and `initialValues` is typed (and required) from it - TypeScript infers the exact value types, nested objects included, so a missing or mistyped default is a compile error:
 
 ```ts
-interface FormExtensionSlot<T extends Record<string, unknown>> {
-  zodShape?: ZodFieldShape; // Zod schema additions for new fields
-  initialValues?: Partial<T>; // default values for new fields
-  transform?: FieldTransform<T>; // (fields: FieldDef<T>[]) => FieldDef<T>[]
+interface FormExtensionSlot<S extends ZodFieldShape> {
+  zodShape: S; // Zod schema for the fields your extension adds
+  initialValues: InferFieldShape<S>; // default values, typed from zodShape
+  transform?: FieldTransform<...>; // (fields: FieldDef[]) => FieldDef[]
 }
 ```
+
+A slot that only tweaks existing fields (no new ones) passes empty objects for both: `{ zodShape: {}, initialValues: {}, transform: ... }`.
 
 ### `transform`
 
@@ -101,7 +103,7 @@ Only provide entries for **new fields your extension adds**. To prevent conflict
 
 ### `initialValues`
 
-A record mapping field names to their initial (empty-state) values. These get deep-merged into the form's initial state, so the form doesn't start with `undefined` for your new fields (and nested defaults extend the core defaults instead of replacing them):
+The initial (empty-state) values for the fields in your `zodShape` - the type is inferred from the shape, so every declared field needs a default of the right type. These get deep-merged into the form's initial state, so the form doesn't start with `undefined` for your new fields (and nested defaults extend the core defaults instead of replacing them):
 
 ```ts
 initialValues: {
