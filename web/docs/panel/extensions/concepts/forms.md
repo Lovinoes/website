@@ -11,87 +11,97 @@ Inside your extension's `initialize` method:
 ```ts
 import { ExtensionContext } from 'shared';
 import { z } from 'zod';
+import { type FieldDef, insertFieldsAfter } from '@/elements/form-engine/index.ts';
 
 public initialize(ctx: ExtensionContext): void {
   ctx.extensionRegistry.enterForms((forms) =>
     forms.extend('admin.servers.create', {
-      fields: [
-        {
-          field: {
-            type: 'text',
-            name: 'customIdentifier',
-            label: 'Custom Identifier',
-            description: 'An internal label used by your provisioning system.',
-          },
-          position: { at: 'append' },
-        },
-      ],
       zodShape: {
         customIdentifier: z.string().max(64),
       },
       initialValues: {
         customIdentifier: '',
       },
+      transform: (fields) => [
+        ...fields,
+        {
+          type: 'text',
+          name: 'customIdentifier',
+          label: 'Custom Identifier',
+          description: 'An internal label used by your provisioning system.',
+        } satisfies FieldDef,
+      ],
     }),
   );
 }
 ```
 
-`enterForms` gives you the `FormRegistry`. Calling `.extend(formId, slot)` registers a **slot**, a bundle of field definitions, Zod schema additions, initial values, and/or field overrides. Multiple extensions can each register a slot for the same form and they all compose cleanly; slots are merged left-to-right in registration order.
+`enterForms` gives you the `FormRegistry`. Calling `.extend(formId, slot)` registers a **slot**, a bundle of a field-list transform, Zod schema additions, and initial values. Multiple extensions can each register a slot for the same form and they all compose cleanly; slots are applied in registration order, with each `transform` receiving the field list produced by the previous one.
+
+Form IDs are a typed union (`FormId`), so a typo is a compile error. The registered IDs cover the admin create/update forms (`admin.servers.create`, `admin.servers.update`, `admin.nodes.createOrUpdate`, `admin.users.createOrUpdate`, ...), the admin settings forms (`admin.settings.application`, `admin.settings.captcha.turnstile`, ...) and more - see `RegisteredFormIds` in `@/elements/form-engine/types.ts` for the authoritative list.
 
 ## The Slot
 
-Each `extend` call takes a `FormExtensionSlot` object. All four keys are optional, include only what your extension actually needs:
+Each `extend` call takes a `FormExtensionSlot` object. All three keys are optional, include only what your extension actually needs:
 
 ```ts
-interface FormExtensionSlot {
-  fields?: ExtensionField[]; // new fields to insert
+interface FormExtensionSlot<T extends Record<string, unknown>> {
   zodShape?: ZodFieldShape; // Zod schema additions for new fields
-  initialValues?: Record<string, unknown>; // default values for new fields
-  overrides?: Record<string, Partial<BaseFieldDef>>; // modify existing fields
+  initialValues?: Partial<T>; // default values for new fields
+  transform?: FieldTransform<T>; // (fields: FieldDef<T>[]) => FieldDef<T>[]
 }
 ```
 
-### `fields`
+### `transform`
 
-An array of `ExtensionField` objects, each pairing a field definition with an insertion position:
+A function that receives the form's current field definitions and returns a new list. This is how you add fields, move them, tweak existing ones, or remove them - anything you can express as an array transformation. Four helpers in `@/elements/form-engine/index.ts` cover the common cases:
 
 ```ts
-interface ExtensionField {
-  field: FieldDef;
-  position: InsertPosition;
-}
+import { insertFieldsAfter, insertFieldsBefore, removeField, updateField } from '@/elements/form-engine/index.ts';
 ```
 
-#### Insert Positions
+| Helper | Description |
+| ------ | ----------- |
+| `insertFieldsBefore(fields, name, ...insert)` | Insert one or more fields immediately before the named field |
+| `insertFieldsAfter(fields, name, ...insert)` | Insert one or more fields immediately after the named field |
+| `updateField(fields, name, (field) => field)` | Replace the named field with the result of the callback |
+| `removeField(fields, name)` | Drop the named field from the list |
 
-`InsertPosition` controls where in the field list your field lands:
+The insert helpers return the field list **unchanged** when the anchor field isn't present. That's deliberate: some form IDs render their fields in multiple sections (server create/update, for example), and your transform runs against each section - the no-op behavior means your field only lands in the section that actually contains your anchor. To unconditionally add a field at the start or end, spread the array yourself: `(fields) => [...fields, myField]` appends, `(fields) => [myField, ...fields]` prepends.
 
-| Position | Description |
-| -------- | ----------- |
-| `{ at: 'prepend' }` | First field in the form |
-| `{ at: 'append' }` | Last field in the form |
-| `{ at: 'before', name: 'fieldName' }` | Immediately before the named field |
-| `{ at: 'after', name: 'fieldName' }` | Immediately after the named field |
+Overriding an existing field is `updateField` with a spread:
 
-If `before` or `after` names a field that doesn't exist, the field is appended to the end.
+```ts
+transform: (fields) =>
+  updateField(fields, 'name', (field) => ({
+    ...field,
+    label: 'Server Name (internal)',
+    description: 'Must match your naming convention: env-region-number.',
+  })),
+```
+
+Don't change the `name` of an existing field (it's the key the form values are bound by), and be conservative about removing built-in fields - other extensions' transforms may be anchoring on them.
 
 ### `zodShape`
 
-A record mapping field names to Zod types. The Panel merges this into the form's Zod schema so that your new fields participate in validation:
+A record mapping field names to Zod types. The Panel **deep-merges** this into the form's Zod schema so that your new fields participate in validation. Because the merge is deep, you can extend nested objects without replacing the core validation for their existing keys:
 
 ```ts
 zodShape: {
   customIdentifier: z.string().min(1).max(64),
-  enableFeatureX: z.boolean(),
+  featureLimits: z.object({
+    subdomains: z.number().int().min(0), // merged into the core featureLimits object
+  }),
 },
 ```
+
+`zodShape` also drives **payload serialization**: the core API endpoints pass the registered shapes to `serializeForApi` (via `formExtensionSchemas(formId)`), so only fields declared here make it into the submitted request body. A field that exists only in your `transform` renders and can be typed into, but its value never leaves the browser. Declare every field you add.
 
 Only provide entries for **new fields your extension adds**. To prevent conflicts, don't overwrite built-in field names.
 
 ### `initialValues`
 
-A record mapping field names to their initial (empty-state) values. These get merged into the form's initial state, so the form doesn't start with `undefined` for your new fields:
+A record mapping field names to their initial (empty-state) values. These get deep-merged into the form's initial state, so the form doesn't start with `undefined` for your new fields (and nested defaults extend the core defaults instead of replacing them):
 
 ```ts
 initialValues: {
@@ -100,40 +110,24 @@ initialValues: {
 },
 ```
 
-### `overrides`
-
-A record mapping **existing** field names to partial `BaseFieldDef` overrides. You can change most display properties of built-in fields, label, description, required, colSpan, the `when` condition, without modifying the field's core definition:
-
-```ts
-overrides: {
-  name: {
-    label: 'Server Name (internal)',
-    description: 'Must match your naming convention: env-region-number.',
-  },
-  // mark a normally optional field required
-  description: {
-    required: true,
-  },
-},
-```
-
-`name` is the one field you cannot override (it's the key used to look up the field in the first place). Everything else in `BaseFieldDef` is fair game.
-
 ## Field Types
 
-The `field` inside each `ExtensionField` is a `FieldDef`, a discriminated union keyed on `type`. Every type except `custom` shares a set of base properties:
+The fields inside a form (and the ones your `transform` produces) are `FieldDef` objects, a discriminated union keyed on `type`. Every type except `divider` and `custom` shares a set of base properties:
 
-**Base properties (all field types except `custom`):**
+**Base properties (all field types except `divider` and `custom`):**
 
 | Property | Type | Description |
 | -------- | ---- | ----------- |
-| `name` | `string` | Field name, must match the form value key |
-| `label` | `string` | Label shown above the input |
-| `description` | `string?` | Helper text shown below the label |
+| `name` | `string` | Field name, must match the form value key (Mantine paths, so dots address nested values) |
+| `label` | `LazyString` | Label shown above the input |
+| `description` | `LazyString?` | Helper text shown below the label |
+| `tooltip` | `ReactNode?` | Tooltip content shown on an info icon next to the label |
 | `required` | `boolean?` | Shows an asterisk and enforces the field is non-empty |
 | `advanced` | `boolean?` | Hidden unless the user has enabled Advanced Mode |
 | `colSpan` | `'full' \| 1` | `'full'` stretches across both columns; omit for the default half-width |
 | `when` | `(values) => boolean` | Receives the current form values; field is hidden when this returns `false` |
+
+`LazyString` is `string | (() => string)`. The function form is resolved at render time, which is what lets you pass translation getters from module scope (your `initialize` runs long before any form renders): `label: () => t('myext.fields.customIdentifier')`.
 
 ### Text fields
 
@@ -152,17 +146,17 @@ The `field` inside each `ExtensionField` is a `FieldDef`, a discriminated union 
 ### Boolean
 
 ```ts
-{ type: 'switch', name: '...', label: '...' }
-{ type: 'checkbox', name: '...', label: '...' }
+{ type: 'switch', name: '...', label: '...', props?: Partial<SwitchProps> }
+{ type: 'checkbox', name: '...', label: '...', props?: Partial<CheckboxProps> }
 ```
 
 ### Selection
 
 ```ts
-{ type: 'select', name: '...', label: '...', options: { value: string; label: string }[] }
-{ type: 'multiselect', name: '...', label: '...', options: { value: string; label: string }[] }
-{ type: 'multiselectgroup', name: '...', label: '...', data: { group: string; items: { value: string; label: string }[] }[] }
-{ type: 'autocomplete', name: '...', label: '...', options?: string[] }
+{ type: 'select', name: '...', label: '...', options: { value: string; label: LazyString }[], props?: Partial<SelectProps> }
+{ type: 'multiselect', name: '...', label: '...', options: { value: string; label: LazyString }[], props?: Partial<MultiSelectProps> }
+{ type: 'multiselectgroup', name: '...', label: '...', data: { group: LazyString; items: { value: string; label: LazyString }[] }[] }
+{ type: 'autocomplete', name: '...', label: '...', options?: string[], props?: Partial<AutocompleteProps> }
 ```
 
 ### Date / time
@@ -178,7 +172,7 @@ The `field` inside each `ExtensionField` is a `FieldDef`, a discriminated union 
   type: 'tags',
   name: '...',
   label: '...',
-  placeholder?: string,
+  placeholder?: LazyString,
   allowReordering?: boolean,
   allowDuplicates?: boolean,
 }
@@ -216,13 +210,30 @@ A numeric input with byte/megabyte units. Store the value as a number in your Zo
 
 Renders a text input paired with per-language override inputs. The main value lives under `name`; the translations object lives under `translationsName`. You need both keys in your `zodShape` and `initialValues`.
 
+### Divider
+
+```ts
+{
+  type: 'divider',
+  name: '...',
+  label?: LazyString,
+  switchName?: string,       // optional: renders a switch on the divider, bound to this form value
+  switchLabel?: LazyString,
+  switchProps?: Partial<SwitchProps>,
+  advanced?: boolean,
+  when?: (values) => boolean,
+}
+```
+
+A section divider with an optional label and an optional inline switch (useful for "enable this whole section" toggles). It has no value of its own unless you use `switchName`.
+
 ### Custom
 
 ```ts
 {
   type: 'custom',
   name: '...',
-  label?: string,
+  label?: LazyString,
   advanced?: boolean,
   colSpan?: ColSpan,
   when?: (values) => boolean,
@@ -239,32 +250,12 @@ An extension that adds a "Provisioning Tag" and "Enable Monitoring" field to the
 ```ts
 import { Extension, ExtensionContext } from 'shared';
 import { z } from 'zod';
+import { type FieldDef, insertFieldsAfter } from '@/elements/form-engine/index.ts';
 
 class MyExtension extends Extension {
   public initialize(ctx: ExtensionContext): void {
     ctx.extensionRegistry.enterForms((forms) =>
       forms.extend('admin.servers.create', {
-        fields: [
-          {
-            field: {
-              type: 'text',
-              name: 'provisioningTag',
-              label: 'Provisioning Tag',
-              description: 'Passed to the provisioning system on first start.',
-              colSpan: 'full',
-            },
-            position: { at: 'after', name: 'description' },
-          },
-          {
-            field: {
-              type: 'switch',
-              name: 'monitoringEnabled',
-              label: 'Enable Monitoring',
-              advanced: true,
-            },
-            position: { at: 'append' },
-          },
-        ],
         zodShape: {
           provisioningTag: z.string().max(128),
           monitoringEnabled: z.boolean(),
@@ -273,6 +264,21 @@ class MyExtension extends Extension {
           provisioningTag: '',
           monitoringEnabled: false,
         },
+        transform: (fields) => [
+          ...insertFieldsAfter(fields, 'description', {
+            type: 'text',
+            name: 'provisioningTag',
+            label: 'Provisioning Tag',
+            description: 'Passed to the provisioning system on first start.',
+            colSpan: 'full',
+          } satisfies FieldDef),
+          {
+            type: 'switch',
+            name: 'monitoringEnabled',
+            label: 'Enable Monitoring',
+            advanced: true,
+          } satisfies FieldDef,
+        ],
       }),
     );
   }
@@ -281,7 +287,7 @@ class MyExtension extends Extension {
 export default new MyExtension();
 ```
 
-The new field values are included in the form's submit payload alongside the built-in fields. Your backend route receives them and can act on them however it needs to, storing them as server metadata, passing them to a provisioner, and so on. See [Extending Models](./extending-models.md) for how to persist per-server data on the backend.
+Because both fields are declared in `zodShape`, their values ride along in the submitted request body alongside the built-in fields (`provisioning_tag` and `monitoring_enabled` after snake_casing). Your backend route receives them and can act on them however it needs to - see [Extending Models](./extending-models.md) for how to persist per-server data on the backend.
 
 ## Advanced Mode
 
@@ -292,15 +298,15 @@ Fields marked `advanced: true` are hidden by default. The Panel exposes an **Adv
 The `when` function lets you show or hide a field based on the current form values:
 
 ```ts
-{
-  field: {
+transform: (fields) => [
+  ...fields,
+  {
     type: 'text',
     name: 'customDriverPath',
     label: 'Driver Path',
     when: (values) => values.driver === 'custom',
-  },
-  position: { at: 'append' },
-},
+  } satisfies FieldDef,
+],
 ```
 
 `when` is called on every render with the latest form values. The field is rendered when it returns `true` and omitted when it returns `false`. This is pure display logic, the field's value stays in the form state even when `when` returns `false`, so it can be safely submitted without losing user input if the condition toggles.
