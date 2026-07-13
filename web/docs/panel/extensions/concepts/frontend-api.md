@@ -18,10 +18,10 @@ Earlier builds auto-camelCased every JSON response in an interceptor and shipped
 
 ## Schemas and the Transform Helpers
 
-Every response and request body flows through a Zod schema plus one of three helpers from `@/lib/api-transform.ts`:
+Every response and request body flows through a Zod schema plus one of these helpers from `@/lib/api-transform.ts`:
 
 ```ts
-import { parseFromApi, parsePaginationFromApi, serializeForApi } from '@/lib/api-transform.ts';
+import { parseExtendedFromApi, parseFromApi, parsePaginationFromApi, serializeForApi } from '@/lib/api-transform.ts';
 ```
 
 You define a schema per resource with **camelCase keys**, matching the snake_case keys your backend returns:
@@ -39,6 +39,7 @@ export const itemSchema = z.object({
 
 - **`parseFromApi(schema, data)`** - for incoming responses. It walks the raw data guided by the schema (nested objects, arrays, records, and unions all work), remaps each snake_case wire key to your camelCase schema key, then validates with the schema. If validation fails it logs a detailed breakdown to the console (which field, what it got, which API file called it) and throws, so backend/schema mismatches surface loudly during development instead of silently producing `undefined`s downstream.
 - **`parsePaginationFromApi(schema, raw)`** - for paginated list responses. Pass it the raw paginated object (`{ total, per_page, page, data }`) and it returns a `Pagination<T>` with each entry run through `parseFromApi`.
+- **`parseExtendedFromApi(schema, parsed)`** - for reading fields a backend extension added to a *core* response. `parseFromApi` keeps every field the schema didn't declare on the parsed object under a hidden `__extension_data` property (at every nesting level), and this helper parses your typed slice back out of it - the frontend counterpart of the backend's `parse_model_extension`. See [Extending Models](./extending-models.md#from-frontend-components) for the full pattern.
 - **`serializeForApi(schema, data, extraSchemas?)`** - for outgoing request bodies. The reverse direction: camelCase keys in your typed object become snake_case on the wire. Fields that are `undefined` are skipped entirely. The optional third argument is an array of additional schemas whose serialized output is deep-merged into the result - this is how the core endpoints for extensible forms include extension-registered fields: they pass `formExtensionSchemas(formId)`, which returns the `zodShape`s extensions registered for that form (see [Forms](./forms.md)).
 
 Two properties of the transform worth knowing:
