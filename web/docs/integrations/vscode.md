@@ -52,7 +52,7 @@ The quickest way to get started is straight from your server's file manager. Ope
 Your editor opens, mounts the server's files as a workspace folder, and attaches to the console automatically. The same **Connect** dropdown is available in the header while editing a file, which will open that exact file in your editor once the server is mounted.
 
 ::: info
-The first time you connect to a panel, the extension will prompt you to sign in. Your credentials are stored securely in your editor's secret storage and reused on future connections - see [Authentication](#authentication).
+The first time you connect to a panel, the extension signs you in through your browser - it provisions a scoped API key for you and stores it securely in your editor's secret storage, then reuses it on future connections. No copy-pasting keys required. See [Authentication](#authentication) for the full flow.
 :::
 
 ## Connecting from within the editor
@@ -66,6 +66,8 @@ You can also drive everything from the editor using the Command Palette (`Ctrl`/
 | `Calagopus: Open Server Files` | Pick a server and mount its files as a workspace folder. |
 | `Calagopus: Open Server Console` | Pick a server and attach to its console. |
 | `Calagopus: Server Power Action` | Start, stop, restart, or kill the active server. |
+| `Calagopus: Enable File Collaboration` | Turn on real-time collaborative editing (see [Real-time collaboration](#real-time-collaboration)). |
+| `Calagopus: Disable File Collaboration` | Turn off real-time collaborative editing. |
 
 ![](./images/vscode/command-palette.png)
 
@@ -84,6 +86,40 @@ When the editor's proposed search APIs are enabled, you can search across your s
 Attach to your server's console as an integrated terminal. Output streams in real time and you can send commands straight from the terminal input, exactly as you would from the panel's console tab.
 
 ![](./images/vscode/integrated-terminal.png)
+
+### Real-time collaboration
+
+When more than one person opens the same server file, the extension keeps everyone's edits in sync live - you see each other's changes as they are typed, along with colored cursors and selections labeled with each participant's name. Editing is backed by a shared document (CRDT) synchronized through the panel, so concurrent edits merge cleanly without clobbering one another.
+
+![Remote collaborator's cursor and selection in the editor](./images/vscode/collab-cursors.gif)
+
+While others are editing a file with you, a presence indicator appears in the status bar showing how many people (including you) are in the file; hovering it lists the other participants by name. Files with unsaved collaborative changes are marked with a dot in the Explorer.
+
+![Collaboration presence indicator in the status bar](./images/vscode/collab-presence.png)
+
+Saves are coordinated through the panel: when you save a collaborative file, the extension asks the panel to persist the shared document so every participant ends up with the same on-disk result.
+
+Collaboration is on by default. You can toggle it per editor with the **Calagopus: Enable File Collaboration** and **Calagopus: Disable File Collaboration** commands, or via the `calagopus.collaboration.enabled` setting:
+
+```json
+{
+  "calagopus.collaboration.enabled": false
+}
+```
+
+### File history
+
+Every Calagopus server file keeps a history of revisions. When a server is mounted, a **File History** view appears in the Explorer sidebar and tracks whichever server file is active in the editor, listing its revisions newest-first. Each entry shows who made the change, how long ago, its size, and whether it is a full snapshot.
+
+![File History view in the Explorer sidebar](./images/vscode/file-history.png)
+
+From a revision's inline actions (or by clicking it) you can:
+
+- **View Diff Against Current File** - open a diff between the selected revision and the file as it is now.
+- **Compare to Previous Revision** - diff the selected revision against the one immediately before it.
+- **Restore Revision into Editor** - load the revision's contents back into the open editor (you still save to write it back to the server).
+
+![Diff between a past revision and the current file](./images/vscode/revision-diff.png)
 
 ### Power actions & status bar
 
@@ -115,9 +151,25 @@ A `vscode://` link is the canonical scheme for Visual Studio Code. Some forks re
 
 ## Authentication
 
-Sign-in is per panel and backed by your editor's secret storage, so your credentials never touch the workspace and persist securely between sessions. Connecting to a new panel for the first time prompts you to sign in; from then on the session is reused automatically.
+Sign-in is per panel and backed by your editor's secret storage, so your credentials never touch the workspace and persist securely between sessions. Connecting to a new panel for the first time signs you in; from then on the session is reused automatically.
 
-To revoke access, run **Calagopus: Sign Out**. If you are signed in to more than one panel, you can sign out of a single panel or all of them at once.
+### Browser sign-in
+
+Whenever you sign in without supplying a key - both from the panel's **Connect** button and via the **Calagopus: Sign In** command - the extension provisions an API key for you rather than asking you to paste one:
+
+1. It starts a short-lived local (loopback) HTTP server and opens the panel's API-key creation page in your browser, pre-filled with the key name, the permissions the extension needs, and a callback URL.
+2. You review and approve the key in the panel.
+3. The panel redirects back to the callback URL with the new key, which the extension stores in your editor's secret storage and uses from then on.
+
+A progress notification is shown while this round-trip happens. If the callback never arrives (for example, in a locked-down browser), you can paste an API key into the same prompt manually as a fallback.
+
+::: info
+This flow works across editors - including VS Code forks that don't register a custom URI scheme - and is forwarded automatically in Remote and Codespaces environments, so the browser round-trip still reaches your editor.
+:::
+
+### Signing out
+
+To revoke access, run **Calagopus: Sign Out**. If you are signed in to more than one panel, you can sign out of a single panel or all of them at once. Signing out only clears the stored key from your editor; to fully revoke the key, delete it from your panel's **Account → API Keys** page.
 
 ::: info
 Deep links that include an `apiKey` parameter open an **ephemeral** session - that key is used for the connection only and is never written to secret storage.
@@ -134,6 +186,14 @@ Your editor may register a URI scheme other than `vscode://`. Click the settings
 ### File search returns no results
 
 Search relies on proposed editor APIs that are not enabled in every build. File **editing** still works without them - only name/content search across server files is affected.
+
+### I don't see other people's cursors
+
+Real-time collaboration must be enabled on both ends (it is on by default). Check that `calagopus.collaboration.enabled` is set to `true`, or run **Calagopus: Enable File Collaboration**. Presence and cursors only appear once more than one person has the same file open.
+
+### The File History view is empty
+
+The **File History** view only appears when a server is mounted, and it tracks the file that is currently active in the editor - open a server file to populate it. A file that has never been changed through the panel will not have any revisions yet.
 
 ### "Malformed open link" error
 
