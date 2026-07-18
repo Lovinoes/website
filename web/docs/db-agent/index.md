@@ -12,4 +12,5 @@ DB Agent is a database proxy and provisioning agent. This section covers install
 | [Overview](./overview.md) | Requirements and technical details of how DB Agent works |
 | [Installation](./installation/index.md) | Get DB Agent running via Docker, package manager, or binary |
 | [Configuration](./configuration.md) | Reference for every option in `config.yml` |
+| [Templates](./templates.md) | Ready-to-fill provisioning presets for each database type |
 | [Updating DB Agent](./updating.md) | Keep DB Agent up to date for your installation method |

@@ -1,0 +1,23 @@
+name: Redis
+description: null
+type: redis
+deployment_enabled: true
+docker_images:
+  Redis 8: redis:8-alpine
+  Redis 7: redis:7-alpine
+  Redis 6: redis:6-alpine
+env: {}
+image_uid: 999
+image_gid: 999
+cmd:
+  - redis-server
+  - --unixsocket
+  - /run/redis/redis.sock
+volumes:
+  data: /data
+socket_path: /run/redis/redis.sock
+memory: 256
+swap: -1
+disk: 1024
+io_weight: null
+cpu: 50

@@ -1,0 +1,26 @@
+name: MongoDB
+description: null
+type: mongodb
+deployment_enabled: true
+docker_images:
+  MongoDB 8: mongo:8
+  MongoDB 7: mongo:7
+  MongoDB 6: mongo:6
+env: {}
+image_uid: 999
+image_gid: 999
+cmd:
+  - mongod
+  - --auth
+  - --unixSocketPrefix
+  - /run/mongodb
+  - --bind_ip
+  - 127.0.0.1
+volumes:
+  data: /data/db
+socket_path: /run/mongodb/mongodb-27017.sock
+memory: 512
+swap: -1
+disk: 5120
+io_weight: null
+cpu: 50

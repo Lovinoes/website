@@ -1,0 +1,21 @@
+name: PostgreSQL
+description: null
+type: postgres
+deployment_enabled: true
+docker_images:
+  Postgres 18: postgres:18-alpine
+  Postgres 17: postgres:17-alpine
+  Postgres 16: postgres:16-alpine
+env:
+  POSTGRES_HOST_AUTH_METHOD: trust
+image_uid: 70
+image_gid: 70
+cmd: []
+volumes:
+  data: /var/lib/postgresql
+socket_path: /var/run/postgresql/.s.PGSQL.5432
+memory: 512
+swap: -1
+disk: 5120
+io_weight: null
+cpu: 50

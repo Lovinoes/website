@@ -290,6 +290,7 @@ export default withMermaid({
         items: [
           { text: 'Overview', link: '/docs/db-agent/overview' },
           { text: 'Configuration', link: '/docs/db-agent/configuration' },
+          { text: 'Templates', link: '/docs/db-agent/templates' },
           {
             text: 'Installation',
             link: '/docs/db-agent/installation/',

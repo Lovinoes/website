@@ -1,0 +1,22 @@
+name: MariaDB
+description: null
+type: mariadb
+deployment_enabled: true
+docker_images:
+  MariaDB 12: mariadb:12
+  MariaDB 11: mariadb:11
+  MariaDB 10.11: mariadb:10.11
+  MariaDB 10.6: mariadb:10.6
+env:
+  MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: '1'
+image_uid: 999
+image_gid: 999
+cmd: []
+volumes:
+  data: /var/lib/mysql
+socket_path: /run/mysqld/mysqld.sock
+memory: 512
+swap: -1
+disk: 5120
+io_weight: null
+cpu: 50
