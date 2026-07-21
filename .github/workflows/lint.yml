@@ -13,9 +13,6 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
-        with:
-          # Full history so VitePress lastUpdated/sitemap lastmod resolve real git timestamps
-          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4

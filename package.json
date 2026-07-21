@@ -9,7 +9,7 @@
   "license": "MIT",
   "scripts": {
     "docs:dev": "vitepress dev",
-    "docs:build": "vitepress build",
+    "docs:build": "node scripts/ensure-git-history.mjs && vitepress build",
     "docs:preview": "vitepress preview",
     "typecheck": "tsc --noEmit",
     "biome:validate": "biome format --css-parse-tailwind-directives=true && biome lint --css-parse-tailwind-directives=true && biome check",
