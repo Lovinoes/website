@@ -11,6 +11,7 @@
     "docs:dev": "vitepress dev",
     "docs:build": "vitepress build",
     "docs:preview": "vitepress preview",
+    "typecheck": "tsc --noEmit",
     "biome:validate": "biome format --css-parse-tailwind-directives=true && biome lint --css-parse-tailwind-directives=true && biome check",
     "biome:fix": "biome format --write --css-parse-tailwind-directives=true && biome lint --write --css-parse-tailwind-directives=true && biome check --write",
     "biome:fix-unsafe": "biome format --write --css-parse-tailwind-directives=true && biome lint --write --css-parse-tailwind-directives=true && biome check --write --unsafe"
@@ -18,11 +19,11 @@
   "devDependencies": {
     "@biomejs/biome": "2.4.16",
     "@braintree/sanitize-url": "^7.1.2",
-    "@fortawesome/fontawesome-svg-core": "^7.3.0",
-    "@fortawesome/free-solid-svg-icons": "^7.3.0",
-    "@fortawesome/vue-fontawesome": "^3.3.1",
+    "@fortawesome/fontawesome-svg-core": "^7.3.1",
+    "@fortawesome/free-solid-svg-icons": "^7.3.1",
+    "@fortawesome/vue-fontawesome": "^3.3.2",
     "@types/node": "^24.13.3",
-    "@unhead/vue": "^3.1.7",
+    "@unhead/vue": "^3.1.8",
     "cytoscape": "^3.34.0",
     "cytoscape-cose-bilkent": "^4.1.0",
     "dayjs": "^1.11.21",
@@ -30,13 +31,15 @@
     "echarts": "^6.1.0",
     "mermaid": "^11.16.0",
     "sharp": "^0.34.5",
-    "svgo": "^4.0.1",
-    "vite": "^8.1.4",
+    "svgo": "^4.0.2",
+    "typescript": "^7.0.2",
+    "vite": "^8.1.5",
+    "vite-imagetools": "^10.0.1",
     "vite-plugin-image-optimizer": "^2.0.3",
     "vitepress": "2.0.0-alpha.18",
     "vitepress-plugin-mermaid": "^2.0.17",
     "vitepress-plugin-tabs": "^0.9.1",
-    "vue": "^3.5.39",
+    "vue": "^3.5.40",
     "vue-echarts": "^8.0.1"
   }
 }

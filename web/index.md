@@ -23,74 +23,34 @@ hero:
 <script setup lang="ts">
 import Features from '../.vitepress/components/Features.vue';
 import Stats from '../.vitepress/components/Stats.vue';
-import { useHead } from '@unhead/vue';
-
-const faqs = [
-  {
-    q: 'How is Calagopus different from Pterodactyl?',
-    a: 'Calagopus is built in Rust, where Pterodactyl uses PHP. This delivers throughput improvements of over 32,800% along with Rust\'s memory-safety guarantees. We provide a migration guide for existing Pterodactyl users.',
-  },
-  {
-    q: 'What games does Calagopus support?',
-    a: 'Calagopus uses an egg system to support arbitrary games. Anything that runs in a Linux Docker container can be managed, including Minecraft (Java and Bedrock), Rust, ARK, Valheim, FiveM, and many more.',
-  },
-  {
-    q: 'Is Calagopus free to use?',
-    a: 'Yes. Calagopus is free for both personal and commercial use, with no feature gating. Core components are MIT-licensed.',
-  },
-  {
-    q: 'Can I migrate from Pterodactyl or Pelican?',
-    a: 'Yes. Calagopus provides migration tooling and documentation for both Pterodactyl and Pelican.',
-  },
-  {
-    q: 'Does Calagopus have an Extension API?',
-    a: 'Yes. The Extension API uses Rust traits for type safety and performance. Extensions can add backend logic, custom routes, UI elements, database migrations, and more.',
-  },
-  {
-    q: 'Can I run Calagopus on a Raspberry Pi?',
-    a: 'Yes. Calagopus supports ARM64 and the Docker Compose setup works on a Raspberry Pi out of the box.',
-  },
-];
-
-useHead({
-  script: [
-    {
-      type: 'application/ld+json',
-      innerHTML: JSON.stringify({
-        '@context': 'https://schema.org',
-        '@type': 'FAQPage',
-        mainEntity: faqs.map((f) => ({
-          '@type': 'Question',
-          name: f.q,
-          acceptedAnswer: {
-            '@type': 'Answer',
-            text: f.a,
-          },
-        })),
-      }),
-    },
-  ],
-});
+import { faqs } from '../.vitepress/data/faqs.ts';
+import browserPreviewSrcset from './browser-preview.webp?w=480;760;1200;1520&as=srcset';
+import mobilePreviewSrcset from './mobile-preview.webp?w=360;500;720;1000&as=srcset';
 </script>
 
 <Stats />
 
 <div class="preview-container">
   <img
+    :srcset="browserPreviewSrcset"
+    sizes="(min-width: 768px) 65vw, 100vw"
     src="./browser-preview.webp"
     alt="Calagopus admin panel showing the server management dashboard with two Minecraft servers"
     class="browser-preview"
     loading="eager"
+    fetchpriority="high"
     width="1200"
-    height="750"
+    height="900"
   />
   <img
+    :srcset="mobilePreviewSrcset"
+    sizes="(min-width: 768px) 35vw, min(100vw, 500px)"
     src="./mobile-preview.webp"
     alt="Calagopus mobile interface showing a live server console on iPhone"
     class="mobile-preview"
     loading="lazy"
     width="500"
-    height="900"
+    height="500"
   />
 </div>
 

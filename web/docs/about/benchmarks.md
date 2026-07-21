@@ -1,50 +1,53 @@
 ---
 title: Benchmarks
-description: Performance benchmarks comparing Calagopus and Pterodactyl across throughput, latency, and memory usage. Calagopus achieves up to 263k req/s vs Pterodactyl's 799 req/s on identical hardware.
+description: Performance benchmarks comparing Calagopus with Pterodactyl, Pelican, PufferPanel, FeatherPanel, and Hydrodactyl across throughput, latency, memory, and CPU usage on identical hardware.
 ---
 
 <script setup>
+import { computed, ref } from 'vue'
 import BenchChart from '../../../.vitepress/components/BenchChart.vue'
+import { benchmarks, cpuOptions, panelIds, runDate, scenarios, systems } from '../../../.vitepress/data/benchmarks/index.ts'
 
-const C = '#14b8a6'
-const P = '#d97706'
+const active = ref(new Set(panelIds))
+const selectedCpus = ref(cpuOptions[cpuOptions.length - 1])
 
-const servers = [
-  '9900X · 4t · 4G',
-  '9900X · 8t · 4G',
-  '9900X · 16t · 4G',
-  'EPYC 7443P · 4t · 4G',
-  'EPYC 7443P · 8t · 4G',
-  'EPYC 7443P · 16t · 4G',
-  '2× E5-2680v2 · 4t · 4G',
-  '2× E5-2680v2 · 8t · 4G',
-  '2× E5-2680v2 · 16t · 4G',
-  'Altra Q80-30 · 4t · 4G',
-  'Altra Q80-30 · 8t · 4G',
-  'Altra Q80-30 · 16t · 4G',
-]
+const toggle = (id) => {
+  const next = new Set(active.value)
+  if (next.has(id)) {
+    if (next.size > 1) next.delete(id)
+  } else {
+    next.add(id)
+  }
+  active.value = next
+}
 
-const indicator = (text) => ({
-  type: 'text',
-  right: 12,
-  top: 8,
-  style: {
-    text,
-    fontFamily: 'ui-monospace, monospace',
-    fontSize: 10,
-    fill: '#888',
-    opacity: 0.7,
-  },
-})
+const activeIds = computed(() => panelIds.filter((id) => active.value.has(id)))
 
-const baseHorizontal = (direction, extra = {}) => ({
-  grid: { left: 170, right: 30, top: 44, bottom: 40, ...extra.grid },
+const systemLabels = systems.map((s) => s.shortName)
+
+const maxNum = (vals) => {
+  const nums = vals.filter((x) => typeof x === 'number')
+  return nums.length ? Math.max(...nums) : null
+}
+
+const variantAt = (id, i) =>
+  benchmarks[id].systems[i].report.variants.find((v) => v.limit.cpus === selectedCpus.value)
+
+const seriesFor = (pick) => Object.fromEntries(activeIds.value.map((id) => [
+  id,
+  systems.map((_, i) => {
+    const v = variantAt(id, i)
+    return v ? pick(v) : null
+  }),
+]))
+
+const baseHorizontal = (extra = {}) => ({
+  grid: { left: 170, right: 30, top: 56, bottom: 40, ...extra.grid },
   legend: { top: 4, left: 8, icon: 'roundRect', itemWidth: 12, itemHeight: 12 },
   tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
-  graphic: [indicator(direction === 'up' ? '↑ higher is better' : '↓ lower is better')],
   yAxis: {
     type: 'category',
-    data: servers,
+    data: systemLabels,
     inverse: true,
     axisTick: { show: false },
     axisLabel: { fontFamily: 'ui-monospace, monospace', fontSize: 11 },
@@ -52,371 +55,566 @@ const baseHorizontal = (direction, extra = {}) => ({
   ...extra,
 })
 
-const calBar = (data) => ({
-  name: 'Calagopus',
+const bars = (m) => activeIds.value.map((id) => ({
+  name: benchmarks[id].name,
   type: 'bar',
-  data,
-  color: C,
+  data: m[id],
+  color: benchmarks[id].color,
   barMaxWidth: 16,
   itemStyle: { borderRadius: [0, 3, 3, 0] },
-})
+}))
 
-const ptlBar = (data) => ({
-  name: 'Pterodactyl',
-  type: 'bar',
-  data,
-  color: P,
-  barMaxWidth: 16,
-  itemStyle: { borderRadius: [0, 3, 3, 0] },
-})
-
-const memPeak = baseHorizontal('down', {
+const memChart = (m) => baseHorizontal({
   xAxis: { type: 'value', name: 'MiB' },
-  tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, valueFormatter: v => v == null ? 'no data' : `${v} MiB` },
-  series: [
-    calBar([273, 260, 251, 261, 274, 284, 188, 188, 210, 279, 178, 171]),
-    ptlBar([968, 1270, 1116, 750, 1100, 1023, 414, 470, 535, 705, 717, 760]),
-  ],
+  tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, valueFormatter: v => v == null ? 'no data' : `${Math.round(v)} MiB` },
+  series: bars(m),
 })
 
-const memIdle = baseHorizontal('down', {
-  xAxis: { type: 'value', name: 'MiB' },
-  tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, valueFormatter: v => v == null ? 'no data' : `${v} MiB` },
-  series: [
-    calBar([150, 150, 150, 159, 159, 159, 150, 150, 150, 138, 138, 138]),
-    ptlBar([300, 300, 300, 305, 305, 305, 216, 216, 216, 345, 345, 345]),
-  ],
-})
-
-const rpsRoot = baseHorizontal('up', {
+const rpsChart = (m) => baseHorizontal({
   xAxis: { type: 'value', name: 'req/s', axisLabel: { formatter: v => v >= 1000 ? `${v/1000}k` : v } },
-  tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, valueFormatter: v => v == null ? 'no data' : `${v.toLocaleString()} req/s` },
-  series: [
-    calBar([111272, 181350, 263828, 31226, 79993, 146558, 21607, 45191, 68425, 18411, 10310, 7795]),
-    ptlBar([577, 799, 722, 485, 670, 605, 161, 318, 196, 336, 363, 384]),
-  ],
+  tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, valueFormatter: v => v == null ? 'no data' : `${Math.round(v).toLocaleString()} req/s` },
+  series: bars(m),
 })
 
-const rpsApi = baseHorizontal('up', {
-  xAxis: { type: 'value', name: 'req/s', axisLabel: { formatter: v => v >= 1000 ? `${v/1000}k` : v } },
-  tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, valueFormatter: v => v == null ? 'no data' : `${v.toLocaleString()} req/s` },
-  series: [
-    calBar([110005, 183122, 260129, 28784, 54853, 75518, 14403, 24801, 24091, 8112, 5402, 3788]),
-    ptlBar([304, 730, 658, 240, 575, 518, 141, 258, 169, 282, 316, 346]),
-  ],
-})
-
-const latAvgRoot = baseHorizontal('down', {
+const latChart = (m) => baseHorizontal({
   xAxis: { type: 'value', name: 'ms' },
-  tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, valueFormatter: v => v == null ? 'no data' : `${v} ms` },
-  series: [
-    calBar([4.5, 2.8, 1.9, 16.0, 6.2, 3.4, 23.1, 11.1, 7.3, 27.1, 48.5, 64.1]),
-    ptlBar([872, 627, 693, 1045, 750, 831, 3182, 1589, 2599, 1499, 1384, 1307]),
-  ],
+  tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, valueFormatter: v => v == null ? 'no data' : `${v.toFixed(1)} ms` },
+  series: bars(m),
 })
 
-const latAvgApi = baseHorizontal('down', {
-  xAxis: { type: 'value', name: 'ms' },
-  tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, valueFormatter: v => v == null ? 'no data' : `${v} ms` },
-  series: [
-    calBar([4.5, 2.7, 1.9, 17.4, 9.1, 6.6, 34.7, 20.2, 20.7, 61.6, 92.6, 132.1]),
-    ptlBar([1664, 688, 763, 2110, 875, 972, 3628, 1963, 3028, 1789, 1591, 1449]),
-  ],
+const memMean = computed(() => memChart(seriesFor((v) => maxNum(v.results.map((r) => r.resources?.memMbMean)))))
+const memPeak = computed(() => memChart(seriesFor((v) => maxNum(v.results.map((r) => r.resources?.memMbMax)))))
+
+const scenarioCharts = computed(() => scenarios.map((name) => {
+  const result = (v) => v.results.find((r) => r.scenario.name === name)
+  return {
+    name,
+    rps: rpsChart(seriesFor((v) => result(v)?.throughput ?? null)),
+    latMean: latChart(seriesFor((v) => result(v)?.latency?.mean ?? null)),
+    latP99: latChart(seriesFor((v) => result(v)?.latency?.p99 ?? null)),
+  }
+}))
+
+const envStats = (i) => activeIds.value.flatMap((id) => {
+  const results = benchmarks[id].systems[i].report.variants.flatMap((v) => v.results)
+  const cpu = Math.max(...results.map((r) => r.resources?.cpuPercentMax ?? 0))
+  const mem = Math.max(...results.map((r) => r.resources?.memMbMax ?? 0))
+  return cpu > 0 || mem > 0
+    ? [{
+        id,
+        name: benchmarks[id].name,
+        color: benchmarks[id].color,
+        cpu: cpu > 0 ? `${Math.round(cpu)}%` : '-',
+        mem: mem > 0 ? `${Math.round(mem)} MiB` : '-',
+      }]
+    : []
 })
 
-const latP99Root = baseHorizontal('down', {
-  xAxis: { type: 'value', name: 'ms' },
-  tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, valueFormatter: v => v == null ? 'no data' : `${v} ms` },
-  series: [
-    calBar([12.0, 7.8, 5.7, 41.3, 16.9, 8.7, 58.8, 31.5, 15.6, 62.5, 139.8, 194.8]),
-    ptlBar([1135, 854, 1105, 1360, 1025, 1019, 3432, 1836, 2985, 1965, 2177, 2051]),
-  ],
+const fmtK = (v) => v >= 10000 ? `${Math.floor(v / 1000)}k` : Math.round(v).toLocaleString()
+const fmtMs = (v) => v >= 10 ? Math.round(v).toString() : v.toFixed(1)
+
+const scenarioValues = (id, pick) => benchmarks[id].systems.flatMap((bench) => {
+  const v = bench.report.variants.find((x) => x.limit.cpus === selectedCpus.value)
+  return v ? v.results.map(pick).filter((x) => typeof x === 'number') : []
 })
 
-const latP99Api = baseHorizontal('down', {
-  xAxis: { type: 'value', name: 'ms' },
-  tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, valueFormatter: v => v == null ? 'no data' : `${v} ms` },
-  series: [
-    calBar([12.2, 7.8, 5.8, 33.6, 19.0, 11.8, 64.0, 59.0, 67.5, 95.1, 175.9, 230.5]),
-    ptlBar([2648, 935, 1052, 3360, 1190, 1337, 3920, 2204, 3449, 2347, 2440, 2256]),
-  ],
+const headlineNow = computed(() => {
+  const per = (pick, mode) => Object.fromEntries(panelIds.map((id) => {
+    const vals = scenarioValues(id, pick)
+    return [id, vals.length ? (mode === 'max' ? Math.max(...vals) : Math.min(...vals)) : NaN]
+  }))
+  return {
+    peakRps: per((r) => r.throughput, 'max'),
+    bestAvgLatencyMs: per((r) => r.latency?.mean, 'min'),
+    peakMemMb: per((r) => r.resources?.memMbMax, 'max'),
+  }
 })
 
-const chartHeight = (servers.length * 36 + 100) + 'px'
+const statRows = (values, better, fmt) => activeIds.value
+  .map((id) => ({ id, name: benchmarks[id].name, color: benchmarks[id].color, value: fmt(values[id]) }))
+  .sort((a, b) => better === 'high' ? values[b.id] - values[a.id] : values[a.id] - values[b.id])
+
+const statCards = computed(() => [
+  {
+    label: 'peak throughput',
+    value: fmtK(headlineNow.value.peakRps.calagopus),
+    unit: 'req/s',
+    rows: statRows(headlineNow.value.peakRps, 'high', fmtK),
+  },
+  {
+    label: 'avg response',
+    value: fmtMs(headlineNow.value.bestAvgLatencyMs.calagopus),
+    unit: 'ms',
+    rows: statRows(headlineNow.value.bestAvgLatencyMs, 'low', (v) => `${fmtMs(v)} ms`),
+  },
+  {
+    label: 'peak memory',
+    value: Math.round(headlineNow.value.peakMemMb.calagopus).toString(),
+    unit: 'MiB',
+    rows: statRows(headlineNow.value.peakMemMb, 'low', (v) => `${Math.round(v)} MiB`),
+  },
+])
+
+const chartHeight = (systemLabels.length * 52 + 110) + 'px'
 </script>
 
 # Benchmarks
 
-Performance results for Calagopus, measured against Pterodactyl on identical hardware. Each chart compares both panels across every test configuration.
+Performance results for Calagopus, measured against five other panels on identical hardware. Each chart compares every panel across every test configuration.
+
+<div class="panel-strip" role="group" aria-label="Toggle panels shown in the charts">
+  <button
+    v-for="id in panelIds"
+    :key="id"
+    type="button"
+    class="panel-chip"
+    :class="{ inactive: !active.has(id) }"
+    :aria-pressed="active.has(id)"
+    @click="toggle(id)"
+  >
+    <span class="chip-dot" :style="{ background: benchmarks[id].color }"></span>
+    <img :src="benchmarks[id].icon" :alt="''" height="16" />
+    <span class="chip-name">{{ benchmarks[id].name }}</span>
+    <code v-if="benchmarks[id].version" class="chip-version">{{ benchmarks[id].version }}</code>
+  </button>
+</div>
+<div class="controls">
+  <p class="panel-hint">Click a panel to show or hide it in the charts below.</p>
+  <label class="cpu-select">
+    <span>CPU limit</span>
+    <select v-model.number="selectedCpus">
+      <option v-for="c in cpuOptions" :key="c" :value="c">{{ c }} {{ c === 1 ? 'CPU' : 'CPUs' }}</option>
+    </select>
+  </label>
+</div>
 
 <div class="headline-stats">
-  <div class="stat">
-    <div class="stat-label">peak throughput</div>
-    <div class="stat-value">263k <span>req/s</span></div>
+  <div v-for="card in statCards" :key="card.label" class="stat">
+    <div class="stat-label">{{ card.label }} · {{ selectedCpus }}c</div>
+    <div class="stat-value">{{ card.value }} <span>{{ card.unit }}</span></div>
     <div class="stat-sub">
-      <div>Calagopus</div>
-      <div><s>799</s> Pterodactyl</div>
-    </div>
-  </div>
-  <div class="stat">
-    <div class="stat-label">avg response</div>
-    <div class="stat-value">1.9 <span>ms</span></div>
-    <div class="stat-sub">
-      <div>Calagopus</div>
-      <div><s>627 ms</s> Pterodactyl</div>
-    </div>
-  </div>
-  <div class="stat">
-    <div class="stat-label">idle memory</div>
-    <div class="stat-value">138 <span>MiB</span></div>
-    <div class="stat-sub">
-      <div>Calagopus</div>
-      <div><s>216 MiB</s> Pterodactyl</div>
+      <div
+        v-for="row in card.rows"
+        :key="row.id"
+        class="stat-row"
+        :class="{ self: row.id === 'calagopus' }"
+      >
+        <i :style="{ background: row.color }"></i>
+        <span class="stat-row-value">{{ row.value }}</span>
+        <span class="stat-row-name">{{ row.name }}</span>
+      </div>
     </div>
   </div>
 </div>
 
 ::: info Methodology
-Tests use Calagopus `1.0.3` and Pterodactyl `1.12.2`, both running from their official Docker images with no additional configuration beyond initial setup. Each test ran [`oha`](https://github.com/hatoo/oha) with 500 concurrent connections for 60 seconds, from a separate machine on the same LAN over a 10 Gbps link. Two endpoints were targeted: the panel root (`/`) and an authenticated API endpoint (`/api/client/permissions`). Both panels used default rate limiting; the high `[429]` counts on the API endpoint are expected.
+All panels run from their official `:latest` Docker images (as of {{ runDate }}) with no configuration beyond initial setup. Runs are driven by our open-source [benchmarking suite](https://github.com/calagopus/benchmarking): each panel boots from its own Docker Compose stack and is swept across CPU-quota variants (1, 2, 4, and 8 CPUs) while container CPU and memory are sampled. Every scenario runs 384 concurrent connections for 10 seconds after a 1-second warmup, against three endpoints: public settings (unauthenticated), account details (authenticated), and the server list (authenticated). All panels keep their default rate limiting; high `[429]` counts on authenticated endpoints are expected.
 
-Configurations are labeled `<CPU> · <threads>t · <RAM>G`. Memory figures come from Proxmox LXC container stats (the Docker container runs inside the LXC).
+Configurations are labeled `<CPU> · <cores>c`. The numbers on this page are the suite's JSON reports (`pnpm run bench <panel> --json`) checked into the site as typed data - anyone can reproduce a run and compare.
 :::
 
 ## Test environments
 
-<div class="env-grid">
-  <div class="env">
-    <div class="env-name">Ryzen 9 9900X</div>
-    <div class="env-row"><span>CPU</span><span>AMD Ryzen 9 9900X</span></div>
-    <div class="env-row"><span>RAM</span><span>DDR5-6000</span></div>
-    <div class="env-row"><span>Storage</span><span>RAID 1 NVMe</span></div>
-    <div class="env-row"><span>Kernel</span><span>Linux 6.17.4-2-pve</span></div>
-    <div class="cpu-stats">
-      <span>c7s idle</span><span>0.05%</span>
-      <span>c7s peak</span><span>78&ndash;90%</span>
-      <span>ptero peak</span><span>56&ndash;97%</span>
+<div class="env-table">
+  <details v-for="(sys, i) in systems" :key="sys.id" class="env-item">
+    <summary class="env-line">
+      <span class="env-name">{{ sys.name }}</span>
+      <span class="env-spec">{{ sys.cpu }} · {{ sys.ram }}</span>
+    </summary>
+    <div class="env-detail">
+      <div class="env-stat-row env-stat-head">
+        <i></i>
+        <span>panel</span>
+        <span>peak cpu</span>
+        <span>peak mem</span>
+      </div>
+      <div v-for="row in envStats(i)" :key="row.id" class="env-stat-row">
+        <i :style="{ background: row.color }"></i>
+        <span class="env-stat-name">{{ row.name }}</span>
+        <span class="env-stat-val">{{ row.cpu }}</span>
+        <span class="env-stat-val">{{ row.mem }}</span>
+      </div>
     </div>
-  </div>
-  <div class="env">
-    <div class="env-name">EPYC 7443P</div>
-    <div class="env-row"><span>CPU</span><span>AMD EPYC 7443P</span></div>
-    <div class="env-row"><span>RAM</span><span>DDR4-2666</span></div>
-    <div class="env-row"><span>Storage</span><span>RAID 1 NVMe</span></div>
-    <div class="env-row"><span>Kernel</span><span>Linux 6.17.4-2-pve</span></div>
-    <div class="cpu-stats">
-      <span>c7s idle</span><span>0.06%</span>
-      <span>c7s peak</span><span>91&ndash;99%</span>
-      <span>ptero peak</span><span>57&ndash;98%</span>
-    </div>
-  </div>
-  <div class="env">
-    <div class="env-name">2× Xeon E5-2680 v2</div>
-    <div class="env-row"><span>CPU</span><span>2× Intel Xeon E5-2680 v2</span></div>
-    <div class="env-row"><span>RAM</span><span>DDR3-1600</span></div>
-    <div class="env-row"><span>Storage</span><span>RAID 1 SATA SSD</span></div>
-    <div class="env-row"><span>Kernel</span><span>Linux 6.17.13-2-pve</span></div>
-    <div class="cpu-stats">
-      <span>c7s idle</span><span>0.12%</span>
-      <span>c7s peak</span><span>85&ndash;99%</span>
-      <span>ptero peak</span><span>60&ndash;100%</span>
-    </div>
-  </div>
-  <div class="env">
-    <div class="env-name">Ampere Altra Q80-30</div>
-    <div class="env-row"><span>CPU</span><span>Ampere Altra Q80-30</span></div>
-    <div class="env-row"><span>RAM</span><span>DDR4-2133</span></div>
-    <div class="env-row"><span>Storage</span><span>RAID 1 NVMe</span></div>
-    <div class="env-row"><span>Kernel</span><span>Linux 6.12.63-rt-arm64</span></div>
-    <div class="cpu-stats">
-      <span>c7s idle</span><span>0.08%</span>
-      <span>c7s peak</span><span>17&ndash;93%</span>
-      <span>ptero peak</span><span>52&ndash;99%</span>
-    </div>
-  </div>
+  </details>
 </div>
+<p class="panel-hint">Peaks are the highest values observed across all CPU configs and scenarios on that system.</p>
 
 ## Memory usage
 
 <div class="chart-pair">
-  <div class="chart-col">
-    <div class="chart-cap">Idle</div>
-    <BenchChart :option="memIdle" :height="chartHeight" />
+  <div class="chart-card">
+    <div class="chart-cap"><span>Mean under load</span><select class="cap-select" v-model.number="selectedCpus" aria-label="CPU limit"><option v-for="c in cpuOptions" :key="c" :value="c">{{ c }}c</option></select></div>
+    <p class="chart-sub">↓ Lower is better - less memory used while serving load.</p>
+    <BenchChart :option="memMean" :height="chartHeight" />
   </div>
-  <div class="chart-col">
-    <div class="chart-cap">Peak under load</div>
+  <div class="chart-card">
+    <div class="chart-cap"><span>Peak under load</span><select class="cap-select" v-model.number="selectedCpus" aria-label="CPU limit"><option v-for="c in cpuOptions" :key="c" :value="c">{{ c }}c</option></select></div>
+    <p class="chart-sub">↓ Lower is better - smaller worst-case memory footprint.</p>
     <BenchChart :option="memPeak" :height="chartHeight" />
   </div>
 </div>
 
-Calagopus idles around 140-160 MiB regardless of host. Under load it rarely exceeds 300 MiB, while Pterodactyl peaks above 1 GiB on the 9900X.
-
 ## Throughput
 
-<div class="chart-cap">Endpoint: <code>/</code></div>
-<BenchChart :option="rpsRoot" :height="chartHeight" />
-
-<div class="chart-cap">Endpoint: <code>/api/client/permissions</code></div>
-<BenchChart :option="rpsApi" :height="chartHeight" />
+<div class="chart-card" v-for="s in scenarioCharts" :key="`rps-${s.name}`">
+  <div class="chart-cap"><span>Scenario: <code>{{ s.name }}</code></span><select class="cap-select" v-model.number="selectedCpus" aria-label="CPU limit"><option v-for="c in cpuOptions" :key="c" :value="c">{{ c }}c</option></select></div>
+  <p class="chart-sub">↑ Higher is better - more requests served per second.</p>
+  <BenchChart :option="s.rps" :height="chartHeight" />
+</div>
 
 ## Average latency
 
-<div class="chart-cap">Endpoint: <code>/</code></div>
-<BenchChart :option="latAvgRoot" :height="chartHeight" />
-
-<div class="chart-cap">Endpoint: <code>/api/client/permissions</code></div>
-<BenchChart :option="latAvgApi" :height="chartHeight" />
+<div class="chart-card" v-for="s in scenarioCharts" :key="`lat-${s.name}`">
+  <div class="chart-cap"><span>Scenario: <code>{{ s.name }}</code></span><select class="cap-select" v-model.number="selectedCpus" aria-label="CPU limit"><option v-for="c in cpuOptions" :key="c" :value="c">{{ c }}c</option></select></div>
+  <p class="chart-sub">↓ Lower is better - faster average response.</p>
+  <BenchChart :option="s.latMean" :height="chartHeight" />
+</div>
 
 ## p99 latency
 
-<div class="chart-cap">Endpoint: <code>/</code></div>
-<BenchChart :option="latP99Root" :height="chartHeight" />
-
-<div class="chart-cap">Endpoint: <code>/api/client/permissions</code></div>
-<BenchChart :option="latP99Api" :height="chartHeight" />
+<div class="chart-card" v-for="s in scenarioCharts" :key="`p99-${s.name}`">
+  <div class="chart-cap"><span>Scenario: <code>{{ s.name }}</code></span><select class="cap-select" v-model.number="selectedCpus" aria-label="CPU limit"><option v-for="c in cpuOptions" :key="c" :value="c">{{ c }}c</option></select></div>
+  <p class="chart-sub">↓ Lower is better - faster worst-case (p99) response.</p>
+  <BenchChart :option="s.latP99" :height="chartHeight" />
+</div>
 
 <style scoped>
-.headline-stats {
+.panel-strip {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-  margin: 2rem 0 2.5rem;
-  padding: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.5rem;
+  margin: 1.4rem 0 0;
+}
+.panel-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.45rem 0.75rem;
   border: 1px solid var(--vp-c-divider);
   border-radius: 8px;
-  background: linear-gradient(135deg,
-    color-mix(in srgb, var(--vp-c-brand-1, #14b8a6) 4%, transparent),
-    transparent 60%);
+  background: var(--vp-c-bg-soft);
+  font-size: 0.8rem;
+  font-family: var(--vp-font-family-mono);
+  cursor: pointer;
+  transition: border-color 0.2s, opacity 0.2s, transform 0.1s;
+  text-align: left;
+}
+.panel-chip:hover {
+  border-color: var(--vp-c-brand-1);
+}
+.panel-chip:active {
+  transform: scale(0.98);
+}
+.panel-chip.inactive {
+  opacity: 0.45;
+  border-style: dashed;
+}
+.panel-chip.inactive img,
+.panel-chip.inactive .chip-dot {
+  filter: grayscale(1);
+}
+.chip-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.panel-chip img {
+  height: 16px;
+  width: auto;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+.chip-name {
+  font-weight: 600;
+  color: var(--vp-c-text-1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.chip-version {
+  margin-left: auto;
+  color: var(--vp-c-text-3);
+  background: none;
+  padding: 0;
+  font-size: 0.72rem;
+}
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  margin: 0.5rem 0 0;
+}
+.panel-hint {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--vp-c-text-3);
+}
+.cpu-select {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.72rem;
+  font-family: var(--vp-font-family-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--vp-c-text-3);
+}
+.cpu-select select {
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 8px;
+  background: var(--vp-c-bg-soft);
+  color: var(--vp-c-text-1);
+  font-family: var(--vp-font-family-mono);
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+.cpu-select select:hover,
+.cpu-select select:focus {
+  border-color: var(--vp-c-brand-1);
+  outline: none;
+}
+.chart-sub {
+  margin: 0 0 0.3rem;
+  font-size: 0.72rem;
+  color: var(--vp-c-text-3);
+}
+.cap-select {
+  flex-shrink: 0;
+  min-width: 3.4rem;
+  padding: 0.15rem 0.45rem;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 999px;
+  background: var(--vp-c-bg);
+  color: var(--vp-c-text-2);
+  font-family: var(--vp-font-family-mono);
+  font-size: 0.7rem;
+  text-transform: none;
+  letter-spacing: 0;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+.cap-select:hover,
+.cap-select:focus {
+  border-color: var(--vp-c-brand-1);
+  outline: none;
+}
+
+.headline-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 0.9rem;
+  margin: 1.6rem 0 2rem;
+}
+.stat {
+  min-width: 0;
+  padding: 0.9rem 1.1rem;
+  background: var(--vp-c-bg-soft);
+  border-radius: 10px;
 }
 .stat-label {
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   text-transform: uppercase;
   letter-spacing: 0.12em;
   color: var(--vp-c-text-3);
   font-family: var(--vp-font-family-mono);
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.3rem;
 }
 .stat-value {
-  font-size: 2.2rem;
+  font-size: 1.7rem;
   font-weight: 700;
   line-height: 1;
-  color: #14b8a6;
+  background: linear-gradient(90deg, #14b8a6, #2dd4bf);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
   font-feature-settings: 'tnum';
 }
 .stat-value span {
-  font-size: 1rem;
+  font-size: 0.85rem;
   font-weight: 500;
   color: var(--vp-c-text-2);
-  margin-left: 0.2rem;
+  margin-left: 0.15rem;
 }
 .stat-sub {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
   margin-top: 0.5rem;
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   color: var(--vp-c-text-2);
   font-family: var(--vp-font-family-mono);
-  line-height: 1.5;
+  line-height: 1.4;
 }
-.stat-sub s {
+.stat-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+}
+.stat-row i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.stat-row-value {
+  font-feature-settings: 'tnum';
+  min-width: 3.6em;
+  color: var(--vp-c-text-2);
+}
+.stat-row-name {
   color: var(--vp-c-text-3);
-  text-decoration-color: var(--vp-c-text-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.stat-row.self .stat-row-value,
+.stat-row.self .stat-row-name {
+  color: var(--vp-c-text-1);
+  font-weight: 600;
 }
 
-.env-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1rem;
-  margin: 1.5rem 0 2rem;
-}
-.env {
-  padding: 1rem 1.2rem;
-  border-left: 3px solid #14b8a6;
-  background: var(--vp-c-bg-soft);
-  border-radius: 0 6px 6px 0;
+.env-table {
+  margin: 1.2rem 0 0.4rem;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 10px;
+  overflow: hidden;
   font-family: var(--vp-font-family-mono);
-  font-size: 0.85rem;
+  font-size: 0.82rem;
+}
+/* Reset the VitePress .vp-doc details/summary theme styling. */
+.env-item {
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: var(--vp-c-bg-soft);
+}
+.env-item + .env-item {
+  border-top: 1px solid var(--vp-c-divider);
+}
+.env-line {
+  display: grid;
+  grid-template-columns: minmax(150px, auto) 1fr auto;
+  align-items: center;
+  gap: 0.4rem 1rem;
+  margin: 0;
+  padding: 0.55rem 0.9rem;
+  font-weight: 400;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+.env-line::-webkit-details-marker {
+  display: none;
+}
+.env-line::after {
+  content: '+';
+  font-size: 1rem;
+  color: var(--vp-c-text-3);
+  transition: transform 0.2s ease;
+  justify-self: end;
+}
+.env-item[open] .env-line::after {
+  transform: rotate(45deg);
+}
+.env-line:hover .env-name {
+  color: var(--vp-c-brand-1);
 }
 .env-name {
   font-weight: 700;
   color: var(--vp-c-text-1);
-  font-size: 0.95rem;
-  margin-bottom: 0.5rem;
-  letter-spacing: -0.01em;
+  white-space: nowrap;
+  transition: color 0.2s;
 }
-.env-row {
-  display: flex;
-  gap: 0.6rem;
+.env-spec {
+  color: var(--vp-c-text-2);
+  font-size: 0.76rem;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.env-detail {
+  padding: 0.2rem 0.9rem 0.7rem;
+}
+.env-stat-row {
+  display: grid;
+  grid-template-columns: 10px 1fr 5.5rem 6.5rem;
+  align-items: center;
+  gap: 0.5rem;
   padding: 0.15rem 0;
+  font-size: 0.76rem;
+  color: var(--vp-c-text-2);
 }
-.env-row > span:first-child {
-  color: var(--vp-c-text-3);
+.env-stat-row i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+.env-stat-head {
+  font-size: 0.66rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  font-size: 0.7rem;
-  min-width: 4rem;
-  flex-shrink: 0;
-}
-.env-row > span:last-child {
-  color: var(--vp-c-text-1);
-}
-.cpu-stats {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 0.1rem 0.8rem;
-  margin-top: 0.6rem;
-  padding-top: 0.5rem;
-  border-top: 1px dashed var(--vp-c-divider);
-  font-size: 0.7rem;
-}
-.cpu-stats > span:nth-child(odd) {
   color: var(--vp-c-text-3);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  border-bottom: 1px dashed var(--vp-c-divider);
+  padding-bottom: 0.3rem;
+  margin-bottom: 0.2rem;
 }
-.cpu-stats > span:nth-child(even) {
-  color: var(--vp-c-text-2);
+.env-stat-head span:nth-child(n + 3) {
   text-align: right;
 }
+.env-stat-name {
+  color: var(--vp-c-text-1);
+}
+.env-stat-val {
+  text-align: right;
+  font-feature-settings: 'tnum';
+}
+@media (max-width: 640px) {
+  .env-line {
+    grid-template-columns: 1fr auto;
+  }
+  .env-spec {
+    grid-column: 1 / -1;
+  }
+}
 
+.chart-card {
+  margin: 1rem 0;
+  padding: 0.8rem 1rem 0.4rem;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 12px;
+  background: var(--vp-c-bg-soft);
+}
 .chart-cap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
   font-family: var(--vp-font-family-mono);
   font-size: 0.78rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--vp-c-text-3);
-  margin: 1.4rem 0 0.2rem;
+  margin: 0 0 0.2rem;
 }
 .chart-cap code {
   text-transform: none;
   letter-spacing: 0;
+  background: none;
+  padding: 0;
 }
 .chart-pair {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
   gap: 1rem;
   margin: 0.5rem 0;
-}
-.chart-col .chart-cap {
-  margin-top: 0.6rem;
-}
-
-.raw-output {
-  margin: 0.6rem 0;
-  border: 1px solid var(--vp-c-divider);
-  border-radius: 6px;
-  padding: 0.5rem 1rem;
-}
-.raw-output > summary {
-  cursor: pointer;
-  font-size: 0.85rem;
-  color: var(--vp-c-text-2);
-  padding: 0.4rem 0;
-  user-select: none;
-  font-family: var(--vp-font-family-mono);
-}
-.raw-output > summary:hover {
-  color: var(--vp-c-brand-1);
-}
-.raw-output[open] > summary {
-  margin-bottom: 0.5rem;
-  border-bottom: 1px dashed var(--vp-c-divider);
 }
 </style>

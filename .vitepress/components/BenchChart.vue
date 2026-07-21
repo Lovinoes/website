@@ -82,7 +82,7 @@ function applyAxisTheme(axis, text, muted, grid) {
 
 <template>
   <div class="bench-chart" :style="{ height }">
-    <v-chart :option="themedOption" autoresize />
+    <v-chart :option="themedOption" :update-options="{ notMerge: true }" autoresize />
   </div>
 </template>
 

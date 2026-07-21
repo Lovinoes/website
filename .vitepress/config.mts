@@ -1,7 +1,41 @@
+import { imagetools } from 'vite-imagetools';
 import { ViteImageOptimizer } from 'vite-plugin-image-optimizer';
 import { withMermaid } from 'vitepress-plugin-mermaid';
 import { tabsMarkdownPlugin } from 'vitepress-plugin-tabs';
+import { faqs } from './data/faqs.ts';
 import { aiDocPlugin } from './plugins/ai-doc.ts';
+import { generateLlmsArtifacts } from './plugins/llms.ts';
+
+const SITE_URL = 'https://calagopus.com';
+
+interface SidebarNode {
+  text?: string;
+  link?: string;
+  items?: SidebarNode[];
+}
+
+interface BreadcrumbEntry {
+  name: string;
+  item?: string;
+}
+
+let breadcrumbMap: Map<string, BreadcrumbEntry[]> | null = null;
+
+function buildBreadcrumbMap(sidebar: SidebarNode[]): Map<string, BreadcrumbEntry[]> {
+  const map = new Map<string, BreadcrumbEntry[]>();
+  const walk = (items: SidebarNode[], trail: BreadcrumbEntry[]) => {
+    for (const node of items) {
+      const entry: BreadcrumbEntry = {
+        name: node.text ?? '',
+        item: node.link ? `${SITE_URL}${node.link.replace(/\/$/, '')}` : undefined,
+      };
+      if (node.link) map.set(node.link.replace(/\/$/, ''), [...trail, entry]);
+      if (node.items) walk(node.items, [...trail, entry]);
+    }
+  };
+  walk(sidebar, [{ name: 'Documentation', item: `${SITE_URL}/docs` }]);
+  return map;
+}
 
 // https://vitepress.dev/reference/site-config
 export default withMermaid({
@@ -19,15 +53,25 @@ export default withMermaid({
           sourceDir: 'docs/panel/extensions',
         },
       ]),
+      imagetools({
+        defaultDirectives: async (url, metadata) => {
+          const ext = url.pathname.split('.').pop()?.toLowerCase() ?? '';
+          const params = new URLSearchParams();
+          if (!['png', 'jpg', 'jpeg', 'webp'].includes(ext)) return params;
+          if (ext !== 'webp') params.set('format', 'webp');
+          if (!url.searchParams.has('w') && ((await metadata()).width ?? 0) > 1600) {
+            params.set('w', '1600');
+          }
+          return params;
+        },
+      }),
       ViteImageOptimizer({
+        exclude: /\.webp$/i,
         png: {
           quality: 80,
         },
         jpeg: {
           quality: 80,
-        },
-        webp: {
-          lossless: true,
         },
         svg: {
           multipass: true,
@@ -52,6 +96,7 @@ export default withMermaid({
   },
 
   lang: 'en-US',
+  lastUpdated: true,
   title: 'Calagopus',
   description:
     'Calagopus is a modern, open-source game server management panel built in Rust. Deploy, monitor, and manage Minecraft, Hytale, and other game servers with industry-leading performance.',
@@ -112,23 +157,41 @@ export default withMermaid({
       { type: 'application/ld+json' },
       JSON.stringify({
         '@context': 'https://schema.org',
-        '@type': 'SoftwareApplication',
-        name: 'Calagopus',
-        description: 'An open-source game server management panel built in Rust.',
-        applicationCategory: 'DeveloperApplication',
-        operatingSystem: 'Linux, Docker',
-        offers: {
-          '@type': 'Offer',
-          price: '0',
-          priceCurrency: 'USD',
-        },
-        url: 'https://calagopus.com',
-        author: {
-          '@type': 'Organization',
-          name: 'Calagopus',
-          url: 'https://github.com/calagopus',
-        },
-        license: 'https://github.com/calagopus/calagopus/blob/main/LICENSE',
+        '@graph': [
+          {
+            '@type': 'Organization',
+            '@id': `${SITE_URL}/#organization`,
+            name: 'Calagopus',
+            url: SITE_URL,
+            logo: `${SITE_URL}/fulllogo.png`,
+            sameAs: ['https://github.com/calagopus', 'https://discord.gg/uSM8tvTxBV'],
+          },
+          {
+            '@type': 'WebSite',
+            '@id': `${SITE_URL}/#website`,
+            name: 'Calagopus',
+            url: SITE_URL,
+            publisher: { '@id': `${SITE_URL}/#organization` },
+          },
+          {
+            '@type': 'SoftwareApplication',
+            '@id': `${SITE_URL}/#software`,
+            name: 'Calagopus',
+            description: 'An open-source game server management panel built in Rust.',
+            applicationCategory: 'DeveloperApplication',
+            operatingSystem: 'Linux, Docker',
+            offers: {
+              '@type': 'Offer',
+              price: '0',
+              priceCurrency: 'USD',
+            },
+            url: SITE_URL,
+            image: `${SITE_URL}/fulllogo.png`,
+            author: { '@id': `${SITE_URL}/#organization` },
+            publisher: { '@id': `${SITE_URL}/#organization` },
+            license: 'https://github.com/calagopus/panel/blob/main/LICENSE',
+          },
+        ],
       }),
     ],
   ],
@@ -383,12 +446,54 @@ export default withMermaid({
     hostname: 'https://calagopus.com',
   },
 
-  transformPageData(pageData) {
-    const canonicalUrl = `https://calagopus.com/${pageData.relativePath}`
-      .replace(/index\.md$/, '')
-      .replace(/\.md$/, '');
+  async buildEnd(siteConfig) {
+    await generateLlmsArtifacts(siteConfig, SITE_URL);
+  },
+
+  transformPageData(pageData, { siteConfig }) {
+    const urlPath = `/${pageData.relativePath}`.replace(/index\.md$/, '').replace(/\.md$/, '');
+    const canonicalUrl = `${SITE_URL}${urlPath}`;
 
     pageData.frontmatter.head ??= [];
     pageData.frontmatter.head.push(['link', { rel: 'canonical', href: canonicalUrl }]);
+
+    if (pageData.relativePath === 'index.md') {
+      pageData.frontmatter.head.push([
+        'script',
+        { type: 'application/ld+json' },
+        JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'FAQPage',
+          mainEntity: faqs.map((f) => ({
+            '@type': 'Question',
+            name: f.q,
+            acceptedAnswer: { '@type': 'Answer', text: f.a },
+          })),
+        }),
+      ]);
+    }
+
+    const sidebar = siteConfig.site.themeConfig?.sidebar;
+    if (Array.isArray(sidebar)) {
+      breadcrumbMap ??= buildBreadcrumbMap(sidebar as SidebarNode[]);
+      const trail = breadcrumbMap.get(urlPath.replace(/\/$/, ''));
+      const linked = trail?.filter((entry) => entry.item);
+      if (linked && linked.length > 1) {
+        pageData.frontmatter.head.push([
+          'script',
+          { type: 'application/ld+json' },
+          JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            itemListElement: linked.map((entry, i) => ({
+              '@type': 'ListItem',
+              position: i + 1,
+              name: entry.name,
+              item: entry.item,
+            })),
+          }),
+        ]);
+      }
+    }
   },
 });
