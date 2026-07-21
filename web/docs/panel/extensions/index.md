@@ -1,3 +1,7 @@
+---
+description: "Extend the Calagopus panel with native Rust extensions: installing, developing, and publishing extensions plus core concept guides."
+---
+
 # Extensions
 
 Extensions are the primary way to extend the functionality of the Panel. They allow you to add backend logic, frontend interfaces, database migrations, and deep system integrations in a structured and controlled way.

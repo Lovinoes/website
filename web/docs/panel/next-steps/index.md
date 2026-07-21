@@ -1,3 +1,7 @@
+---
+description: "What to do after installing the Calagopus panel: register your first Wings node and add egg repositories for game server templates."
+---
+
 # Next Steps
 
 The panel is installed and the OOBE is complete. Here's what to do next:

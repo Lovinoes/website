@@ -5,12 +5,6 @@ head:
   - - meta
     - name: robots
       content: index, follow
-  - - meta
-    - property: og:title
-      content: Calagopus vs Pterodactyl - Game Server Panel Comparison
-  - - meta
-    - property: og:description
-      content: A detailed comparison of Calagopus and Pterodactyl. See how the Rust-based Calagopus panel compares to Pterodactyl's PHP architecture in performance, features, and extensibility.
 sidebar: false
 aside: false
 ---
@@ -113,28 +107,10 @@ Calagopus includes a built-in egg repository browser: administrators can browse,
 
 Calagopus provides a guided migration path from both Pterodactyl's Docker and standalone deployments. Configuration, servers, users, and allocations are all migrated. See the [Pterodactyl migration guide](/docs/additional/migrations/pterodactyl) for step-by-step instructions.
 
-## Frequently Asked Questions
-
-### Is Calagopus a fork of Pterodactyl?
-
-No. Calagopus is a complete rewrite in a different language (Rust vs PHP). It draws on Pterodactyl's concepts - the egg system, Wings architecture, and panel/daemon split - but shares no code.
-
-### Does Calagopus support Pterodactyl eggs?
-
-Yes. The egg format is compatible, so eggs from the [Pterodactyl community](https://github.com/parkervcp/eggs) and other sources work in Calagopus without modification.
-
-### Does Calagopus support Blueprint extensions?
-
-No. Blueprint targets Pterodactyl's PHP architecture and isn't compatible with Calagopus. Calagopus's native extension API covers all of the same use cases with better performance, type safety, and upgrade stability.
-
-### Can I run both panels simultaneously during migration?
-
-Yes. You can run a Calagopus instance alongside an existing Pterodactyl install, migrate nodes one at a time, and decommission Pterodactyl when ready.
-
-### Is Wings compatible between the two?
-
-Calagopus ships its own Wings daemon (also written in Rust). You will need to install the Calagopus-flavored Wings on each node as part of migration. The process is documented in the migration guide.
+<CompareFaq />
 
 ---
 
 Ready to switch? Start with the [Pterodactyl migration guide](/docs/additional/migrations/pterodactyl) or [install Calagopus from scratch](/docs/panel/installation/).
+
+**More comparisons:** [Calagopus vs Pelican](/compare/calagopus-vs-pelican) · [Calagopus vs AMP](/compare/calagopus-vs-amp)

@@ -1,3 +1,7 @@
+---
+description: Install Calagopus DB Agent with Docker, APT/RPM/APK package managers, or a standalone binary, then connect it to your panel.
+---
+
 # DB Agent Installation
 
 Before installing, check the [minimum requirements](../overview.md#minimum-requirements).

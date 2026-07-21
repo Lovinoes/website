@@ -1,3 +1,7 @@
+---
+description: Enforce per-server disk quotas on Wings nodes with Btrfs subvolumes, ZFS datasets, XFS project quotas, or Fusequota.
+---
+
 # Disk Limiters
 
 Without per-server disk quotas, a malicious user can fill the node's disk entirely - disrupting other servers and potentially crashing the host. This has been a well-known attack vector against Pterodactyl-based panels for years.

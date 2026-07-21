@@ -1,4 +1,5 @@
 ---
+description: "Optional Calagopus setup guides: self-service database hosts, panel migrations, SSL certificates, reverse proxies, and OAuth login."
 prev: false
 next: true
 ---

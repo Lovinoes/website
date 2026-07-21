@@ -5,12 +5,6 @@ head:
   - - meta
     - name: robots
       content: index, follow
-  - - meta
-    - property: og:title
-      content: Calagopus vs AMP (Application Management Panel) - Comparison
-  - - meta
-    - property: og:description
-      content: A detailed comparison of Calagopus and CubeCoders AMP for game server management. See how the free, open-source Calagopus stacks up against AMP's commercial feature set.
 sidebar: false
 aside: false
 ---
@@ -118,28 +112,10 @@ Calagopus takes a more generalist approach. The egg system supports any Linux-co
 - You have budget for commercial software and prioritize vendor support
 - You prefer a closed-source solution
 
-## Frequently Asked Questions
-
-### Is Calagopus really free for commercial use?
-
-Yes. The MIT license permits commercial use without restriction and without licensing fees.
-
-### Can I use Calagopus for a game hosting business?
-
-Yes. There are no per-node, per-server, or per-user restrictions. You can run Calagopus on as many hosts as you need. Integrations with billing systems like [Paymenter](/docs/integrations/paymenter), [WHMCS](/docs/integrations/whmcs), and [Blesta](/docs/integrations/blesta) are available.
-
-### Does Calagopus support Minecraft?
-
-Yes. Calagopus supports Minecraft Java Edition, Bedrock Edition, Paper, Fabric, Forge, NeoForge, Velocity, BungeeCord, and other Minecraft-adjacent software via community eggs. See the [egg repositories guide](/docs/panel/next-steps/egg-repos) for how to add egg repos to your panel.
-
-### Can I migrate from AMP to Calagopus?
-
-There is no automated migration path from AMP to Calagopus - the data models are different. You would need to set up Calagopus fresh and recreate server configurations. This is typically a manageable process for small installations. The [installation guide](/docs/panel/installation/) is the starting point.
-
-### Does Calagopus have a commercial support option?
-
-Calagopus is community-supported. The [Discord server](https://discord.gg/uSM8tvTxBV) is active, and issues can be filed on [GitHub](https://github.com/calagopus). If you need guaranteed SLAs or dedicated support contracts, AMP or a managed hosting solution may be a better fit.
+<CompareFaq />
 
 ---
 
 Ready to try Calagopus? [Install it](/docs/panel/installation/) or check the [live demo](https://demo.calagopus.com).
+
+**More comparisons:** [Calagopus vs Pterodactyl](/compare/calagopus-vs-pterodactyl) · [Calagopus vs Pelican](/compare/calagopus-vs-pelican)

@@ -1,3 +1,7 @@
+---
+description: Install the Calagopus panel with Docker, APT/RPM/APK package managers, a standalone binary, or on TrueNAS SCALE.
+---
+
 # Panel Installation
 
 Before installing, check the [minimum requirements](../overview.md#minimum-requirements).

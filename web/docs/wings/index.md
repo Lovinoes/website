@@ -1,4 +1,5 @@
 ---
+description: "Install and run Wings, the Rust node agent that hosts your game servers: installation, configuration, disk limiters, and advanced setups."
 prev: false
 next: true
 ---

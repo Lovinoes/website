@@ -1,4 +1,5 @@
 ---
+description: "Install, configure, and operate the Calagopus panel: installation methods, environment variables, updating, and the extension system."
 prev: false
 next: true
 ---

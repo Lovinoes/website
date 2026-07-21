@@ -1,4 +1,5 @@
 ---
+description: "Install and configure DB Agent, the Calagopus database proxy and provisioning agent: installation methods, configuration, and templates."
 prev: false
 next: true
 ---

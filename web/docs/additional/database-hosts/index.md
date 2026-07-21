@@ -1,3 +1,7 @@
+---
+description: Let users provision their own game server databases from the Calagopus panel with MySQL (MariaDB), PostgreSQL, or MongoDB hosts.
+---
+
 # Setting up Database Hosts
 
 Database hosts let your users create databases for their game servers directly from the panel, instead of asking you to do it manually every time. Useful for things like Minecraft plugins that need MySQL, or Node.js servers using MongoDB.

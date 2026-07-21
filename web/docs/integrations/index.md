@@ -1,4 +1,5 @@
 ---
+description: "Connect Calagopus with billing platforms and developer tools: VS Code, Paymenter, WHMCS, and Blesta integration guides."
 prev: false
 next: true
 ---

@@ -5,12 +5,6 @@ head:
   - - meta
     - name: robots
       content: index, follow
-  - - meta
-    - property: og:title
-      content: Calagopus vs Pelican - Game Server Panel Comparison
-  - - meta
-    - property: og:description
-      content: A detailed comparison of Calagopus and Pelican Panel. Both are open-source Pterodactyl alternatives - here's how they differ in architecture, performance, and features.
 sidebar: false
 aside: false
 ---
@@ -124,28 +118,10 @@ Calagopus runs natively on Linux, macOS, and **Windows** - as a binary or via Do
 
 Calagopus provides tooling for migrating from Pelican - both the Docker and standalone variants. The process transfers servers, users, nodes, allocations, and configuration. See the [Pelican migration guide](/docs/additional/migrations/pelican) for step-by-step instructions.
 
-## Frequently Asked Questions
-
-### Is Calagopus compatible with Pelican eggs?
-
-Yes. Pelican inherits Pterodactyl's egg format, and Calagopus is compatible with it. Community eggs from existing repositories work in Calagopus without modification.
-
-### Can I use Blueprint extensions with Calagopus?
-
-No. Blueprint targets the PHP/Laravel internals of Pelican and Pterodactyl. Calagopus uses a native Rust extension API instead - see the [extension development guide](/docs/panel/extensions/) for how to build extensions for Calagopus.
-
-### Does Calagopus use the same Wings as Pelican?
-
-No. Calagopus ships its own Wings daemon, rewritten in Rust. You will need to install Calagopus Wings on each node as part of migration. The migration guide walks through this.
-
-### Which panel is easier to set up?
-
-Both panels offer Docker Compose setups that get a panel running in a few commands. Calagopus additionally provides binary and package manager installation options and runs natively on Windows, which can simplify homelab deployments.
-
-### Which panel has better performance?
-
-Calagopus, by a significant margin. The Rust-based backend produces over 32,800% higher throughput than PHP-based panels in benchmarks. For small deployments the difference is less critical; for production hosting providers it translates directly to hardware savings.
+<CompareFaq />
 
 ---
 
 Ready to switch? Start with the [Pelican migration guide](/docs/additional/migrations/pelican) or [install Calagopus from scratch](/docs/panel/installation/).
+
+**More comparisons:** [Calagopus vs Pterodactyl](/compare/calagopus-vs-pterodactyl) · [Calagopus vs AMP](/compare/calagopus-vs-amp)

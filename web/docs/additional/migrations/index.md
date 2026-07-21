@@ -1,3 +1,7 @@
+---
+description: Migrate to Calagopus from Pterodactyl or Pelican, or move an existing Calagopus install between Docker and standalone deployments.
+---
+
 # Migrations
 
 Whether you're moving from another panel, or just changing how your existing Calagopus install is deployed, pick the guide that matches what you're doing:

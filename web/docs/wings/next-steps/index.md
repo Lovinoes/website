@@ -1,3 +1,7 @@
+---
+description: "What to do after installing Wings: set up IP and port allocations so the panel can place game servers on your node."
+---
+
 # Next Steps
 
 Wings is installed and connected to the panel. At this point Wings is running, but it doesn't do anything useful yet, since the panel needs somewhere on this node to actually place servers. That's what's next.

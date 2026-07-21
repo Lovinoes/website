@@ -5,6 +5,7 @@ import type { Theme } from 'vitepress';
 import DefaultTheme from 'vitepress/theme';
 import { enhanceAppWithTabs } from 'vitepress-plugin-tabs/client';
 import { h } from 'vue';
+import CompareFaq from '../components/CompareFaq.vue';
 
 import './colors.css';
 import './style.css';
@@ -19,5 +20,6 @@ export default {
   enhanceApp({ app, router, siteData }) {
     enhanceAppWithTabs(app);
     app.use(createHead());
+    app.component('CompareFaq', CompareFaq);
   },
 } satisfies Theme;

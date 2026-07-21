@@ -278,6 +278,10 @@ Configurations are labeled `<CPU> · <cores>c`. The numbers on this page are the
   <BenchChart :option="s.latP99" :height="chartHeight" />
 </div>
 
+## Detailed comparisons
+
+Raw numbers are only part of the picture. For feature-by-feature breakdowns against specific panels, see [Calagopus vs Pterodactyl](/compare/calagopus-vs-pterodactyl), [Calagopus vs Pelican](/compare/calagopus-vs-pelican), and [Calagopus vs AMP](/compare/calagopus-vs-amp).
+
 <style scoped>
 .panel-strip {
   display: grid;

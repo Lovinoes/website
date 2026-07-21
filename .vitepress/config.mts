@@ -1,7 +1,9 @@
+import { fileURLToPath } from 'node:url';
 import { imagetools } from 'vite-imagetools';
 import { ViteImageOptimizer } from 'vite-plugin-image-optimizer';
 import { withMermaid } from 'vitepress-plugin-mermaid';
 import { tabsMarkdownPlugin } from 'vitepress-plugin-tabs';
+import { compareFaqs } from './data/compare-faqs.ts';
 import { faqs } from './data/faqs.ts';
 import { aiDocPlugin } from './plugins/ai-doc.ts';
 import { generateLlmsArtifacts } from './plugins/llms.ts';
@@ -81,6 +83,14 @@ export default withMermaid({
     server: {
       allowedHosts: true,
     },
+    resolve: {
+      alias: [
+        {
+          find: /^.*\/VPDocFooterLastUpdated\.vue$/,
+          replacement: fileURLToPath(new URL('./components/LastUpdated.vue', import.meta.url)),
+        },
+      ],
+    },
   },
 
   markdown: {
@@ -109,28 +119,9 @@ export default withMermaid({
       },
     ],
     ['meta', { property: 'og:type', content: 'website' }],
-    ['meta', { property: 'og:title', content: 'Calagopus' }],
-    [
-      'meta',
-      {
-        property: 'og:description',
-        content:
-          'Calagopus is a modern, open-source game server management panel built in Rust. Deploy, monitor, and manage Minecraft, Hytale, and other game servers with industry-leading performance.',
-      },
-    ],
     ['meta', { property: 'og:image', content: 'https://calagopus.com/fulllogo.png' }],
-    ['meta', { property: 'og:url', content: 'https://calagopus.com' }],
     ['meta', { property: 'og:site_name', content: 'Calagopus' }],
     ['meta', { name: 'twitter:card', content: 'summary_large_image' }],
-    ['meta', { name: 'twitter:title', content: 'Calagopus' }],
-    [
-      'meta',
-      {
-        name: 'twitter:description',
-        content:
-          'Calagopus is a modern, open-source game server management panel built in Rust. Deploy, monitor, and manage Minecraft, Hytale, and other game servers with industry-leading performance.',
-      },
-    ],
     ['meta', { name: 'twitter:image', content: 'https://calagopus.com/fulllogo.png' }],
     ['meta', { name: 'twitter:image:alt', content: 'Calagopus Logo' }],
     [
@@ -437,6 +428,11 @@ export default withMermaid({
       { icon: 'discord', link: 'https://discord.gg/uSM8tvTxBV' },
     ],
 
+    footer: {
+      message:
+        '<a href="https://github.com/calagopus" target="_blank" rel="noreferrer">GitHub</a> · <a href="https://discord.gg/uSM8tvTxBV" target="_blank" rel="noreferrer">Discord</a> · <a href="mailto:contact@calagopus.com">contact@calagopus.com</a>',
+    },
+
     search: {
       provider: 'local',
     },
@@ -456,6 +452,36 @@ export default withMermaid({
 
     pageData.frontmatter.head ??= [];
     pageData.frontmatter.head.push(['link', { rel: 'canonical', href: canonicalUrl }]);
+
+    pageData.frontmatter.head.push(
+      ['meta', { property: 'og:title', content: pageData.title || siteConfig.site.title }],
+      ['meta', { property: 'og:description', content: pageData.description || siteConfig.site.description }],
+      ['meta', { property: 'og:url', content: canonicalUrl }],
+    );
+
+    if (pageData.lastUpdated) {
+      pageData.frontmatter.head.push([
+        'meta',
+        { property: 'article:modified_time', content: new Date(pageData.lastUpdated).toISOString() },
+      ]);
+    }
+
+    const pageFaqs = compareFaqs[pageData.relativePath];
+    if (pageFaqs) {
+      pageData.frontmatter.head.push([
+        'script',
+        { type: 'application/ld+json' },
+        JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'FAQPage',
+          mainEntity: pageFaqs.map((f) => ({
+            '@type': 'Question',
+            name: f.q,
+            acceptedAnswer: { '@type': 'Answer', text: f.a.replace(/<[^>]+>/g, '') },
+          })),
+        }),
+      ]);
+    }
 
     if (pageData.relativePath === 'index.md') {
       pageData.frontmatter.head.push([

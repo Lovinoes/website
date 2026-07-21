@@ -1,3 +1,7 @@
+---
+description: Install Calagopus Wings on your game server nodes with Docker, APT/RPM/APK package managers, or a standalone binary.
+---
+
 # Wings Installation
 
 Before installing, check the [minimum requirements](../overview.md#minimum-requirements).
