@@ -188,12 +188,13 @@ That said, arrays of objects are still usually the better shape - they preserve 
 
 ## Data-Fetching Hooks
 
-Writing raw `useEffect` + `useState` fetches is tedious and error-prone. The Panel ships four hooks that cover the common patterns; they handle loading state, error toasts, and TanStack Query wiring for you.
+Writing raw `useEffect` + `useState` fetches is tedious and error-prone. The Panel ships five hooks that cover the common patterns; they handle loading state, error toasts, and TanStack Query wiring for you.
 
-All four are in `@/plugins/`:
+All five are in `@/plugins/`:
 
 ```ts
 import { useResource } from '@/plugins/useResource.ts';
+import { usePollingResource } from '@/plugins/usePollingResource.ts';
 import { useSearchableResource } from '@/plugins/useSearchableResource.ts';
 import { useSearchablePaginatedTable } from '@/plugins/useSearchablePaginatedTable.ts';
 import { useResourceForm } from '@/plugins/useResourceForm.ts';
@@ -263,6 +264,48 @@ const { data, error } = useResource({
   queryFn: () => getItems(serverUuid),
   silent: true,
 });
+```
+
+### `usePollingResource` - fetches that re-run on an interval
+
+Use this when you need to re-fetch a resource on a fixed interval - a build status, a transfer's progress, anything that changes on the backend while the user watches. It's `useResource` plus an `interval`, and an optional `stopWhen` predicate that halts the polling once the data reaches a terminal state. It returns the same `{ data, loading, error, refetch, invalidate }` as `useResource`.
+
+```tsx
+import { usePollingResource } from '@/plugins/usePollingResource.ts';
+import getJobStatus from '@/api/getJobStatus.ts';
+
+export default function JobStatus({ jobId }: { jobId: string }) {
+  const { data } = usePollingResource({
+    queryKey: ['extensions', 'dev.yourname.test', 'jobs', jobId],
+    queryFn: () => getJobStatus(jobId),
+    interval: 5000,
+    stopWhen: (status) => status.done,
+  });
+
+  return <p>State: {data?.state ?? 'loading'}</p>;
+}
+```
+
+**`interval`** is the poll period in milliseconds. It's passed to TanStack Query's `refetchInterval`, so the timer resets after each fetch resolves rather than firing on a fixed wall-clock schedule.
+
+**`stopWhen`** receives the latest `data` and returns `true` to stop polling. Polling halts as soon as it returns `true`; if the data later moves back to a non-terminal state - for example you optimistically write `isBuilding: true` into the cache with `queryClient.setQueryData` to kick off a new build - the interval restarts automatically. Omit it to poll forever while the component is mounted.
+
+**`pollInBackground`** (default `false`) maps to `refetchIntervalInBackground`. By default TanStack Query pauses interval re-fetches while the browser tab is unfocused; pass `true` when the poll must keep running in the background - e.g. so a completion toast still fires if the user switches tabs mid-build.
+
+Polling also stops while the query is in an error state, so a persistently failing endpoint isn't hammered every interval. It resumes automatically on the next successful fetch - for example when the tab regains focus (TanStack Query re-fetches on window focus by default) or when you call `refetch` - so transient failures recover on their own.
+
+**`enabled`** and **`silent`** behave exactly as in `useResource`. Note there is no per-fetch success callback (TanStack Query v5 removed `onSuccess` from `useQuery`) - to run a side-effect when the polled value crosses into a terminal state, watch `data` in a `useEffect` and detect the transition yourself:
+
+```tsx
+const wasRunningRef = useRef(false);
+useEffect(() => {
+  const running = data?.isBuilding;
+  if (running === undefined) return;
+  if (wasRunningRef.current && !running) {
+    // build just finished
+  }
+  wasRunningRef.current = running;
+}, [data?.isBuilding]);
 ```
 
 ### `useSearchableResource` - searchable dropdowns
@@ -484,6 +527,7 @@ useResourceForm({
 | Map whose object *keys* are data | type the field as `z.record(...)` - keys pass through untouched |
 | Any error from any of the above | `httpErrorToHuman(err)` into a toast |
 | Simple one-off data fetch | `useResource` |
+| Data that must re-fetch on an interval | `usePollingResource` |
 | Searchable `<Select>` or `<MultiSelect>` options | `useSearchableResource` |
 | Full paginated table with search | `useSearchablePaginatedTable` |
 | Create / update / delete form | `useResourceForm` |

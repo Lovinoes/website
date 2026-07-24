@@ -58,6 +58,7 @@ import type { MantineThemeOverride } from '@mantine/core';
 class Dev0x7d8TestExtension extends Extension {
   public cardConfigurationPage: React.FC | null = null;
   public cardComponent: React.FC | null = null;
+  public cardIcon: React.ReactNode = null;
 
   // Your extension entrypoint, this runs when the page is loaded
   public initialize(ctx: ExtensionContext): void {

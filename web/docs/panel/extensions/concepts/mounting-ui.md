@@ -21,6 +21,7 @@ import MyCardSummary from './CardSummary.tsx';
 class MyExtension extends Extension {
   public cardConfigurationPage: React.FC | null = MyConfigurationPage;
   public cardComponent: React.FC | null = MyCardSummary;
+  public cardIcon: React.ReactNode = <FontAwesomeIcon icon={faRocket} />;
 
   public initialize(ctx: ExtensionContext): void {
     // register additional UI through ctx.extensionRegistry - see below
@@ -30,11 +31,13 @@ class MyExtension extends Extension {
 export default new MyExtension();
 ```
 
-Two fields on the class map directly to admin-panel surfaces:
+Three fields on the class map directly to admin-panel surfaces:
 
 - **`cardComponent`** - a React component rendered inside your extension's card in the admin panel's extension list. Good for a quick at-a-glance summary: "42 items installed", "last sync 2 minutes ago", a small health indicator. Keep it compact, it's sharing space with other extensions. Set to `null` if you don't need it.
 
 - **`cardConfigurationPage`** - a React component shown when an admin clicks the Configure button on your extension's card. It's mounted at `/admin/extensions/<your-package-identifier>` automatically - you don't need to register a route for it. Set to `null` if your extension has nothing to configure.
+
+- **`cardIcon`** - a React node that overrides the icon shown next to your extension's name in the admin extension list (defaults to a generic puzzle-piece). Pass any element - a `<FontAwesomeIcon />`, an `<img>`, an inline SVG - and it's dropped into the row's icon slot as-is; the surrounding styled container is kept, so you're swapping just the glyph. Leave it `null` to keep the default puzzle piece.
 
 ::: info
 **Configuration pages are already wrapped for you.** The route shell that mounts your `cardConfigurationPage` at `/admin/extensions/<id>` provides the admin layout, navigation, and title bar - your component just returns its content (a `<div>`, a `<Stack>`, whatever). This is the *only* exception. Every other route you add needs to wrap its own content (see [Container Wrappers](#container-wrappers) below).
@@ -137,6 +140,10 @@ The definition types form a small hierarchy, each level adding fields. These are
 **Additionally for permissioned routes (`AdminRouteDefinition`, `ServerRouteDefinition`):**
 
 - **`permission?: string | string[] | null`** - the permission node(s) required to see this route. A single string requires that permission; an array requires all of them. Routes whose permission check fails are hidden from the sidebar and inaccessible via direct URL. This is the frontend counterpart to `has_server_permission` on the backend - see [Permissions](./permissions.md) for how permission nodes map to what the user can do. `null` or omitted means no permission required (which is the right default for most user-facing features; reach for `permission` when you have something gated).
+
+**Additionally for admin routes (`AdminRouteDefinition`):**
+
+- **`category?: string`** - the admin sidebar is grouped into labelled categories (Infrastructure, Nests & Eggs, Databases, Storage, Users & Access, System). Set `category` to one of the built-in category keys (`'infrastructure'`, `'eggs'`, `'databases'`, `'storage'`, `'access'`, `'system'`) to place your route under that heading. An unknown or omitted `category` puts the route in an unlabelled group at the bottom of the sidebar, below the built-in categories.
 
 ### A More Complete Example
 
