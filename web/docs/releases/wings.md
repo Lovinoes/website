@@ -8,6 +8,35 @@ description: Changelog for the Calagopus Wings daemon, newest release first.
 Changelog for the Calagopus Wings daemon. Versions are listed newest first. For the
 Panel changelog, see [Panel Releases](./panel.md).
 
+## 1.1.0
+
+## Added:
+- Added Live File Collaboration support
+- Added `docket.network.dns_options` config option
+- Added CLI Command for Shell Autocompletions
+- Added support for paralellism on the proxmox backup server driver
+- Added automatic panel proxy detection for ip passthrough
+- Added async backup deletion support
+- Added ability to export backups to the file system
+- Added ability to query info on used docker ports for a given IP
+- Added file progress (in addition to byte process) to tons of operations
+- Added global resource usage websocket
+- Added direct file renaming support in remote copy
+- Added ability to transfer file diff db along with server transfers
+- Added automatic docker container path remapping
+- Added wings query tunnel to allow websocket-proxied tcp/udp tunnels into servers
+
+## Fixed:
+- Improved rootless handling with root remapping
+- Cleaned up some response key namings
+- Fixed unclear error handling for panel errors
+- Fixed issues with extracting certain zip files with broken permissions inside
+- Optimized file search to be over 10x faster with 1million+ files
+- Optimized Kopia and PBS Backup Browsing speed
+- Loads of minor optimizations regarding polling and recursion
+
+[View release on GitHub](https://github.com/calagopus/wings/releases/tag/release-1.1.0)
+
 ## 1.0.11
 
 ### Added
