@@ -1,6 +1,10 @@
 # Configuration
 
-This page is a reference for all Wings configuration options. The configuration file is located at `/etc/pterodactyl/config.yml` on Linux (the path defaults to the Pterodactyl location for migration compatibility).
+This page is a reference for all Wings configuration options. The configuration file is located at `/etc/calagopus-wings/config.yml` on Linux (`C:\ProgramData\Calagopus-Wings\config.yml` on Windows).
+
+::: info Migrating from Pterodactyl/Pelican
+If no `-c`/`--config` flag is passed and `/etc/calagopus-wings/config.yml` doesn't exist, Wings automatically looks for a config at `/etc/pterodactyl/config.yml`, then `/etc/pelican/config.yml`, then `./config.yml`, in that order, and uses the first one it finds. This means an existing Pterodactyl or Pelican Wings install keeps working without moving its config file, though it's recommended to migrate to the `calagopus-wings` path when convenient.
+:::
 
 ## Core Configuration
 
@@ -17,7 +21,7 @@ A human-readable name for this Wings instance used to identify the node in log o
 
 Default value:
 ```yaml
-app_name: Pterodactyl
+app_name: Calagopus
 ```
 
 ### uuid
@@ -209,12 +213,16 @@ trusted_proxies: []
 
 ## System Configuration
 
+::: info Path placeholders
+`data`, `diffs_directory`, `vmount_directory`, `archive_directory` and `backup_directory` (plus `log_directory` and `tmp_directory` on Windows only) accept the `{root_directory}` placeholder in their value. It's substituted with the configured `system.root_directory` every time the path is used, so these default to living under `root_directory` and move together if you repoint it. This is also how a freshly generated `config.yml` writes these values: literally as `{root_directory}/...`, not pre-resolved, so editing `root_directory` alone is enough to relocate everything else that still uses the placeholder. `log_directory` and `tmp_directory` default to fixed, independent paths on Unix - see their entries below.
+:::
+
 ### system.root_directory
 This is the root directory where Wings stores its own persistent data (mainly state of servers so it can restore them on restart).
 
 Default value:
 ```yaml
-root_directory: /var/lib/pterodactyl
+root_directory: /var/lib/calagopus-wings
 ```
 
 ### system.log_directory
@@ -222,7 +230,27 @@ This is the directory where Wings stores its logs.
 
 Default value:
 ```yaml
-log_directory: /var/log/pterodactyl
+log_directory: /var/log/calagopus-wings
+```
+
+::: info
+Unlike the other directories on this page, `log_directory` defaults to a fixed path on Unix and does **not** move with `root_directory`. On Windows, it defaults to `{root_directory}\logs` and does follow it.
+:::
+
+### system.data
+This is the directory where Wings stores server data. This is the directory that gets bind-mounted to server containers and is where all server files are stored.
+
+Default value:
+```yaml
+data: '{root_directory}/volumes'
+```
+
+### system.diffs_directory
+This is the directory where Wings stores the per-server SQLite databases used by [file history](#system-file-history-enabled) to track diffs/revisions of edited files.
+
+Default value:
+```yaml
+diffs_directory: '{root_directory}/diffs'
 ```
 
 ### system.vmount_directory
@@ -230,15 +258,7 @@ This is the directory where Wings stores virtual mounts for servers. Currently m
 
 Default value:
 ```yaml
-vmount_directory: /var/lib/pterodactyl/vmounts
-```
-
-### system.data
-This is the directory where Wings stores server data. This is the directory that gets bind-mounted to server containers and is where all server files are stored.
-
-Default value:
-```yaml
-data: /var/lib/pterodactyl/volumes
+vmount_directory: '{root_directory}/vmounts'
 ```
 
 ### system.archive_directory
@@ -246,7 +266,7 @@ This is the directory where Wings stores server archives. This is 100% unused in
 
 Default value:
 ```yaml
-archive_directory: /var/lib/pterodactyl/archives
+archive_directory: '{root_directory}/archives'
 ```
 
 ### system.backup_directory
@@ -254,7 +274,7 @@ This is the directory where Wings stores server backups. This applies to backups
 
 Default value:
 ```yaml
-backup_directory: /var/lib/pterodactyl/backups
+backup_directory: '{root_directory}/backups'
 ```
 
 ### system.tmp_directory
@@ -262,7 +282,7 @@ This is the directory where Wings stores temporary files. This is used for vario
 
 Default value:
 ```yaml
-tmp_directory: /tmp/pterodactyl
+tmp_directory: /tmp/calagopus-wings
 ```
 
 ### system.username
@@ -270,7 +290,7 @@ The operating system user account that the Wings process runs under on the host.
 
 Default value:
 ```yaml
-username: pterodactyl
+username: calagopus
 ```
 
 ### system.timezone
@@ -334,7 +354,7 @@ The absolute filesystem path where Wings generates and stores the dynamic passwd
 
 Default value:
 ```yaml
-directory: /run/wings/etc
+directory: /run/calagopus-wings/etc
 ```
 
 ### system.machine_id.enabled
@@ -840,7 +860,7 @@ The Restic repository path used for backups. This must already be initialized an
 
 Default value:
 ```yaml
-repository: /var/lib/pterodactyl/backups/restic
+repository: '{root_directory}/backups/restic'
 ```
 
 ### system.backups.restic.password_file
@@ -848,7 +868,7 @@ The local path to the file containing the Restic repository password used for au
 
 Default value:
 ```yaml
-password_file: /var/lib/pterodactyl/backups/restic_password
+password_file: '{root_directory}/backups/restic_password'
 ```
 
 ### system.backups.restic.retry_lock_seconds
@@ -969,12 +989,24 @@ dns:
 - 1.0.0.1
 ```
 
+### docker.network.dns_options
+Resolver options (as used in `/etc/resolv.conf`'s `options` line) applied to containers alongside `docker.network.dns`.
+
+Default value:
+```yaml
+dns_options:
+- ndots:0
+- timeout:2
+- attempts:3
+- single-request-reopen
+```
+
 ### docker.network.name
 The name of the Docker network used by Wings to manage container communication.
 
 Default value:
 ```yaml
-name: pterodactyl_nw
+name: calagopus_nw
 ```
 
 ### docker.network.ispn
@@ -998,7 +1030,7 @@ The internal network mode identifier used by the Docker daemon.
 
 Default value:
 ```yaml
-mode: pterodactyl_nw
+mode: calagopus_nw
 ```
 
 ### docker.network.is_internal
@@ -1025,6 +1057,14 @@ Default value:
 network_mtu: 1500
 ```
 
+### docker.network.interfaces.v4.enabled
+Whether to enable IPv4 on the Docker network bridge. At least one of `docker.network.interfaces.v4.enabled` and `docker.network.interfaces.v6.enabled` must stay `true` - Wings refuses to create the network if both are disabled.
+
+Default value:
+```yaml
+enabled: true
+```
+
 ### docker.network.interfaces.v4.subnet
 The IPv4 subnet range used by the Docker network.
 
@@ -1039,6 +1079,14 @@ The IPv4 gateway address for the Docker network. This will automatically be incr
 Default value:
 ```yaml
 gateway: 172.18.0.1
+```
+
+### docker.network.interfaces.v6.enabled
+Whether to enable IPv6 on the Docker network bridge. At least one of `docker.network.interfaces.v4.enabled` and `docker.network.interfaces.v6.enabled` must stay `true` - Wings refuses to create the network if both are disabled.
+
+Default value:
+```yaml
+enabled: true
 ```
 
 ### docker.network.interfaces.v6.subnet
@@ -1350,11 +1398,14 @@ sudo systemctl restart wings
 
 ## Example Config
 
-The following is an example of a standard generated `config.yml` for Wings with standard values:
+The following is an example of a standard generated `config.yml` for Wings with standard values. A handful of defaults differ between platforms (mainly paths and the Unix-only `passwd`/`machine_id` sections), so both are shown below.
+
+::::tabs
+=== Unix
 
 ```yaml
 debug: false
-app_name: Pterodactyl
+app_name: Calagopus
 uuid: UUID_HERE
 token_id: TOKEN_ID_HERE
 token: TOKEN_HERE
@@ -1389,14 +1440,15 @@ api:
   max_jwt_uses: 5
   trusted_proxies: []
 system:
-  root_directory: /var/lib/pterodactyl
-  log_directory: /var/log/pterodactyl
-  vmount_directory: /var/lib/pterodactyl/vmounts
-  data: /var/lib/pterodactyl/volumes
-  archive_directory: /var/lib/pterodactyl/archives
-  backup_directory: /var/lib/pterodactyl/backups
-  tmp_directory: /tmp/pterodactyl
-  username: pterodactyl
+  root_directory: /var/lib/calagopus-wings
+  log_directory: /var/log/calagopus-wings
+  data: '{root_directory}/volumes'
+  diffs_directory: '{root_directory}/diffs'
+  vmount_directory: '{root_directory}/vmounts'
+  archive_directory: '{root_directory}/archives'
+  backup_directory: '{root_directory}/backups'
+  tmp_directory: /tmp/calagopus-wings
+  username: calagopus
   timezone: +00:00
   user:
     rootless:
@@ -1407,7 +1459,7 @@ system:
     gid: 985
   passwd:
     enabled: false
-    directory: /run/wings/etc
+    directory: /run/calagopus-wings/etc
   machine_id:
     enabled: true
   disk_check_concurrency: 2
@@ -1452,7 +1504,7 @@ system:
     enabled: true
     zstd_level: 19
     anchor_interval: 4
-    keep_chains: 2
+    keep_chains: 5
     file_size_cap: 1048576
     per_file_disk_budget: 5242880
     per_server_disk_budget: 209715200
@@ -1482,8 +1534,8 @@ system:
       create_threads: 4
       compression_format: deflate
     restic:
-      repository: /var/lib/pterodactyl/backups/restic
-      password_file: /var/lib/pterodactyl/backups/restic_password
+      repository: '{root_directory}/backups/restic'
+      password_file: '{root_directory}/backups/restic_password'
       retry_lock_seconds: 60
       environment: {}
     btrfs:
@@ -1506,18 +1558,25 @@ docker:
     dns:
     - 1.1.1.1
     - 1.0.0.1
-    name: pterodactyl_nw
+    dns_options:
+    - ndots:0
+    - timeout:2
+    - attempts:3
+    - single-request-reopen
+    name: calagopus_nw
     ispn: false
     driver: bridge
-    mode: pterodactyl_nw
+    mode: calagopus_nw
     is_internal: false
     enable_icc: true
     network_mtu: 1500
     interfaces:
       v4:
+        enabled: true
         subnet: 172.18.0.0/16
         gateway: 172.18.0.1
       v6:
+        enabled: true
         subnet: fdba:17c8:6c94::/64
         gateway: fdba:17c8:6c94::1011
   domainname: ''
@@ -1557,3 +1616,216 @@ allow_cors_private_network: false
 ignore_panel_config_updates: false
 ignore_panel_wings_upgrades: false
 ```
+
+=== Windows
+
+```yaml
+debug: false
+app_name: Calagopus
+uuid: UUID_HERE
+token_id: TOKEN_ID_HERE
+token: TOKEN_HERE
+api:
+  host: 0.0.0.0
+  port: 8080
+  ssl:
+    enabled: false
+    cert: ''
+    key: ''
+  redirects: {}
+  disable_openapi_docs: false
+  disable_remote_download: false
+  server_remote_download_limit: 3
+  remote_download_blocked_cidrs:
+  - 127.0.0.0/8
+  - 10.0.0.0/8
+  - 172.16.0.0/12
+  - 192.168.0.0/16
+  - 169.254.0.0/16
+  - ::1
+  - fe80::/10
+  - fc00::/7
+  disable_directory_size: false
+  directory_entry_limit: 10000
+  send_offline_server_logs: false
+  file_search_threads: 4
+  file_copy_threads: 4
+  file_decompression_threads: 2
+  file_compression_threads: 2
+  upload_limit: 100
+  max_jwt_uses: 5
+  trusted_proxies: []
+system:
+  root_directory: C:\ProgramData\Calagopus-Wings
+  log_directory: '{root_directory}\logs'
+  data: '{root_directory}\volumes'
+  diffs_directory: '{root_directory}\diffs'
+  vmount_directory: '{root_directory}\vmounts'
+  archive_directory: '{root_directory}\archives'
+  backup_directory: '{root_directory}\backups'
+  tmp_directory: '{root_directory}\tmp'
+  username: calagopus
+  timezone: +00:00
+  user:
+    rootless:
+      enabled: false
+      container_uid: 0
+      container_gid: 0
+    uid: 995
+    gid: 985
+  disk_check_concurrency: 2
+  disk_check_interval: 150
+  full_disk_check_every: 4
+  disk_check_use_inotify: true
+  disk_limiter_mode: none
+  activity_send_interval: 60
+  activity_send_count: 100
+  check_permissions_on_boot: true
+  check_permissions_on_boot_threads: 4
+  websocket_log_count: 150
+  sftp:
+    enabled: true
+    bind_address: 0.0.0.0
+    bind_port: 2022
+    read_only: false
+    key_algorithm: ssh-ed25519
+    disable_password_auth: false
+    directory_entry_limit: 20000
+    directory_entry_send_amount: 500
+    limits:
+      authentication_password_attempts: 3
+      authentication_pubkey_attempts: 20
+      authentication_cooldown: 60
+      max_connections_per_user: 10
+      max_channels_per_connection: 10
+      max_handles_per_channel: 32
+      max_handles_total: 1024
+    shell:
+      enabled: true
+      cli:
+        name: .wings
+    activity:
+      log_logins: false
+      log_file_reads: false
+  crash_detection:
+    enabled: true
+    detect_clean_exit_as_crash: true
+    timeout: 60
+  file_history:
+    enabled: true
+    zstd_level: 19
+    anchor_interval: 4
+    keep_chains: 5
+    file_size_cap: 1048576
+    per_file_disk_budget: 5242880
+    per_server_disk_budget: 209715200
+    maintenance_interval: 3600
+  file_collaboration:
+    enabled: true
+    file_size_cap: 1048576
+    max_sessions_per_server: 16
+    max_sessions_per_connection: 8
+    session_grace_period: 120
+  backups:
+    write_limit: 0
+    read_limit: 0
+    compression_level: best_speed
+    mounting:
+      enabled: true
+      path: .backups
+    wings:
+      create_threads: 4
+      restore_threads: 4
+      archive_format: tar_gz
+    s3:
+      create_threads: 4
+      part_upload_timeout: 7200
+      retry_limit: 10
+    ddup_bak:
+      create_threads: 4
+      compression_format: deflate
+    restic:
+      repository: '{root_directory}\backups\restic'
+      password_file: '{root_directory}\backups\restic_password'
+      retry_lock_seconds: 60
+      environment: {}
+    btrfs:
+      restore_threads: 4
+      create_read_only: true
+    zfs:
+      restore_threads: 4
+    pbs:
+      create_threads: 4
+      download_concurrency: 4
+  transfers:
+    download_limit: 0
+docker:
+  socket: //./pipe/docker_engine
+  server_name_in_container_name: false
+  delete_container_on_stop: true
+  network:
+    interface: 172.18.0.1
+    disable_interface_binding: false
+    dns:
+    - 1.1.1.1
+    - 1.0.0.1
+    dns_options:
+    - ndots:0
+    - timeout:2
+    - attempts:3
+    - single-request-reopen
+    name: calagopus_nw
+    ispn: false
+    driver: bridge
+    mode: calagopus_nw
+    is_internal: false
+    enable_icc: true
+    network_mtu: 1500
+    interfaces:
+      v4:
+        enabled: true
+        subnet: 172.18.0.0/16
+        gateway: 172.18.0.1
+      v6:
+        enabled: true
+        subnet: fdba:17c8:6c94::/64
+        gateway: fdba:17c8:6c94::1011
+  domainname: ''
+  registries: {}
+  tmpfs_size: 100
+  container_pid_limit: 5120
+  container_apply_seccomp: true
+  installer_limits:
+    timeout: 1800
+    memory: 1024
+    cpu: 100
+  overhead:
+    override: false
+    default_multiplier: 1.05
+    multipliers: {}
+  userns_mode: ''
+  log_config:
+    type: local
+    config:
+      compress: 'false'
+      max-file: '1'
+      max-size: 5m
+      mode: non-blocking
+throttles:
+  enabled: true
+  lines: 2000
+  line_reset_interval: 100
+remote: https://panel.example.com
+remote_headers: {}
+remote_query:
+  timeout: 30
+  boot_servers_per_page: 50
+  retry_limit: 10
+allowed_mounts: []
+allowed_origins: []
+allow_cors_private_network: false
+ignore_panel_config_updates: false
+ignore_panel_wings_upgrades: false
+```
+
+::::

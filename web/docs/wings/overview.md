@@ -32,15 +32,18 @@ Only Linux and macOS are officially supported, due to reliance on Unix-specific 
 
 Wings uses several directories on the host. Knowing where each one is matters for troubleshooting, backups, and disk management.
 
+Most of these live under `root_directory` by default (see [path placeholders](configuration.md#system-configuration) for how that works), so the paths below are shown already resolved.
+
 | Volume | Description | Default Paths |
 | :--- | :--- | :--- |
-| `root_directory` | Wings persistent state (server state for restart recovery) | **Unix:** `/var/lib/pterodactyl`<br>**Win:** `C:\ProgramData\Calagopus` |
-| `log_directory` | Wings log files | **Unix:** `/var/log/pterodactyl`<br>**Win:** `C:\ProgramData\Calagopus\logs` |
-| `vmount_directory` | Virtual mounts used for hardware UUID spoofing in containers | **Unix:** `/var/lib/pterodactyl/vmounts`<br>**Win:** `C:\ProgramData\Calagopus\vmounts` |
-| `data` | Server data, bind-mounted into each server container | **Unix:** `/var/lib/pterodactyl/volumes`<br>**Win:** `C:\ProgramData\Calagopus\volumes` |
-| `archive_directory` | Server archives (currently unused, kept for Pterodactyl compatibility) | **Unix:** `/var/lib/pterodactyl/archives`<br>**Win:** `C:\ProgramData\Calagopus\archives` |
-| `backup_directory` | Local backups (Wings driver, Btrfs, and ZFS snapshots) | **Unix:** `/var/lib/pterodactyl/backups`<br>**Win:** `C:\ProgramData\Calagopus\backups` |
-| `tmp_directory` | Temporary files | **Unix:** `/tmp/pterodactyl`<br>**Win:** `C:\ProgramData\Calagopus\tmp` |
+| `root_directory` | Wings persistent state (server state for restart recovery) | **Unix:** `/var/lib/calagopus-wings`<br>**Win:** `C:\ProgramData\Calagopus-Wings` |
+| `log_directory` | Wings log files | **Unix:** `/var/log/calagopus-wings`<br>**Win:** `C:\ProgramData\Calagopus-Wings\logs` |
+| `data` | Server data, bind-mounted into each server container | **Unix:** `/var/lib/calagopus-wings/volumes`<br>**Win:** `C:\ProgramData\Calagopus-Wings\volumes` |
+| `diffs_directory` | Per-server file history/diff databases | **Unix:** `/var/lib/calagopus-wings/diffs`<br>**Win:** `C:\ProgramData\Calagopus-Wings\diffs` |
+| `vmount_directory` | Virtual mounts used for hardware UUID spoofing in containers | **Unix:** `/var/lib/calagopus-wings/vmounts`<br>**Win:** `C:\ProgramData\Calagopus-Wings\vmounts` |
+| `archive_directory` | Server archives (currently unused, kept for Pterodactyl compatibility) | **Unix:** `/var/lib/calagopus-wings/archives`<br>**Win:** `C:\ProgramData\Calagopus-Wings\archives` |
+| `backup_directory` | Local backups (Wings driver, Btrfs, and ZFS snapshots) | **Unix:** `/var/lib/calagopus-wings/backups`<br>**Win:** `C:\ProgramData\Calagopus-Wings\backups` |
+| `tmp_directory` | Temporary files | **Unix:** `/tmp/calagopus-wings`<br>**Win:** `C:\ProgramData\Calagopus-Wings\tmp` |
 
 ::: info
 The default paths intentionally match Pterodactyl's defaults, so migrating from Pterodactyl to Calagopus doesn't require moving any server data, Wings will find everything where it already is. These defaults are not planned to change.
