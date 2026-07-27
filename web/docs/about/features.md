@@ -5,7 +5,9 @@ description: A full list of Calagopus features and a side-by-side comparison wit
 
 # Feature Reference
 
-A high-level overview of what Calagopus offers, followed by a comparison with other panels.
+A categorized overview of what Calagopus offers, followed by a comparison with other panels wherever we're confident of the other panel's behavior. Categories with a comparison table are followed by an "Also included" list of further Calagopus-specific capabilities in that area.
+
+Pterodactyl and Pelican are compared against the current state of their public main branches, which may include features not yet in a tagged release. AMP is closed-source, so cells we cannot verify from source are left blank rather than guessed.
 
 ## Highlights
 
@@ -22,41 +24,56 @@ A high-level overview of what Calagopus offers, followed by a comparison with ot
 - **File Manager**: Browse, upload, download, and edit server files directly from the panel, including archive and backup browsing.
 - **API**: A comprehensive API covers everything the panel UI does. See the [API Reference](https://demo.calagopus.com/api) for details.
 
-## Feature Comparison
+## Core & Extensibility
 
-| Feature | Calagopus | Pterodactyl | Pelican | AMP |
-| --- | --- | --- | --- | --- |
-| Free & Open Source | ✅ | ✅ | ✅ | ❌ |
-| Native Extension System | ✅ | ❌ | ✅ | ❌ |
-| Uncommon Game-specific Features | ❌ | ❌ | ❌ | ✅ |
-| Live Console | ✅ | ✅ | ✅ | ✅ |
-| File Manager | ✅ | ✅ | ✅ | ✅ |
-| File Edit History | ✅ | ❌ | ❌ | ❌ |
-| Live File Editing | ✅ | ❌ | ❌ | ❌ |
-| Backup Browsing Support | ✅ | ❌ | ❌ | ✅ |
-| Archive Browsing Support | ✅ | ❌ | ❌ | ❌ |
-| SFTP Support | ✅ | ✅ | ✅ | ✅ |
-| SSH (Shell) Support | ✅ | ❌ | ❌ | ❌ |
-| Schedule Tasks | ✅ | ✅ | ✅ | ✅ |
-| Advanced Schedule Triggers | ✅ | ❌ | ❌ | ✅ |
-| Database Management | ✅ | ✅ | ✅ | ✅ |
-| Subuser Management | ✅ | ✅ | ✅ | ✅ |
-| Backups | ✅ | ✅ | ✅ | ✅ |
-| Advanced Backup Drivers | ✅ | ❌ | ❌ | ✅ |
-| Extra Allocations | ✅ | ✅ | ✅ | ✅ |
-| WebAuthn Authentication | ✅ | ❌ | ❌ | ✅ |
-| OAuth Support | ✅ | ❌ | ✅ | ✅ |
-| Asset Management | ✅ | ❌ | ❌ | ✅ |
-| User Management | ✅ | ✅ | ✅ | ✅ |
-| User Impersonation | ✅ | ❌ | ❌ | ❌ |
-| Support for multiple Nodes | ✅ | ✅ | ✅ | ✅ |
-| Egg Repository System | ✅ | ❌ | ❌ | ❌ |
-| MySQL Server-Database Support | ✅ | ✅ | ✅ | ❌ |
-| Postgres Server-Database Support | ✅ | ❌ | ❌ | ❌ |
-| MongoDB Server-Database Support | ✅ | ❌ | ❌ | ❌ |
-| Dynamic Backup Configuration System | ✅ | ❌ | ❌ | ❌ |
-| Mount Management | ✅ | ✅ | ✅ | ✅ |
-| Role Management | ✅ | ❌ | ✅ | ✅ |
-| Admin Activity Log | ✅ | ❌ | ❌ | ✅ |
+<FeatureTable id="core" />
 
-If anything in this table looks inaccurate, let us know on Discord or open an issue on GitHub.
+## Console & Real-Time Management
+
+<FeatureTable id="console" />
+
+## File Management
+
+<FeatureTable id="files" />
+
+## Databases
+
+<FeatureTable id="databases" />
+
+## Backups
+
+<FeatureTable id="backups" />
+
+## Scheduling & Automation
+
+<FeatureTable id="scheduling" />
+
+## Networking
+
+<FeatureTable id="networking" />
+
+## Subusers & Roles
+
+<FeatureTable id="subusers-roles" />
+
+## Authentication & Security
+
+<FeatureTable id="auth-security" />
+
+## Account & Onboarding
+
+<FeatureTable id="account-onboarding" />
+
+## Administration
+
+<FeatureTable id="administration" />
+
+## Nodes & Infrastructure
+
+<FeatureTable id="nodes-infrastructure" />
+
+## UI/UX & Internationalization
+
+<FeatureTable id="ui-ux" />
+
+If anything on this page looks inaccurate, let us know on Discord or open an issue on GitHub.
