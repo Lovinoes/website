@@ -204,10 +204,17 @@ export default withMermaid({
           { text: 'What is Calagopus?', link: '/docs/about/what-is-calagopus' },
           { text: 'Feature Reference', link: '/docs/about/features' },
           { text: 'Benchmarks', link: '/docs/about/benchmarks' },
-          { text: 'Architecture', link: '/docs/about/architecture' },
-          { text: 'Licenses', link: '/docs/about/licenses' },
           { text: 'Security', link: '/docs/about/security' },
-          { text: 'Branding', link: '/docs/about/branding' },
+          {
+            text: 'Principles',
+            collapsed: true,
+            items: [
+              { text: 'Architecture', link: '/docs/about/architecture' },
+              { text: 'Branding', link: '/docs/about/branding' },
+              { text: 'Translations', link: '/docs/about/translations' },
+              { text: 'Licenses', link: '/docs/about/licenses' },
+            ],
+          },
         ],
       },
 

@@ -30,7 +30,7 @@ export const compareFaqs: Record<string, Faq[]> = {
     },
     {
       q: 'Can I use Blueprint extensions with Calagopus?',
-      a: 'No. Blueprint targets the PHP/Laravel internals of Pelican and Pterodactyl. Calagopus uses a native Rust extension API instead - see the <a href="/docs/panel/extensions/">extension development guide</a> for how to build extensions for Calagopus.',
+      a: 'No. Blueprint only targets Pterodactyl\'s PHP/Laravel internals. Calagopus uses a native Rust extension API instead - see the <a href="/docs/panel/extensions/">extension development guide</a> for how to build extensions for Calagopus.',
     },
     {
       q: 'Does Calagopus use the same Wings as Pelican?',

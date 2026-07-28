@@ -21,7 +21,7 @@ Pelican and Calagopus are both open-source game server management panels that em
 | **Based on** | Original rewrite | Pterodactyl fork |
 | **License** | MIT | LGPL-3.0 |
 | **Price** | Free | Free |
-| **Extension System** | Native (Rust traits) | Blueprint-compatible |
+| **Extension System** | Native (Rust traits) | None |
 | **Windows Panel Support** | ✅ | ❌ |
 | **ARM64 Support** | ✅ | Limited |
 
@@ -38,7 +38,7 @@ Both panels use a panel/daemon split: a web-facing control plane plus a node dae
 | Feature | Calagopus | Pelican |
 | --- | --- | --- |
 | Free & Open Source | ✅ | ✅ |
-| Native Extension System | ✅ | ✅ (Blueprint) |
+| Native Extension System | ✅ | Under Development |
 | Live Console | ✅ | ✅ |
 | File Manager | ✅ | ✅ |
 | File Edit History | ✅ | ❌ |
@@ -72,7 +72,7 @@ Both panels use a panel/daemon split: a web-facing control plane plus a node dae
 
 ### Extension Systems
 
-Both panels have extension systems, but they work differently. Pelican uses Blueprint, a community-maintained tool that patches PHP source files to install extensions. Patches are applied on top of core files, which means extensions can conflict with each other and need to be re-applied after panel updates.
+Pelican has no official extension or plugin system - Blueprint, the community patching tool used with Pterodactyl, is not compatible with Pelican's modified codebase.
 
 Calagopus's native extension system uses Rust traits. Extensions are compiled artifacts that hook into defined extension points: backend routes, database migrations, UI injection points, CLI commands, event hooks, custom settings, and more. They don't modify core files, survive updates cleanly, and benefit from Rust's type system to prevent entire classes of integration bugs at compile time.
 
