@@ -731,6 +731,22 @@ Default value:
 max_sessions_per_connection: 8
 ```
 
+### system.file_collaboration.max_editors_per_session
+The maximum number of editors (participants actively editing) allowed to join a single collaborative editing session at once.
+
+Default value:
+```yaml
+max_editors_per_session: 32
+```
+
+### system.file_collaboration.max_cursors_per_connection
+The maximum number of remote cursors a single websocket connection will track across its subscribed collaborative sessions.
+
+Default value:
+```yaml
+max_cursors_per_connection: 64
+```
+
 ### system.file_collaboration.session_grace_period
 The amount of time (in seconds) Wings keeps a collaborative session alive after the last participant leaves before tearing it down. This allows a user to briefly disconnect and rejoin without losing the session state.
 
@@ -1514,6 +1530,8 @@ system:
     file_size_cap: 1048576
     max_sessions_per_server: 16
     max_sessions_per_connection: 8
+    max_editors_per_session: 32
+    max_cursors_per_connection: 64
     session_grace_period: 120
   backups:
     write_limit: 0
@@ -1725,6 +1743,8 @@ system:
     file_size_cap: 1048576
     max_sessions_per_server: 16
     max_sessions_per_connection: 8
+    max_editors_per_session: 32
+    max_cursors_per_connection: 64
     session_grace_period: 120
   backups:
     write_limit: 0
