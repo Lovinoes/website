@@ -33,3 +33,7 @@
 .label .nodeLabel {
   color: #37373b !important;
 }
+
+.VPSidebarItem.level-0 {
+  padding-bottom: 12px !important;
+}
