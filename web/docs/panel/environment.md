@@ -44,6 +44,15 @@ Sentry DSN for error tracking. Leave unset to disable.
 https://<public_key>@sentry.io/<project_id>
 ```
 
+## SENTRY_TRACING_SAMPLE_RATE
+
+The fraction of requests traced for Sentry performance monitoring, from `0.0` (none) to `1.0` (all). Lower this on busy instances to stay within your Sentry quota. Error reporting is unaffected. Has no effect when `SENTRY_URL` is unset, and the Panel refuses to start if the value is not a number in that range.
+
+Default:
+```plaintext
+SENTRY_TRACING_SAMPLE_RATE=1.0
+```
+
 ## DATABASE_MIGRATE
 
 Whether the Panel runs database migrations on startup. In a clustered environment with multiple backend instances, set this to `true` on exactly one instance and `false` on the rest to avoid migration conflicts.

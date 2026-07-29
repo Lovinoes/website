@@ -23,8 +23,8 @@ When you create a backup configuration, you pick a **backup disk** - the backend
 | **Zfs** | A ZFS snapshot on the Wings node | None (host filesystem must be ZFS) |
 | **S3** | An S3 (or S3-compatible) bucket | S3 credentials and bucket details |
 | **Restic** | A [restic](https://restic.net) repository (any backend restic supports) | Restic repository URL, password, and any backend-specific environment variables |
-| **Proxmox Backup Server** | A [Proxmox Backup Server](https://www.proxmox.com/en/products/proxmox-backup-server) datastore | PBS server URL, datastore, API token, and server fingerprint |
-| **Kopia** | A [Kopia](https://kopia.io) repository, via a running Kopia repository server | Kopia server URL, username, repository password, and server fingerprint |
+| **Proxmox Backup Server** | A [Proxmox Backup Server](https://www.proxmox.com/en/products/proxmox-backup-server) datastore | PBS server URL, datastore, API token, and optionally a server fingerprint |
+| **Kopia** | A [Kopia](https://kopia.io) repository, via a running Kopia repository server | Kopia server URL, username, repository password, and optionally a server fingerprint |
 
 The four node-local options (**Local**, **DdupBak**, **Btrfs**, **Zfs**) don't require any credentials on the Panel side - the Wings node writes directly to its own disk, at the path configured by [`system.backup_directory`](../configuration.md#system-backup-directory) (defaults to `/var/lib/pterodactyl/backups`). The four remote options (**S3**, **Restic**, **Proxmox Backup Server**, and **Kopia**) need credentials, which you enter when creating the configuration. All secrets are encrypted at rest using the Panel's encryption key.
 
@@ -123,11 +123,11 @@ Use the **Proxmox Backup Server** disk to store backups in a [Proxmox Backup Ser
 | **Namespace** | Optional [namespace](https://pbs.proxmox.com/docs/storage.html#backup-namespaces) within the datastore. Leave blank to use the datastore root. |
 | **Token ID** | The API token in the form `user@realm!token-name`, e.g. `calagopus@pbs!wings` |
 | **Token Secret** | The secret shown when the token was created (encrypted at rest; appears blank on re-edit) |
-| **Fingerprint** | The PBS server's TLS certificate SHA-256 fingerprint (64 hex characters; colons are optional). Required - PBS connections are pinned to this fingerprint. |
+| **Fingerprint** | Optional. The PBS server's TLS certificate SHA-256 fingerprint (64 hex characters; colons are optional). When set, PBS connections are pinned to this fingerprint. Leave blank to validate the certificate against the Wings node's system trust store instead - only do that if the PBS server presents a certificate from a CA the node already trusts (a self-signed certificate will fail). |
 | **Backup ID Prefix** | Optional prefix for the PBS backup ID. Defaults to `calagopus`. Wings will only ever delete snapshots whose backup ID matches `<prefix>-<server-uuid>`, so this also acts as a safety boundary against touching unrelated snapshots in the datastore. |
 
 ::: info
-You can read the fingerprint from the PBS web UI dashboard (**Show Fingerprint**) or with `proxmox-backup-manager cert info` on the PBS host. Either the colon-separated form (`AB:CD:...`) or the plain 64-character hex string works.
+You can read the fingerprint from the PBS web UI dashboard (**Show Fingerprint**) or with `proxmox-backup-manager cert info` on the PBS host. Either the colon-separated form (`AB:CD:...`) or the plain 64-character hex string works. PBS generates a self-signed certificate by default, so unless you replaced it with one from a trusted CA, you need the fingerprint.
 :::
 
 ## Kopia Settings
@@ -141,11 +141,11 @@ Backups are created as Kopia snapshots tagged with the backup UUID, deduplicated
 | **URL** | The Kopia repository server URL, e.g. `https://kopia.example.com:51515` |
 | **Username** | The Kopia server username in the form `user@host`, e.g. `wings@node1`. The part after `@` is used as the override hostname when connecting. |
 | **Password** | The Kopia server password (encrypted at rest; appears blank on re-edit) |
-| **Fingerprint** | The Kopia server's TLS certificate SHA-256 fingerprint (64 hex characters; colons are optional). Required - the connection is pinned to this fingerprint. |
+| **Fingerprint** | Optional. The Kopia server's TLS certificate SHA-256 fingerprint (64 hex characters; colons are optional). When set, the connection is pinned to this fingerprint. Leave blank to validate the certificate against the Wings node's system trust store instead - only do that if the Kopia server presents a certificate from a CA the node already trusts (a self-signed certificate will fail). |
 | **Tags** | Optional key/value tags (up to 50) applied to every snapshot created with this configuration, in addition to the automatic backup-UUID tag. Useful for grouping or policy targeting in Kopia. |
 
 ::: info
-The username and password must correspond to a user that the Kopia repository server has been configured to accept (see [Kopia server access control](https://kopia.io/docs/repository-server/#server-access-control)). The fingerprint is the server's certificate fingerprint, which `kopia server start` prints on startup (and which you pass to clients as `--server-cert-fingerprint`).
+The username and password must correspond to a user that the Kopia repository server has been configured to accept (see [Kopia server access control](https://kopia.io/docs/repository-server/#server-access-control)). The fingerprint is the server's certificate fingerprint, which `kopia server start` prints on startup (and which you pass to clients as `--server-cert-fingerprint`). It is generated self-signed by default, so unless you started the server with a certificate from a trusted CA, you need the fingerprint.
 :::
 
 ## Assigning a Backup Configuration
