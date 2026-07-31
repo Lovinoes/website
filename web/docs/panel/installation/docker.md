@@ -69,13 +69,30 @@ The AIO image runs the Panel and Wings inside the same container. You do not nee
 
 ### 1. Download the AIO Compose Stack
 
-```bash
+Pick the compose file that matches your needs:
+
+::: code-group
+
+```bash [Basic AIO]
 mkdir calagopus-panel
 cd calagopus-panel
 
 curl -o compose.yml https://raw.githubusercontent.com/calagopus/panel/refs/heads/main/compose.aio.yml
 ls -lh # should show you the compose.yml file
 ```
+
+```bash [Heavy AIO for Extension Support]
+mkdir calagopus-panel
+cd calagopus-panel
+
+curl -o compose.yml https://raw.githubusercontent.com/calagopus/panel/refs/heads/main/compose.heavy.aio.yml
+ls -lh # should show you the compose.yml file
+```
+
+:::
+
+The **Basic AIO** compose uses the `:aio` image and is the right choice for most single-node installations.
+The **Heavy AIO** compose uses the `:heavy-aio` image and adds the volume mounts needed to install [extensions](../extensions/index.md) - pick this one only if you know you'll be using extensions.
 
 ### 2. Create the Wings configuration file
 
@@ -91,7 +108,11 @@ You can leave the file empty - the AIO container will populate it on first start
 
 ### 3. Change the Docker Image Variant (Optional)
 
-By default, `compose.yml` uses the `:aio` variant. If you want to use a different variant (for example `:heavy-aio` for extension support, or `:nightly-aio` to live on the edge), open `compose.yml` in your preferred text editor and change the image tag on the `web` service. [See the Docker Image Variants section above](#docker-image-variants) for details on each.
+If you want a different tag than what your chosen compose file ships with (for example `:nightly-aio`, or `:nightly-heavy-aio` on the heavy stack), open `compose.yml` in your preferred text editor and change the image tag on the `web` service. [See the Docker Image Variants section above](#docker-image-variants) for details on each.
+
+::: warning Switching between the AIO and Heavy AIO tracks needs more than the tag
+`:heavy-aio` also needs four extra volume mounts for the build artifacts it produces. Without them the container refuses to start and tells you which path is missing. If you started on the Basic AIO compose and later want extensions, don't just retag - follow [Switching to the Heavy Image](../extensions/switching-to-the-heavy-image.md), which lists the mounts to add.
+:::
 
 ### 4. Configure Environment Variables
 

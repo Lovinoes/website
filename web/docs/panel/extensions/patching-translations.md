@@ -17,10 +17,11 @@ volumes:
   - ./build/translations:/app/translations
 ```
 
-On every rebuild, the heavy image's entrypoint does two things, in order:
+The heavy image's entrypoint does three things:
 
-1. **Copies the Panel's base translation files** into `/app/translations/` - one flat JSON file per language (`en.json`, `de.json`, `es.json`, `fr.json`, …). This always runs, so these top-level files are *regenerated from the shipped Panel* each time.
-2. **Applies your overrides.** For every `*.json` file in `/app/translations/overrides/`, it deep-merges that file into the top-level file with the **same filename**. So `overrides/en.json` merges into `en.json`, `overrides/de.json` into `de.json`, and so on.
+1. **Copies the Panel's base translation files** into `/app/translations/` - one flat JSON file per language (`en.json`, `de.json`, `es.json`, `fr.json`, …). This runs on every boot and after every rebuild, so these top-level files are *regenerated from the shipped Panel* each time. They are there for you to read, as the reference for what keys exist.
+2. **Stages your changes, before the frontend is built.** Any top-level `<lang>.json` that isn't one of the shipped filenames is staged as a new language, and every `*.json` in `/app/translations/overrides/` is deep-merged onto the base language with the **same filename**. So `overrides/en.json` merges into `en.json`, `overrides/de.json` into `de.json`, and so on.
+3. **Builds the frontend from that staged set.** The result is compiled into the Panel binary, which is where the Panel serves translations from - so your changes only take effect through a rebuild (see [Applying Your Changes](#applying-your-changes)).
 
 Mapped back to your host, the override directory is:
 
@@ -29,12 +30,12 @@ Mapped back to your host, the override directory is:
 ```
 
 ::: warning Edit the overrides, never the top-level files
-The top-level files (`./build/translations/en.json`, etc.) are **overwritten from the base Panel on every rebuild**. Any edit you make there is wiped. The `overrides/` directory is the durable, upgrade-safe place to put your changes - because step 1 regenerates the base and step 2 reapplies your overrides on top, your patches survive Panel upgrades automatically (as long as the keys still exist).
+The top-level files for languages the Panel already ships (`./build/translations/en.json`, etc.) are **overwritten from the base Panel on every boot**, and edits to them are both wiped and ignored by the build. The `overrides/` directory is the durable, upgrade-safe place to put your changes - because step 1 regenerates the base and step 2 reapplies your overrides on top, your patches survive Panel upgrades automatically (as long as the keys still exist).
 :::
 
 ## The Merge
 
-The merge is a recursive deep-merge (see [`applyJson.js`](https://github.com/calagopus/panel/blob/main/docker/applyJson.js)):
+The merge is a recursive deep-merge:
 
 - **Objects are merged key-by-key**, recursively. You only name the keys you want to change; everything else keeps the Panel's value.
 - **Strings, numbers, and arrays are replaced** wholesale at the leaf.
@@ -48,7 +49,7 @@ Each language file has two top-level keys, `items` and `translations`, exactly l
 - **`translations`** - regular strings, nested as deeply as the Panel nests them. The Panel's convention is `pages.<section>.<page>.<element>` with leaf categories like `button`, `modal`, `form`, `toast`, `error`. Anything in `{braces}` is an interpolation variable - keep it intact or the string breaks.
 - **`items`** - pluralized count strings, each with the six CLDR plural categories (`zero`, `one`, `two`, `few`, `many`, `other`).
 
-The base file you're patching against is the Panel's [`frontend/src/translations.ts`](https://github.com/calagopus/panel/blob/main/frontend/src/translations.ts) (the generated JSON lives at `./build/translations/en.json` on your host after the first rebuild - open it to find the exact key path you want to change).
+The base file you're patching against is the Panel's [`frontend/src/translations.ts`](https://github.com/calagopus/panel/blob/main/frontend/src/translations.ts) (the generated JSON lives at `./build/translations/en.json` on your host once the container has booted once - open it to find the exact key path you want to change).
 
 ## Patching an Existing String
 
@@ -125,7 +126,9 @@ cp ./build/translations/en.json ./build/translations/eo.json
 # then translate the values in eo.json
 ```
 
-On the next rebuild this file is compiled into the Panel binary alongside the shipped languages, so the new language is **served** at `/translations/<lang>.json` *and* listed by `/api/languages`, which is what populates the language picker in account settings. (The boot-time copy of the shipped defaults only writes over their own filenames - it leaves your extra file alone.)
+On the next rebuild this file is compiled into the Panel binary alongside the shipped languages, so the new language is **served** at `/translations/<lang>.json` *and* listed by `/api/languages`, which is what populates the language picker in account settings. The picker labels it using the browser's own locale data, so a valid language code shows up under its proper name with nothing further to register. (The boot-time copy of the shipped defaults only writes over their own filenames - it leaves your extra file alone.)
+
+Pick a filename the Panel doesn't already ship. A top-level file whose name matches a shipped language is treated as the regenerated base copy and ignored - to change a shipped language, use `overrides/` instead.
 
 You don't have to translate everything up front. Any key you leave out falls back to its **English** value, so a partial file is perfectly usable - users on that language just see English for whatever you haven't translated yet, and you can fill more in over time. Where your language uses extra plural forms, fill in the CLDR categories that apply (`zero`, `one`, `two`, `few`, `many`, `other`); the [Unicode CLDR plural rules table](https://www.unicode.org/cldr/charts/latest/supplemental/language_plural_rules.html) is the reference.
 
@@ -135,15 +138,20 @@ A file in `overrides/` *patches* a language - merged on top, so it can be a tiny
 
 ## Applying Your Changes
 
-Overrides are applied **during a rebuild**, not on a plain container restart. After you add or edit a file in `overrides/`, trigger a rebuild:
+Translations are compiled into the binary, so they take effect **through a rebuild**. After you add or edit a language file or an override, trigger one:
 
 - **From the admin UI:** go to the extensions management page and click **Rebuild**. (Requires the `extensions.manage` admin permission.)
 - It also runs automatically as part of any extension install/uninstall rebuild.
+- A `docker compose restart` picks the change up too - the entrypoint notices the translations differ from whatever the cached binary was built with and rebuilds on boot.
 
-Once the rebuild finishes, reload the Panel and your strings are live.
+Rebuilds are cached by the combination of your installed extensions *and* your translation files, so a translations-only edit is enough to invalidate the cache and produce a real build. Once it finishes, reload the Panel and your strings are live.
 
-::: warning A plain restart is not enough
-On a bare `docker compose restart`, the entrypoint regenerates the top-level files from the base Panel but does **not** reapply overrides unless a rebuild actually runs. If your patched strings revert to the Panel defaults after a restart, trigger a rebuild from the admin UI to reapply the overrides.
+::: info The rebuild takes a while, and the Panel stays up
+A rebuild compiles the frontend and the binary. The Panel keeps serving on the previous binary while that happens and switches over when it finishes, so this isn't downtime - but your strings won't change until it completes. Watch the extension build log if you want to follow along.
+:::
+
+::: warning Reverting a change also needs a rebuild
+Removing a language file or an override doesn't take effect until the next rebuild either. Because the cache key follows your translation files, deleting them usually returns you to a binary that was already built and cached, which makes that particular rebuild fast or instant.
 :::
 
 ## Caveats
