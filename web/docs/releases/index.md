@@ -1,19 +1,24 @@
 ---
 title: Releases
-description: Changelogs for Calagopus Panel and Wings releases, newest first.
+description: Changelogs for Calagopus Panel, Wings and DB Agent releases, newest first.
 ---
 
 # Releases
 
-Release notes for the two Calagopus components. Panel and Wings are versioned
-independently, so pick the changelog for the component you want to read about.
+Release notes for the Calagopus components. Each one is versioned independently, so pick
+the changelog for the component you want to read about. Everything here comes straight
+from the [release API](https://calagopus.com/api/releases), which mirrors the GitHub
+releases of each repository.
 
-- [Panel Releases](./panel.md) - changelog for the Calagopus Panel.
-- [Wings Releases](./wings.md) - changelog for the Calagopus Wings daemon.
+<script setup>
+import ReleaseIndex from '../../../.vitepress/components/ReleaseIndex.vue'
+</script>
+
+<ReleaseIndex />
 
 ::: tip Keep them in sync
 Panel and Wings releases are frequently paired. When a release note says to update
 one component before the other, follow that order to avoid transient issues. See the
-[Panel](../panel/updating.md) and [Wings](../wings/updating.md) updating guides for the
-mechanics.
+[Panel](../panel/updating.md), [Wings](../wings/updating.md) and
+[DB Agent](../db-agent/updating.md) updating guides for the mechanics.
 :::

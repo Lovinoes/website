@@ -3,6 +3,10 @@
  * https://github.com/vuejs/vitepress/blob/main/src/client/theme-default/styles/vars.css
  */
 
+html {
+  scrollbar-gutter: stable;
+}
+
 :root {
   /* Docsearch */
   --docsearch-search-button-background: var(--mantine-color-gray-0) !important;

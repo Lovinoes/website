@@ -7,7 +7,12 @@
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "skipLibCheck": true,
-    "types": []
+    "types": ["node"]
   },
-  "include": [".vitepress/data/**/*.ts"]
+  "include": [
+    ".vitepress/config.mts",
+    ".vitepress/data/**/*.ts",
+    ".vitepress/data/**/*.mts",
+    ".vitepress/plugins/**/*.ts"
+  ]
 }

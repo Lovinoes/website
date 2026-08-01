@@ -10,6 +10,7 @@ import { faqs } from './data/faqs.ts';
 import { aiDocPlugin } from './plugins/ai-doc.ts';
 import { writeConfigDocs } from './plugins/config-docs.ts';
 import { generateLlmsArtifacts } from './plugins/llms.ts';
+import { expandReleaseMarkdown } from './plugins/releases.ts';
 
 const SITE_URL = 'https://calagopus.com';
 const SRC_DIR = 'web';
@@ -233,6 +234,7 @@ export default withMermaid({
         items: [
           { text: 'Panel', link: '/docs/releases/panel' },
           { text: 'Wings', link: '/docs/releases/wings' },
+          { text: 'DB Agent', link: '/docs/releases/db-agent' },
         ],
       },
 
@@ -460,6 +462,7 @@ export default withMermaid({
 
   async buildEnd(siteConfig) {
     await generateLlmsArtifacts(siteConfig, SITE_URL);
+    await expandReleaseMarkdown(siteConfig.outDir);
   },
 
   transformPageData(pageData, { siteConfig }) {

@@ -1,0 +1,22 @@
+name: Daily Rebuild
+
+on:
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+
+jobs:
+  rebuild:
+    name: Trigger Cloudflare Pages build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Call deploy hook
+        env:
+          DEPLOY_HOOK: ${{ secrets.CLOUDFLARE_PAGES_DEPLOY_HOOK }}
+        run: |
+          if [ -z "$DEPLOY_HOOK" ]; then
+            echo "::error::CLOUDFLARE_PAGES_DEPLOY_HOOK is not set - create a deploy hook in the Cloudflare Pages project and add it as a repository secret."
+            exit 1
+          fi
+          curl --fail --silent --show-error -X POST "$DEPLOY_HOOK"
