@@ -1,3 +1,5 @@
+<!-- Generated from .vitepress/data/config/db-agent.ts by .vitepress/plugins/config-docs.ts - do not edit by hand. -->
+
 # Configuration
 
 This page is a reference for all DB Agent configuration options. The configuration file is located at `/etc/calagopus-db-agent/config.yml` by default (override with `-c`/`--config`).
@@ -149,7 +151,7 @@ The connection URL for DB Agent's internal SQLite state database.
 
 Default value:
 ```yaml
-url: sqlite://./data/database.db
+url: sqlite:///var/lib/calagopus-db-agent/data/database.db
 ```
 
 ### database.migrate
@@ -210,6 +212,22 @@ Default value:
 userns_mode: ''
 ```
 
+### docker.registry_image_fetch_cache.enabled
+Whether to enable caching of image metadata (e.g., digests, tags) from Docker registries to reduce API calls and speed up repeated database container starts.
+
+Default value:
+```yaml
+enabled: true
+```
+
+### docker.registry_image_fetch_cache.duration
+The duration (in seconds) that cached image metadata is considered valid before it is refreshed with a new request to the Docker registry.
+
+Default value:
+```yaml
+duration: 300
+```
+
 ### docker.rootless.enabled
 Enables rootless container execution. When enabled, each database container is started with a `keep-id` user namespace mapping derived from that database's own image UID/GID, so it maps correctly to the unprivileged user running DB Agent, and DB Agent skips `chown`-ing the database's host data directories (which would fail without root).
 
@@ -232,9 +250,9 @@ The configuration passed to the selected logging driver.
 Default value:
 ```yaml
 config:
-  max-size: 5m
-  max-file: '1'
   compress: 'false'
+  max-file: '1'
+  max-size: 5m
 ```
 
 ## API Configuration
@@ -288,7 +306,7 @@ trusted_proxies: []
 This section assumes you've already generated a certificate. See [Generating SSL Certificates](../additional/ssl-certificates.md) if you haven't.
 :::
 
-Every proxy (`postgres`, `mariadb`, `mongodb`, `redis`) as well as the management API (`api`) has its own independent `tls` block with the same three options:
+Every proxy (`postgres`, `mariadb`, `mongodb`, `redis`) as well as the management API (`api`) has its own independent `tls` block with the same four options:
 
 ### tls.enabled
 Whether TLS is enabled for this listener.
@@ -296,6 +314,14 @@ Whether TLS is enabled for this listener.
 Default value:
 ```yaml
 enabled: false
+```
+
+### tls.ktls_enabled
+Whether to hand connections off to the kernel's TLS implementation (kTLS) once the handshake completes, so the kernel encrypts and decrypts records instead of userspace. This mainly helps with bulk transfers. Linux only, and it requires the `tls` kernel module; DB Agent probes for kernel support on boot and silently falls back to userspace TLS if the kernel or the negotiated cipher suite doesn't support it. Has no effect unless `enabled` is `true`.
+
+Default value:
+```yaml
+ktls_enabled: false
 ```
 
 ### tls.cert
@@ -331,6 +357,7 @@ postgres:
   bind: 0.0.0.0:5432
   tls:
     enabled: false
+    ktls_enabled: false
     cert: cert.pem
     key: key.pem
 mariadb:
@@ -338,6 +365,7 @@ mariadb:
   bind: 0.0.0.0:3306
   tls:
     enabled: false
+    ktls_enabled: false
     cert: cert.pem
     key: key.pem
 mongodb:
@@ -345,6 +373,7 @@ mongodb:
   bind: 0.0.0.0:27017
   tls:
     enabled: false
+    ktls_enabled: false
     cert: cert.pem
     key: key.pem
 redis:
@@ -352,10 +381,11 @@ redis:
   bind: 0.0.0.0:6379
   tls:
     enabled: false
+    ktls_enabled: false
     cert: cert.pem
     key: key.pem
 database:
-  url: sqlite://./data/database.db
+  url: sqlite:///var/lib/calagopus-db-agent/data/database.db
   migrate: true
 docker:
   socket: /var/run/docker.sock
@@ -364,14 +394,17 @@ docker:
   container_pid_limit: 512
   timezone: UTC
   userns_mode: ''
+  registry_image_fetch_cache:
+    enabled: true
+    duration: 300
   rootless:
     enabled: false
   log_config:
     type: local
     config:
-      max-size: 5m
-      max-file: '1'
       compress: 'false'
+      max-file: '1'
+      max-size: 5m
 api:
   bind: 0.0.0.0:8090
   token: ''
@@ -379,6 +412,7 @@ api:
   ignore_upgrades: false
   tls:
     enabled: false
+    ktls_enabled: false
     cert: cert.pem
     key: key.pem
   trusted_proxies: []

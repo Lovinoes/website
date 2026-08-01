@@ -1,0 +1,277 @@
+import type { ConfigDoc, YamlValue } from './types.ts';
+
+const TLS_DEFAULTS: YamlValue = { enabled: false, ktls_enabled: false, cert: 'cert.pem', key: 'key.pem' };
+
+export const dbAgentConfigDoc: ConfigDoc = {
+  outFile: 'docs/db-agent/configuration.md',
+  sourceFile: '.vitepress/data/config/db-agent.ts',
+  title: 'Configuration',
+  intro:
+    'This page is a reference for all DB Agent configuration options. The configuration file is located at `/etc/calagopus-db-agent/config.yml` by default (override with `-c`/`--config`).',
+  sections: [
+    {
+      title: 'Core Configuration',
+      options: [
+        {
+          key: 'debug',
+          description: 'Enables debug mode for DB Agent. When enabled, detailed logs are printed for troubleshooting.',
+          default: false,
+        },
+        {
+          key: 'socket_dir',
+          description:
+            'The directory where DB Agent creates the Unix sockets that get bind-mounted into each database container.',
+          default: '/run/calagopus-db-agent',
+        },
+        {
+          key: 'data_dir',
+          description:
+            'The directory where DB Agent stores database data. This is bind-mounted into each database container and is where all database files are stored.',
+          default: '/var/lib/calagopus-db-agent/data',
+        },
+        {
+          key: 'log_dir',
+          description: 'The directory where DB Agent stores its logs.',
+          default: '/var/log/calagopus-db-agent',
+        },
+        {
+          key: 'ignore_config_updates',
+          description:
+            'When set to `true`, DB Agent will ignore configuration update requests sent to the management API.',
+          default: false,
+        },
+        {
+          key: 'disk_check_interval',
+          description: 'The interval (in seconds) at which DB Agent checks disk usage for its data directory.',
+          default: 60,
+        },
+        {
+          key: 'disk_check_concurrency',
+          description:
+            'The number of concurrent allowed disk scans DB Agent can perform. This limits the number of simultaneous disk usage checks to prevent excessive background resource consumption.',
+          default: 5,
+        },
+      ],
+    },
+    {
+      title: 'Database Proxies',
+      body: 'DB Agent runs a proxy for each supported database engine, routing incoming connections to the correct database container. Each proxy can be individually disabled and has its own bind address and optional TLS configuration.',
+      options: [
+        {
+          key: 'postgres.enabled',
+          description: 'Whether the PostgreSQL proxy is enabled.',
+          default: true,
+        },
+        {
+          key: 'postgres.bind',
+          description: 'The address the PostgreSQL proxy listens on.',
+          default: '0.0.0.0:5432',
+        },
+        {
+          key: 'postgres.tls',
+          description: 'TLS configuration for the PostgreSQL proxy. See [TLS Configuration](#tls-configuration).',
+          example: TLS_DEFAULTS,
+        },
+        {
+          key: 'mariadb.enabled',
+          description: 'Whether the MariaDB/MySQL proxy is enabled.',
+          default: true,
+        },
+        {
+          key: 'mariadb.bind',
+          description: 'The address the MariaDB/MySQL proxy listens on.',
+          default: '0.0.0.0:3306',
+        },
+        {
+          key: 'mariadb.tls',
+          description: 'TLS configuration for the MariaDB/MySQL proxy. See [TLS Configuration](#tls-configuration).',
+          example: TLS_DEFAULTS,
+        },
+        {
+          key: 'mongodb.enabled',
+          description: 'Whether the MongoDB proxy is enabled.',
+          default: true,
+        },
+        {
+          key: 'mongodb.bind',
+          description: 'The address the MongoDB proxy listens on.',
+          default: '0.0.0.0:27017',
+        },
+        {
+          key: 'mongodb.tls',
+          description: 'TLS configuration for the MongoDB proxy. See [TLS Configuration](#tls-configuration).',
+          example: TLS_DEFAULTS,
+        },
+        {
+          key: 'redis.enabled',
+          description: 'Whether the Redis proxy is enabled.',
+          default: true,
+        },
+        {
+          key: 'redis.bind',
+          description: 'The address the Redis proxy listens on.',
+          default: '0.0.0.0:6379',
+        },
+        {
+          key: 'redis.tls',
+          description: 'TLS configuration for the Redis proxy. See [TLS Configuration](#tls-configuration).',
+          example: TLS_DEFAULTS,
+        },
+      ],
+    },
+    {
+      title: 'Database Configuration',
+      body: 'DB Agent stores its own state (registered database instances, users, and their metadata) in a local SQLite database, separate from the databases it provisions.',
+      options: [
+        {
+          key: 'database.url',
+          description: "The connection URL for DB Agent's internal SQLite state database.",
+          default: 'sqlite:///var/lib/calagopus-db-agent/data/database.db',
+        },
+        {
+          key: 'database.migrate',
+          description:
+            'Whether DB Agent should automatically run pending migrations against its internal state database on startup.',
+          default: true,
+        },
+      ],
+    },
+    {
+      title: 'Docker Configuration',
+      options: [
+        {
+          key: 'docker.socket',
+          description:
+            'The path to the Docker daemon socket or HTTP address. Point this at a Podman socket to use Podman instead of Docker.',
+          default: '/var/run/docker.sock',
+        },
+        {
+          key: 'docker.registries',
+          description:
+            'The Docker registry authentication configurations used for pulling private images, keyed by registry hostname.',
+          default: {},
+        },
+        {
+          key: 'docker.tmpfs_size',
+          description: 'The size (in `MiB`) of the `/tmp` directory mounted as a tmpfs in database containers.',
+          default: 100,
+        },
+        {
+          key: 'docker.container_pid_limit',
+          description:
+            'The maximum number of processes (PIDs) allowed to run simultaneously within a single database container.',
+          default: 512,
+        },
+        {
+          key: 'docker.timezone',
+          description: "The default timezone passed into database containers when a database doesn't specify its own.",
+          default: 'UTC',
+        },
+        {
+          key: 'docker.userns_mode',
+          description:
+            'The user namespace mode for database containers, used to isolate container users from host users for enhanced security. Ignored when `docker.rootless.enabled` is `true`.',
+          default: '',
+        },
+        {
+          key: 'docker.registry_image_fetch_cache.enabled',
+          description:
+            'Whether to enable caching of image metadata (e.g., digests, tags) from Docker registries to reduce API calls and speed up repeated database container starts.',
+          default: true,
+        },
+        {
+          key: 'docker.registry_image_fetch_cache.duration',
+          description:
+            'The duration (in seconds) that cached image metadata is considered valid before it is refreshed with a new request to the Docker registry.',
+          default: 300,
+        },
+        {
+          key: 'docker.rootless.enabled',
+          description:
+            "Enables rootless container execution. When enabled, each database container is started with a `keep-id` user namespace mapping derived from that database's own image UID/GID, so it maps correctly to the unprivileged user running DB Agent, and DB Agent skips `chown`-ing the database's host data directories (which would fail without root).",
+          default: false,
+        },
+        {
+          key: 'docker.log_config.type',
+          description: 'The Docker logging driver type used to capture and store database container output.',
+          default: 'local',
+        },
+        {
+          key: 'docker.log_config.config',
+          description: 'The configuration passed to the selected logging driver.',
+          default: { compress: 'false', 'max-file': '1', 'max-size': '5m' },
+        },
+      ],
+    },
+    {
+      title: 'API Configuration',
+      options: [
+        {
+          key: 'api.bind',
+          description: 'The address the management API binds to.',
+          default: '0.0.0.0:8090',
+        },
+        {
+          key: 'api.token',
+          description:
+            'The API token clients must present to authenticate against the management API. Must be kept secret. Set it with `calagopus-db-agent configure --token <TOKEN>` rather than editing this by hand.',
+          default: '',
+        },
+        {
+          key: 'api.disable_openapi_docs',
+          description: 'Controls the availability of the `/openapi.json` endpoint.',
+          default: false,
+        },
+        {
+          key: 'api.ignore_upgrades',
+          description: 'When set to `true`, DB Agent will ignore remote upgrade requests sent to the management API.',
+          default: false,
+        },
+        {
+          key: 'api.tls',
+          description: 'TLS configuration for the management API itself. See [TLS Configuration](#tls-configuration).',
+          example: TLS_DEFAULTS,
+        },
+        {
+          key: 'api.trusted_proxies',
+          description:
+            'A list of trusted CIDR ranges from proxy servers (like Cloudflare, NGINX, or a Load Balancer) that DB Agent uses to resolve the actual IP address of a client using the `X-Forwarded-For` or `X-Real-IP` header.',
+          default: [],
+        },
+      ],
+    },
+    {
+      title: 'TLS Configuration',
+      body: "::: info\nThis section assumes you've already generated a certificate. See [Generating SSL Certificates](../additional/ssl-certificates.md) if you haven't.\n:::\n\nEvery proxy (`postgres`, `mariadb`, `mongodb`, `redis`) as well as the management API (`api`) has its own independent `tls` block with the same four options:",
+      inExample: false,
+      options: [
+        {
+          key: 'tls.enabled',
+          description: 'Whether TLS is enabled for this listener.',
+          default: false,
+        },
+        {
+          key: 'tls.ktls_enabled',
+          description:
+            "Whether to hand connections off to the kernel's TLS implementation (kTLS) once the handshake completes, so the kernel encrypts and decrypts records instead of userspace. This mainly helps with bulk transfers. Linux only, and it requires the `tls` kernel module; DB Agent probes for kernel support on boot and silently falls back to userspace TLS if the kernel or the negotiated cipher suite doesn't support it. Has no effect unless `enabled` is `true`.",
+          default: false,
+        },
+        {
+          key: 'tls.cert',
+          description: 'The absolute filesystem path to the SSL certificate file.',
+          default: 'cert.pem',
+        },
+        {
+          key: 'tls.key',
+          description: 'The absolute filesystem path to the SSL private key file corresponding to the certificate.',
+          default: 'key.pem',
+        },
+      ],
+    },
+  ],
+  example: {
+    title: 'Example Config',
+    body: 'The following is an example of a standard generated `config.yml` for DB Agent with default values:',
+    platforms: [{ id: 'default', label: 'Default' }],
+  },
+};

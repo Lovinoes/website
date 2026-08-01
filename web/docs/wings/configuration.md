@@ -1,3 +1,5 @@
+<!-- Generated from .vitepress/data/config/wings.ts by .vitepress/plugins/config-docs.ts - do not edit by hand. -->
+
 # Configuration
 
 This page is a reference for all Wings configuration options. The configuration file is located at `/etc/calagopus-wings/config.yml` on Linux (`C:\ProgramData\Calagopus-Wings\config.yml` on Windows).
@@ -29,16 +31,23 @@ Unique identifier for this Wings node.
 
 Default value:
 ```yaml
-uuid: UUID
+uuid: UUID_HERE
 ```
 
-### token_id / token
-Authentication credentials used by Wings to validate requests from the Panel. Must be kept secret.
+### token_id
+The identifier half of the credentials Wings uses to validate requests from the Panel. Written by `wings configure`.
 
 Default value:
 ```yaml
-token_id: TOKEN_ID
-token: TOKEN
+token_id: TOKEN_ID_HERE
+```
+
+### token
+The secret half of the credentials Wings uses to validate requests from the Panel. Must be kept secret. Written by `wings configure`.
+
+Default value:
+```yaml
+token: TOKEN_HERE
 ```
 
 ## API Settings
@@ -65,6 +74,14 @@ Determines whether HTTPS is enabled for the Wings API to ensure encrypted commun
 Default value:
 ```yaml
 enabled: false
+```
+
+### api.ssl.ktls_enabled
+Whether to hand HTTPS connections off to the kernel's TLS implementation (kTLS) once the handshake completes, so the kernel encrypts and decrypts records instead of userspace. This mainly speeds up large file transfers and backup downloads. Linux only, and it requires the `tls` kernel module; Wings probes for kernel support on boot and silently falls back to userspace TLS if the kernel or the negotiated cipher suite doesn't support it. Has no effect unless `api.ssl.enabled` is `true`.
+
+Default value:
+```yaml
+ktls_enabled: false
 ```
 
 ### api.ssl.cert
@@ -214,7 +231,7 @@ trusted_proxies: []
 ## System Configuration
 
 ::: info Path placeholders
-`data`, `diffs_directory`, `vmount_directory`, `archive_directory` and `backup_directory` (plus `log_directory` and `tmp_directory` on Windows only) accept the `{root_directory}` placeholder in their value. It's substituted with the configured `system.root_directory` every time the path is used, so these default to living under `root_directory` and move together if you repoint it. This is also how a freshly generated `config.yml` writes these values: literally as `{root_directory}/...`, not pre-resolved, so editing `root_directory` alone is enough to relocate everything else that still uses the placeholder. `log_directory` and `tmp_directory` default to fixed, independent paths on Unix - see their entries below.
+`data`, `diffs_directory`, `vmount_directory`, `log_directory`, `archive_directory`, `backup_directory` and `tmp_directory` accept the `{root_directory}` placeholder in their value. It's substituted with the configured `system.root_directory` every time the path is used, so these default to living under `root_directory` and move together if you repoint it. This is also how a freshly generated `config.yml` writes these values: literally as `{root_directory}/...`, not pre-resolved, so editing `root_directory` alone is enough to relocate everything else that still uses the placeholder. `log_directory` and `tmp_directory` default to fixed, independent paths on Unix - see their entries below.
 :::
 
 ### system.root_directory
@@ -752,7 +769,7 @@ The amount of time (in seconds) Wings keeps a collaborative session alive after 
 
 Default value:
 ```yaml
-session_grace_period: 120
+session_grace_period: 30
 ```
 
 ## Backups Configuration
@@ -774,7 +791,9 @@ read_limit: 0
 ```
 
 ### system.backups.compression_level
-Defines the CPU vs. compression ratio. Higher compression saves disk space but uses more CPU (`best_speed` = fastest, `best_compression` = smallest file). Available options:
+Defines the CPU vs. compression ratio. Higher compression saves disk space but uses more CPU (`best_speed` = fastest, `best_compression` = smallest file).
+
+Available options:
 
 `best_speed`, `good_speed`, `good_compression`, `best_compression`
 
@@ -816,7 +835,9 @@ restore_threads: 4
 ```
 
 ### system.backups.wings.archive_format
-The compression format used for local backups. Available options:
+The compression format used for local backups.
+
+Available options:
 
 `tar`, `tar_gz`, `tar_xz`, `tar_lzip`, `tar_bz2`, `tar_lz4`, `tar_zstd`, `zip`, `seven_zip`
 
@@ -858,7 +879,9 @@ create_threads: 4
 ```
 
 ### system.backups.ddup_bak.compression_format
-The compression format used for each `ddup-bak` chunk. Available Options:
+The compression format used for each `ddup-bak` chunk.
+
+Available options:
 
 `none`, `deflate`, `gzip`, `brotli`
 
@@ -1411,7 +1434,6 @@ After saving `config.yml`, restart Wings for the new SSL configuration to take e
 sudo systemctl restart wings
 ```
 
-
 ## Example Config
 
 The following is an example of a standard generated `config.yml` for Wings with standard values. A handful of defaults differ between platforms (mainly paths and the Unix-only `passwd`/`machine_id` sections), so both are shown below.
@@ -1430,6 +1452,7 @@ api:
   port: 8080
   ssl:
     enabled: false
+    ktls_enabled: false
     cert: ''
     key: ''
   redirects: {}
@@ -1532,7 +1555,7 @@ system:
     max_sessions_per_connection: 8
     max_editors_per_session: 32
     max_cursors_per_connection: 64
-    session_grace_period: 120
+    session_grace_period: 30
   backups:
     write_limit: 0
     read_limit: 0
@@ -1599,6 +1622,9 @@ docker:
         gateway: fdba:17c8:6c94::1011
   domainname: ''
   registries: {}
+  registry_image_fetch_cache:
+    enabled: true
+    duration: 300
   tmpfs_size: 100
   container_pid_limit: 5120
   container_apply_seccomp: true
@@ -1648,6 +1674,7 @@ api:
   port: 8080
   ssl:
     enabled: false
+    ktls_enabled: false
     cert: ''
     key: ''
   redirects: {}
@@ -1745,7 +1772,7 @@ system:
     max_sessions_per_connection: 8
     max_editors_per_session: 32
     max_cursors_per_connection: 64
-    session_grace_period: 120
+    session_grace_period: 30
   backups:
     write_limit: 0
     read_limit: 0
@@ -1812,6 +1839,9 @@ docker:
         gateway: fdba:17c8:6c94::1011
   domainname: ''
   registries: {}
+  registry_image_fetch_cache:
+    enabled: true
+    duration: 300
   tmpfs_size: 100
   container_pid_limit: 5120
   container_apply_seccomp: true

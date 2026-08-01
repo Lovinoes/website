@@ -4,11 +4,20 @@ import { ViteImageOptimizer } from 'vite-plugin-image-optimizer';
 import { withMermaid } from 'vitepress-plugin-mermaid';
 import { tabsMarkdownPlugin } from 'vitepress-plugin-tabs';
 import { compareFaqs } from './data/compare-faqs.ts';
+import { dbAgentConfigDoc } from './data/config/db-agent.ts';
+import { wingsConfigDoc } from './data/config/wings.ts';
 import { faqs } from './data/faqs.ts';
 import { aiDocPlugin } from './plugins/ai-doc.ts';
+import { writeConfigDocs } from './plugins/config-docs.ts';
 import { generateLlmsArtifacts } from './plugins/llms.ts';
 
 const SITE_URL = 'https://calagopus.com';
+const SRC_DIR = 'web';
+
+// Config reference pages are generated from their definitions before VitePress
+// reads the source tree, so the rendered page, the raw `.md` and the example
+// config block can never drift apart.
+await writeConfigDocs([wingsConfigDoc, dbAgentConfigDoc], SRC_DIR);
 
 interface SidebarNode {
   text?: string;
@@ -42,7 +51,7 @@ function buildBreadcrumbMap(sidebar: SidebarNode[]): Map<string, BreadcrumbEntry
 // https://vitepress.dev/reference/site-config
 export default withMermaid({
   buildConcurrency: 128,
-  srcDir: 'web',
+  srcDir: SRC_DIR,
   cleanUrls: true,
   metaChunk: true,
 
