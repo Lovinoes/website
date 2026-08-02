@@ -160,7 +160,41 @@ for asset in page.data {
 
 Returns a paginated list of `StorageAsset` entries, each with name, size, URL, creation time, and a flag indicating whether it's a directory or a file. Directories sort before files, both alphabetically.
 
+`list` is shallow - it shows you the immediate children of `directory` and nothing deeper. Each returned `name` is the entry's path relative to `base`, so within a subdirectory you'll get `images/logo.png` rather than a bare `logo.png`.
+
 This method is primarily used by the admin panel's asset-browser UI; most extensions don't need it. If you're tracking your own files (you wrote them, you know where they are), prefer keeping a record in your own database table - that's both faster than listing the storage backend and more flexible for the kinds of queries your code actually wants to do.
+
+## Searching by Name
+
+Where `list` is shallow, `state.storage.search(base, directory, search, limit)` walks the entire subtree below `directory` and returns every entry whose **own name** contains `search`, matched case-insensitively:
+
+```rs
+let results = state
+    .storage
+    .search("userdata/extensions/dev.yourname.my-feature", "", "report", 50)
+    .await?;
+
+for asset in results {
+    println!("{} ({} bytes)", asset.name, asset.size);
+}
+```
+
+The matching is on the last path segment only, not the full path - a search for `report` finds `exports/q3-report.pdf` and the directory `reports/`, but not `reports/summary.pdf` (whose own name contains no `report`). Results are the same `StorageAsset` shape `list` returns, with `name` again relative to `base`, and directories sorted before files.
+
+Two differences from `list` worth internalising:
+
+- **It isn't paginated.** You get a flat `Vec<StorageAsset>` of at most `limit` entries. There's no page cursor and no total count - if more matched than `limit`, the extras are simply not returned and nothing tells you so.
+- **An empty `search` is an error**, not a "match everything". If your caller might pass a blank string, branch to `list` instead of forwarding it.
+
+::: warning Searching is O(subtree), and on S3 that's network
+Neither backend can do substring matching itself. On filesystem the Panel walks the directory tree; on S3 it issues `ListObjectsV2` **without a delimiter** across the whole prefix and filters the keys client-side, pulling up to 1000 keys per round trip. A search over a prefix holding tens of thousands of objects is many sequential API calls, and the cost falls on every keystroke if you wire it to a live-updating input.
+
+An internal scan cap bounds this at 10,000 entries walked per call. Past that the walk stops and you get whatever matched so far - silently, with no indication the results were cut short. So on a large bucket, a broad search is not just slow, it's *incomplete*.
+
+Debounce anything user-driven, scope the search to the narrowest `directory` you can, and treat the result as a browse aid rather than an authoritative answer to "does this file exist".
+:::
+
+The same advice as `list` applies, only more strongly: if the files are yours, index them in your own database table and query that. `search` exists for browse-style UIs over storage nobody has indexed - it's what the admin panel's asset browser uses - not as a general lookup mechanism.
 
 ## Temporary Files
 
