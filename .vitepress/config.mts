@@ -297,6 +297,7 @@ export default withMermaid({
                   { text: 'Translations', link: '/docs/panel/extensions/concepts/translations' },
                   { text: 'Mounting UI', link: '/docs/panel/extensions/concepts/mounting-ui' },
                   { text: 'Forms', link: '/docs/panel/extensions/concepts/forms' },
+                  { text: 'Toasts', link: '/docs/panel/extensions/concepts/toasts' },
                   { text: 'Extending Models', link: '/docs/panel/extensions/concepts/extending-models' },
                   { text: 'Email Templates', link: '/docs/panel/extensions/concepts/email-templates' },
                   { text: 'Speaking Game Protocols', link: '/docs/panel/extensions/concepts/speaking-game-protocols' },

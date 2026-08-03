@@ -188,7 +188,7 @@ That said, arrays of objects are still usually the better shape - they preserve 
 
 ## Data-Fetching Hooks
 
-Writing raw `useEffect` + `useState` fetches is tedious and error-prone. The Panel ships five hooks that cover the common patterns; they handle loading state, error toasts, and TanStack Query wiring for you.
+Writing raw `useEffect` + `useState` fetches is tedious and error-prone. The Panel ships five hooks that cover the common patterns; they handle loading state, error toasts, and TanStack Query wiring for you. Because they toast internally, adding your own toast around one of them double-reports the same event - see [Toasts the data hooks already raise](./toasts.md#toasts-the-data-hooks-already-raise) for what each one covers and how to opt out.
 
 All five are in `@/plugins/`:
 

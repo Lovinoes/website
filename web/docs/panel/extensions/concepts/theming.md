@@ -76,12 +76,12 @@ class MyExtension extends Extension {
       return {
         variables: {},
         dark: {
-          '--chart-series-1-border': brand[4],
-          '--chart-series-1-fill': brand[8],
+          '--chart-series-1': brand[4],
+          '--chart-series-2': brand[8],
         },
         light: {
-          '--chart-series-1-border': brand[6],
-          '--chart-series-1-fill': brand[2],
+          '--chart-series-1': brand[6],
+          '--chart-series-2': brand[2],
         },
       };
     };
@@ -129,19 +129,19 @@ Your extension can ship its own `src/app.css`, and the build picks it up automat
 :root[data-mantine-color-scheme="dark"] {
   --chart-grid-color: #2a2a2a;
   --chart-tick-color: #e5e7eb;
-  --chart-series-1-border: #c084fc;
-  --chart-series-1-fill: rgba(192, 132, 252, 0.18);
-  --chart-series-2-border: #f0abfc;
-  --chart-series-2-fill: rgba(240, 171, 252, 0.18);
+  --chart-series-1: #c084fc;
+  --chart-series-2: #f0abfc;
 }
 
 :root[data-mantine-color-scheme="light"] {
   --chart-grid-color: #e5e7eb;
   --chart-tick-color: #374151;
-  --chart-series-1-border: #9333ea;
-  --chart-series-1-fill: rgba(147, 51, 234, 0.15);
+  --chart-series-1: #9333ea;
+  --chart-series-2: #c026d3;
 }
 ```
+
+The Panel defines four series slots, `--chart-series-1` through `--chart-series-4`; a chart with more series than that cycles back through them. Each slot is a single color used for the series' line and, at reduced opacity, its gradient fill - there's no separate fill variable to set.
 
 Same trick works for the app background (`--mantine-color-body`) or any other `--mantine-color-*` variable.
 
