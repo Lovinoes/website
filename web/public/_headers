@@ -1,5 +1,8 @@
 # Cloudflare Pages headers (https://developers.cloudflare.com/pages/configuration/headers/)
 
+/                                                                                                                                                                                                                                                                         
+  Link: </llms.txt>; rel="llms.txt", </docs>; rel="service-doc"
+
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
 
