@@ -172,6 +172,53 @@ export const wingsConfigDoc: ConfigDoc = {
       ],
     },
     {
+      title: 'Schedule Steps',
+      body: 'These options govern the `HTTP Request` step that server schedules can run. The step sends a request to an arbitrary URL from the node, optionally storing the response status and body into schedule variables.',
+      options: [
+        {
+          key: 'api.schedule.steps.http_request.enabled',
+          description:
+            'Whether servers on this node are allowed to run the `HTTP Request` schedule step at all. When disabled, any schedule reaching such a step fails with an error instead of sending the request.',
+          default: true,
+        },
+        {
+          key: 'api.schedule.steps.http_request.requests',
+          description:
+            'The number of `HTTP Request` steps a single server may execute per rate limit window. Once the limit is hit, further requests fail until the window rolls over.',
+          default: 5,
+        },
+        {
+          key: 'api.schedule.steps.http_request.window_seconds',
+          description:
+            'The length (in seconds) of the rate limit window that `api.schedule.steps.http_request.requests` is counted against. The window is per server and restarts once it elapses.',
+          default: 60,
+        },
+        {
+          key: 'api.schedule.steps.http_request.max_response_size',
+          description:
+            'The maximum size (in bytes) of a response body captured by the step. Only relevant when the step stores the body into a schedule variable; anything past this limit is truncated. This should be kept at or below the 16 KiB schedule variable size limit, since a captured body larger than a variable may hold would fail the step outright.',
+          default: 16384,
+        },
+        {
+          key: 'api.schedule.steps.http_request.blocked_cidrs',
+          description:
+            'A security list of CIDR ranges that `HTTP Request` steps may not connect to, preventing SSRF (Server-Side Request Forgery) attacks against services reachable from the node. Enforced both on the URL host and on every address DNS resolves to, so a public hostname pointing at a private address is blocked as well.',
+          default: [
+            '0.0.0.0/8',
+            '127.0.0.0/8',
+            '10.0.0.0/8',
+            '100.64.0.0/10',
+            '172.16.0.0/12',
+            '192.168.0.0/16',
+            '169.254.0.0/16',
+            '::1',
+            'fe80::/10',
+            'fc00::/7',
+          ],
+        },
+      ],
+    },
+    {
       title: 'System Configuration',
       body: "::: info Path placeholders\n`data`, `diffs_directory`, `vmount_directory`, `log_directory`, `archive_directory`, `backup_directory` and `tmp_directory` accept the `{root_directory}` placeholder in their value. It's substituted with the configured `system.root_directory` every time the path is used, so these default to living under `root_directory` and move together if you repoint it. This is also how a freshly generated `config.yml` writes these values: literally as `{root_directory}/...`, not pre-resolved, so editing `root_directory` alone is enough to relocate everything else that still uses the placeholder. `log_directory` and `tmp_directory` default to fixed, independent paths on Unix - see their entries below.\n:::",
       options: [

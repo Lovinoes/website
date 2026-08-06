@@ -228,6 +228,60 @@ Default value:
 trusted_proxies: []
 ```
 
+## Schedule Steps
+
+These options govern the `HTTP Request` step that server schedules can run. The step sends a request to an arbitrary URL from the node, optionally storing the response status and body into schedule variables.
+
+### api.schedule.steps.http_request.enabled
+Whether servers on this node are allowed to run the `HTTP Request` schedule step at all. When disabled, any schedule reaching such a step fails with an error instead of sending the request.
+
+Default value:
+```yaml
+enabled: true
+```
+
+### api.schedule.steps.http_request.requests
+The number of `HTTP Request` steps a single server may execute per rate limit window. Once the limit is hit, further requests fail until the window rolls over.
+
+Default value:
+```yaml
+requests: 5
+```
+
+### api.schedule.steps.http_request.window_seconds
+The length (in seconds) of the rate limit window that `api.schedule.steps.http_request.requests` is counted against. The window is per server and restarts once it elapses.
+
+Default value:
+```yaml
+window_seconds: 60
+```
+
+### api.schedule.steps.http_request.max_response_size
+The maximum size (in bytes) of a response body captured by the step. Only relevant when the step stores the body into a schedule variable; anything past this limit is truncated. This should be kept at or below the 16 KiB schedule variable size limit, since a captured body larger than a variable may hold would fail the step outright.
+
+Default value:
+```yaml
+max_response_size: 16384
+```
+
+### api.schedule.steps.http_request.blocked_cidrs
+A security list of CIDR ranges that `HTTP Request` steps may not connect to, preventing SSRF (Server-Side Request Forgery) attacks against services reachable from the node. Enforced both on the URL host and on every address DNS resolves to, so a public hostname pointing at a private address is blocked as well.
+
+Default value:
+```yaml
+blocked_cidrs:
+- 0.0.0.0/8
+- 127.0.0.0/8
+- 10.0.0.0/8
+- 100.64.0.0/10
+- 172.16.0.0/12
+- 192.168.0.0/16
+- 169.254.0.0/16
+- ::1
+- fe80::/10
+- fc00::/7
+```
+
 ## System Configuration
 
 ::: info Path placeholders
@@ -1478,6 +1532,24 @@ api:
   upload_limit: 100
   max_jwt_uses: 5
   trusted_proxies: []
+  schedule:
+    steps:
+      http_request:
+        enabled: true
+        requests: 5
+        window_seconds: 60
+        max_response_size: 16384
+        blocked_cidrs:
+        - 0.0.0.0/8
+        - 127.0.0.0/8
+        - 10.0.0.0/8
+        - 100.64.0.0/10
+        - 172.16.0.0/12
+        - 192.168.0.0/16
+        - 169.254.0.0/16
+        - ::1
+        - fe80::/10
+        - fc00::/7
 system:
   root_directory: /var/lib/calagopus-wings
   log_directory: /var/log/calagopus-wings
@@ -1700,6 +1772,24 @@ api:
   upload_limit: 100
   max_jwt_uses: 5
   trusted_proxies: []
+  schedule:
+    steps:
+      http_request:
+        enabled: true
+        requests: 5
+        window_seconds: 60
+        max_response_size: 16384
+        blocked_cidrs:
+        - 0.0.0.0/8
+        - 127.0.0.0/8
+        - 10.0.0.0/8
+        - 100.64.0.0/10
+        - 172.16.0.0/12
+        - 192.168.0.0/16
+        - 169.254.0.0/16
+        - ::1
+        - fe80::/10
+        - fc00::/7
 system:
   root_directory: C:\ProgramData\Calagopus-Wings
   log_directory: '{root_directory}\logs'
