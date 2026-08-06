@@ -7,6 +7,7 @@ import { compareFaqs } from './data/compare-faqs.ts';
 import { dbAgentConfigDoc } from './data/config/db-agent.ts';
 import { wingsConfigDoc } from './data/config/wings.ts';
 import { faqs } from './data/faqs.ts';
+import { acceptMarkdownPlugin } from './plugins/accept-markdown.ts';
 import { aiDocPlugin } from './plugins/ai-doc.ts';
 import { writeConfigDocs } from './plugins/config-docs.ts';
 import { generateLlmsArtifacts } from './plugins/llms.ts';
@@ -58,6 +59,7 @@ export default withMermaid({
 
   vite: {
     plugins: [
+      acceptMarkdownPlugin(),
       aiDocPlugin([
         {
           route: '/ai-doc/extensions.md',

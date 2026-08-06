@@ -13,6 +13,8 @@
     ".vitepress/config.mts",
     ".vitepress/data/**/*.ts",
     ".vitepress/data/**/*.mts",
-    ".vitepress/plugins/**/*.ts"
+    ".vitepress/plugins/**/*.ts",
+    ".vitepress/lib/**/*.ts",
+    "functions/**/*.ts"
   ]
 }
