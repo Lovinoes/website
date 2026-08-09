@@ -27,7 +27,7 @@ async function pageTitle(file: string, fallback: string): Promise<string> {
   return source.match(/^---[\s\S]*?^title:\s*(.+?)\s*$[\s\S]*?^---/m)?.[1] ?? fallback;
 }
 
-const featureMark = (value: boolean | null): string => (value === true ? 'Yes' : value === false ? 'No' : '—');
+const featureMark = (value: boolean | null): string => (value === true ? 'Yes' : value === false ? 'No' : '-');
 
 function featureTableMarkdown(id: string): string {
   const category = featureCategories.find((c) => c.id === id);
@@ -46,7 +46,7 @@ function featureTableMarkdown(id: string): string {
       ].join('\n'),
     );
     if (category.rows.some((r) => r.pterodactyl === null || r.pelican === null || r.amp === null)) {
-      parts.push('— = not independently verified for that product');
+      parts.push('- = not independently verified for that product');
     }
   }
   if (category.bullets?.length) {

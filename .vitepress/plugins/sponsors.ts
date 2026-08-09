@@ -1,0 +1,227 @@
+import { readFile, writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
+
+const API_URL = 'https://calagopus.com/api/sponsors';
+const RETRIES = 3;
+
+interface ApiProfile {
+  github_id: number | null;
+  login: string;
+  name: string | null;
+  url: string;
+  avatar_url: string;
+}
+
+interface ApiSponsor {
+  status: 'monthly' | 'former' | 'one_time';
+  profile: ApiProfile | null;
+  monthly_cents: number;
+  one_time_cents: number;
+  recurring_cents: number;
+  lifetime_cents: number;
+  estimated_months: number | null;
+  first_sponsored_at: string | null;
+  last_activity_at: string | null;
+}
+
+interface ApiSponsors {
+  currency: string;
+  monthly_cents: number;
+  totals: {
+    one_time_cents: number;
+    recurring_cents: number;
+    lifetime_cents: number;
+  };
+  sponsors: ApiSponsor[];
+}
+
+export type SponsorStatus = 'monthly' | 'former' | 'one_time';
+
+export interface SponsorProfile {
+  login: string;
+  name: string | null;
+  url: string;
+  avatarUrl: string;
+}
+
+export interface Sponsor {
+  status: SponsorStatus;
+  profile: SponsorProfile | null;
+  monthlyCents: number;
+  oneTimeCents: number;
+  lifetimeCents: number;
+  rank: number;
+  firstSponsoredAt: string | null;
+}
+
+export interface SponsorsData {
+  monthlyCents: number;
+  lifetimeCents: number;
+  sponsors: Sponsor[];
+}
+
+let pending: Promise<ApiSponsors> | null = null;
+
+function fetchSponsors(): Promise<ApiSponsors> {
+  pending ??= requestSponsors();
+  return pending;
+}
+
+async function requestSponsors(): Promise<ApiSponsors> {
+  let lastError: unknown;
+
+  for (let attempt = 1; attempt <= RETRIES; attempt++) {
+    try {
+      const response = await fetch(API_URL, { headers: { accept: 'application/json' } });
+      if (!response.ok) throw new Error(`HTTP ${response.status} ${response.statusText}`);
+      return (await response.json()) as ApiSponsors;
+    } catch (error) {
+      lastError = error;
+      if (attempt < RETRIES) await new Promise((resolve) => setTimeout(resolve, 500 * attempt));
+    }
+  }
+
+  throw new Error(
+    `Could not load sponsors from ${API_URL}: ${lastError}. ` +
+      'Set CALAGOPUS_SPONSORS_OFFLINE=1 to build without them.',
+  );
+}
+
+function toSponsor(sponsor: ApiSponsor): Sponsor {
+  return {
+    status: sponsor.status,
+    profile: sponsor.profile && {
+      login: sponsor.profile.login,
+      name: sponsor.profile.name,
+      url: sponsor.profile.url,
+      avatarUrl: sponsor.profile.avatar_url,
+    },
+    monthlyCents: sponsor.monthly_cents,
+    oneTimeCents: sponsor.one_time_cents,
+    lifetimeCents: sponsor.lifetime_cents,
+    rank: 0,
+    firstSponsoredAt: sponsor.first_sponsored_at,
+  };
+}
+
+function compareSince(a: string | null, b: string | null): number {
+  if (a === b) return 0;
+  if (!a) return 1;
+  if (!b) return -1;
+  return a < b ? -1 : 1;
+}
+
+export async function loadSponsors(): Promise<SponsorsData> {
+  if (process.env.CALAGOPUS_SPONSORS_OFFLINE) {
+    return { monthlyCents: 0, lifetimeCents: 0, sponsors: [] };
+  }
+
+  const api = await fetchSponsors();
+  const sponsors = api.sponsors.map(toSponsor);
+
+  sponsors.sort(
+    (a, b) =>
+      b.lifetimeCents - a.lifetimeCents ||
+      compareSince(a.firstSponsoredAt, b.firstSponsoredAt) ||
+      (a.profile?.login ?? '').localeCompare(b.profile?.login ?? ''),
+  );
+
+  for (const [index, sponsor] of sponsors.entries()) {
+    const previous = sponsors[index - 1];
+    sponsor.rank = previous?.lifetimeCents === sponsor.lifetimeCents ? previous.rank : index + 1;
+  }
+
+  return {
+    monthlyCents: api.monthly_cents,
+    lifetimeCents: api.totals.lifetime_cents,
+    sponsors,
+  };
+}
+
+function formatUsd(cents: number): string {
+  const digits = cents % 100 === 0 ? 0 : 2;
+  return (cents / 100).toLocaleString('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
+  });
+}
+
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+function formatMonth(value: string | null): string {
+  if (!value) return '-';
+  const date = new Date(value);
+  return `${MONTHS[date.getUTCMonth()]} ${date.getUTCFullYear()}`;
+}
+
+function sponsorLabel(sponsor: Sponsor): string {
+  if (!sponsor.profile) return 'Anonymous';
+  const { login, name, url } = sponsor.profile;
+  return `[${name ? `${name} (@${login})` : `@${login}`}](${url})`;
+}
+
+function table(header: string[], rows: string[][]): string {
+  return [
+    `| ${header.join(' | ')} |`,
+    `| ${header.map(() => '---').join(' | ')} |`,
+    ...rows.map((row) => `| ${row.join(' | ')} |`),
+  ].join('\n');
+}
+
+const STATUS_LABEL: Record<SponsorStatus, string> = { monthly: 'Monthly', former: 'Former monthly', one_time: '-' };
+
+function sponsorsMarkdown(data: SponsorsData): string {
+  const monthly = data.sponsors
+    .filter((sponsor) => sponsor.status === 'monthly')
+    .sort((a, b) => b.monthlyCents - a.monthlyCents || b.lifetimeCents - a.lifetimeCents);
+
+  const blocks = [
+    `${data.sponsors.length} sponsors have contributed ${formatUsd(data.lifetimeCents)} in total. ` +
+      `Active monthly sponsorships currently add up to ${formatUsd(data.monthlyCents)}/month.`,
+  ];
+
+  if (monthly.length > 0) {
+    blocks.push(
+      '## Monthly sponsors',
+      table(
+        ['Sponsor', 'Monthly', 'One-time', 'Lifetime', 'Since'],
+        monthly.map((sponsor) => [
+          sponsorLabel(sponsor),
+          `${formatUsd(sponsor.monthlyCents)}/month`,
+          sponsor.oneTimeCents > 0 ? formatUsd(sponsor.oneTimeCents) : '-',
+          formatUsd(sponsor.lifetimeCents),
+          formatMonth(sponsor.firstSponsoredAt),
+        ]),
+      ),
+    );
+  }
+
+  blocks.push(
+    '## All-time leaderboard',
+    table(
+      ['#', 'Sponsor', 'Status', 'Total'],
+      data.sponsors.map((sponsor) => [
+        `${sponsor.rank}`,
+        sponsorLabel(sponsor),
+        STATUS_LABEL[sponsor.status],
+        formatUsd(sponsor.lifetimeCents),
+      ]),
+    ),
+  );
+
+  return blocks.join('\n\n');
+}
+
+export async function expandSponsorsMarkdown(outDir: string): Promise<void> {
+  if (process.env.CALAGOPUS_SPONSORS_OFFLINE) return;
+
+  const markdown = sponsorsMarkdown(await loadSponsors());
+  const file = join(outDir, 'docs/about/sponsors.md');
+  const source = await readFile(file, 'utf8');
+  await writeFile(
+    file,
+    source.replace(/^<SponsorList\s*\/>$/m, () => markdown),
+  );
+}

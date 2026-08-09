@@ -12,6 +12,7 @@ import { aiDocPlugin } from './plugins/ai-doc.ts';
 import { writeConfigDocs } from './plugins/config-docs.ts';
 import { generateLlmsArtifacts } from './plugins/llms.ts';
 import { expandReleaseMarkdown } from './plugins/releases.ts';
+import { expandSponsorsMarkdown } from './plugins/sponsors.ts';
 
 const SITE_URL = 'https://calagopus.com';
 const SRC_DIR = 'web';
@@ -227,6 +228,7 @@ export default withMermaid({
           { text: 'Feature Reference', link: '/docs/about/features' },
           { text: 'Benchmarks', link: '/docs/about/benchmarks' },
           { text: 'Security', link: '/docs/about/security' },
+          { text: 'Sponsors', link: '/docs/about/sponsors' },
           {
             text: 'Principles',
             collapsed: true,
@@ -481,6 +483,7 @@ export default withMermaid({
   async buildEnd(siteConfig) {
     await generateLlmsArtifacts(siteConfig, SITE_URL);
     await expandReleaseMarkdown(siteConfig.outDir);
+    await expandSponsorsMarkdown(siteConfig.outDir);
   },
 
   transformPageData(pageData, { siteConfig }) {
