@@ -1,6 +1,7 @@
-import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import type { SiteConfig } from 'vitepress';
+import { featureCategories } from '../data/features.ts';
 
 interface SidebarNode {
   text?: string;
@@ -26,6 +27,43 @@ async function pageTitle(file: string, fallback: string): Promise<string> {
   return source.match(/^---[\s\S]*?^title:\s*(.+?)\s*$[\s\S]*?^---/m)?.[1] ?? fallback;
 }
 
+const featureMark = (value: boolean | null): string => (value === true ? 'Yes' : value === false ? 'No' : '—');
+
+function featureTableMarkdown(id: string): string {
+  const category = featureCategories.find((c) => c.id === id);
+  if (!category) return '';
+  const parts: string[] = [];
+  if (category.description) parts.push(category.description);
+  if (category.rows?.length) {
+    parts.push(
+      [
+        '| Feature | Calagopus | Pterodactyl | Pelican | AMP |',
+        '| --- | --- | --- | --- | --- |',
+        ...category.rows.map(
+          (r) =>
+            `| ${r.name} | ${featureMark(r.calagopus)} | ${featureMark(r.pterodactyl)} | ${featureMark(r.pelican)} | ${featureMark(r.amp)} |`,
+        ),
+      ].join('\n'),
+    );
+    if (category.rows.some((r) => r.pterodactyl === null || r.pelican === null || r.amp === null)) {
+      parts.push('— = not independently verified for that product');
+    }
+  }
+  if (category.bullets?.length) {
+    parts.push(
+      ['Also included in Calagopus:', ...category.bullets.map((b) => `- **${b.name}** - ${b.description}`)].join('\n'),
+    );
+  }
+  return parts.join('\n\n');
+}
+
+function cleanMarkdownExport(source: string): string {
+  return source
+    .replace(/<script setup(?:\s[^>]*)?>[\s\S]*?<\/script>\s*/g, '')
+    .replace(/<style(?:\s[^>]*)?>[\s\S]*?<\/style>\s*/g, '')
+    .replace(/<FeatureTable\s+id="([^"]+)"\s*\/>/g, (_, id) => featureTableMarkdown(id));
+}
+
 /**
  * Emits `llms.txt` (generated from the sidebar) and copies every markdown
  * source into the output dir, so each page is also served as raw `.md`.
@@ -36,7 +74,8 @@ export async function generateLlmsArtifacts(siteConfig: SiteConfig, siteUrl: str
   for (const page of pages) {
     const dest = join(outDir, page);
     await mkdir(dirname(dest), { recursive: true });
-    await copyFile(join(srcDir, page), dest);
+    const source = await readFile(join(srcDir, page), 'utf8');
+    await writeFile(dest, cleanMarkdownExport(source));
   }
 
   const sections: string[] = [];

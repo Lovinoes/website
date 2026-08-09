@@ -38,6 +38,13 @@ html {
   color: #37373b !important;
 }
 
+/* Mermaid containers ship empty in the static HTML and only get their SVG
+   after client-side rendering; reserving space while empty limits the
+   layout shift on diagram-heavy pages. */
+.mermaid:empty {
+  min-height: 260px;
+}
+
 .VPSidebarItem.level-0 {
   padding-bottom: 12px !important;
 }

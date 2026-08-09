@@ -56,6 +56,33 @@ import mobilePreviewSrcset from './mobile-preview.webp?w=360;500;720;1000&as=src
 
 <Features />
 
+<section class="switch-wrapper" aria-labelledby="switch-heading">
+  <h2 id="switch-heading" class="section-heading">Switching from another panel?</h2>
+  <p class="switch-intro">
+    Calagopus manages anything that runs in a Linux Docker container - Minecraft (Java and Bedrock), Rust,
+    ARK, Valheim, FiveM, and more. Pterodactyl eggs work without modification, and migration tooling is
+    built in. See how it stacks up against the panel you run today:
+  </p>
+  <div class="switch-grid">
+    <a class="switch-card" href="/compare/calagopus-vs-pterodactyl">
+      <strong>Calagopus vs Pterodactyl</strong>
+      <span>Side-by-side comparison and a node-by-node migration path.</span>
+    </a>
+    <a class="switch-card" href="/compare/calagopus-vs-pelican">
+      <strong>Calagopus vs Pelican</strong>
+      <span>How the two Pterodactyl successors differ.</span>
+    </a>
+    <a class="switch-card" href="/compare/calagopus-vs-amp">
+      <strong>Calagopus vs AMP</strong>
+      <span>Open-source panel vs the licensed alternative.</span>
+    </a>
+  </div>
+  <p class="switch-more">
+    <a href="/docs/additional/migrations/pterodactyl">Pterodactyl migration guide</a> ·
+    <a href="/docs/additional/migrations/pelican">Pelican migration guide</a>
+  </p>
+</section>
+
 <section class="faq-wrapper" aria-labelledby="faq-heading">
   <h2 id="faq-heading" class="section-heading">Frequently Asked Questions</h2>
   <div class="faq-list">
@@ -102,6 +129,76 @@ import mobilePreviewSrcset from './mobile-preview.webp?w=360;500;720;1000&as=src
   .mobile-preview {
     width: 35%;
   }
+}
+
+.switch-wrapper {
+  padding: 48px 24px 0;
+  margin: 0 auto;
+  max-width: 1152px;
+}
+
+.switch-intro {
+  margin: 0 auto;
+  max-width: 800px;
+  text-align: center;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--vp-c-text-2);
+}
+
+.switch-grid {
+  display: grid;
+  gap: 16px;
+  margin: 32px auto 0;
+  max-width: 1152px;
+}
+
+@media (min-width: 640px) {
+  .switch-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.switch-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 20px;
+  border-radius: 12px;
+  background-color: var(--vp-c-bg-soft);
+  border: 1px solid var(--vp-c-bg-soft);
+  transition: border-color 0.25s;
+  text-decoration: none;
+}
+
+.switch-card:hover {
+  border-color: var(--vp-c-brand-1);
+}
+
+.switch-card strong {
+  font-size: 15px;
+  color: var(--vp-c-brand-1);
+}
+
+.switch-card span {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--vp-c-text-2);
+}
+
+.switch-more {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.switch-more a {
+  color: var(--vp-c-brand-1);
+  text-decoration: none;
+}
+
+.switch-more a:hover {
+  color: var(--vp-c-brand-2);
 }
 
 .faq-wrapper {

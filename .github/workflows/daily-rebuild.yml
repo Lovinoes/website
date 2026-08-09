@@ -20,3 +20,53 @@ jobs:
             exit 1
           fi
           curl --fail --silent --show-error -X POST "$DEPLOY_HOOK"
+
+      - name: Wait for deployment to publish
+        run: sleep 300
+
+      # IndexNow (Bing/Yandex/Naver; Google does not participate) - submit
+      # pages whose sitemap lastmod changed in the last 2 days so search
+      # engines recrawl updated content promptly instead of on their own
+      # schedule. The key file is served from web/public/.
+      - name: Submit recently changed URLs to IndexNow
+        run: |
+          python3 - <<'EOF'
+          import json
+          import urllib.request
+          import xml.etree.ElementTree as ET
+          from datetime import datetime, timedelta, timezone
+
+          KEY = "c0b4e7b671f31efb78845322dce3f516"
+          NS = {"sm": "http://www.sitemaps.org/schemas/sitemap/0.9"}
+
+          with urllib.request.urlopen("https://calagopus.com/sitemap.xml", timeout=30) as res:
+              tree = ET.fromstring(res.read())
+
+          cutoff = datetime.now(timezone.utc) - timedelta(days=2)
+          urls = []
+          for url in tree.findall("sm:url", NS):
+              loc = url.findtext("sm:loc", namespaces=NS)
+              lastmod = url.findtext("sm:lastmod", namespaces=NS)
+              if not loc or not lastmod:
+                  continue
+              if datetime.fromisoformat(lastmod.replace("Z", "+00:00")) >= cutoff:
+                  urls.append(loc)
+
+          if not urls:
+              print("No URLs changed in the last 2 days - nothing to submit.")
+              raise SystemExit(0)
+
+          payload = json.dumps({
+              "host": "calagopus.com",
+              "key": KEY,
+              "keyLocation": f"https://calagopus.com/{KEY}.txt",
+              "urlList": urls,
+          }).encode()
+          req = urllib.request.Request(
+              "https://api.indexnow.org/indexnow",
+              data=payload,
+              headers={"Content-Type": "application/json; charset=utf-8"},
+          )
+          with urllib.request.urlopen(req, timeout=30) as res:
+              print(f"Submitted {len(urls)} URL(s), IndexNow responded {res.status}")
+          EOF

@@ -192,6 +192,8 @@ export default withMermaid({
             author: { '@id': `${SITE_URL}/#organization` },
             publisher: { '@id': `${SITE_URL}/#organization` },
             license: 'https://github.com/calagopus/panel/blob/main/LICENSE',
+            downloadUrl: 'https://github.com/calagopus/panel/releases/latest',
+            softwareHelp: `${SITE_URL}/docs`,
           },
         ],
       }),
@@ -204,6 +206,15 @@ export default withMermaid({
     nav: [
       { text: 'Home', link: '/' },
       { text: 'What is Calagopus?', link: '/docs/about/what-is-calagopus' },
+      {
+        text: 'Compare',
+        items: [
+          { text: 'Calagopus vs Pterodactyl', link: '/compare/calagopus-vs-pterodactyl' },
+          { text: 'Calagopus vs Pelican', link: '/compare/calagopus-vs-pelican' },
+          { text: 'Calagopus vs AMP', link: '/compare/calagopus-vs-amp' },
+          { text: 'Benchmarks', link: '/docs/about/benchmarks' },
+        ],
+      },
       { text: 'Releases', link: '/docs/releases/' },
       { text: 'Documentation', link: '/docs' },
     ],
@@ -456,6 +467,11 @@ export default withMermaid({
     search: {
       provider: 'local',
     },
+
+    editLink: {
+      pattern: 'https://github.com/calagopus/website/edit/main/web/:path',
+      text: 'Edit this page on GitHub',
+    },
   },
 
   sitemap: {
@@ -500,6 +516,28 @@ export default withMermaid({
             name: f.q,
             acceptedAnswer: { '@type': 'Answer', text: f.a.replace(/<[^>]+>/g, '') },
           })),
+        }),
+      ]);
+    }
+
+    if (pageData.relativePath === 'docs/index.md') {
+      pageData.frontmatter.head.push([
+        'link',
+        { rel: 'preload', as: 'image', href: '/fulllogo.svg', fetchpriority: 'high' },
+      ]);
+    }
+
+    if (pageData.relativePath.startsWith('compare/')) {
+      pageData.frontmatter.head.push([
+        'script',
+        { type: 'application/ld+json' },
+        JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
+            { '@type': 'ListItem', position: 2, name: pageData.title, item: canonicalUrl },
+          ],
         }),
       ]);
     }

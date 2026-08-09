@@ -35,7 +35,7 @@ const features = [
     icon: faPuzzlePiece,
     title: 'Modularity',
     details:
-      'Calagopus is designed to be modular and extensible, allowing developers to create custom extensions to enhance its functionality. The Extension API uses Rust traits for maximum flexibility and performance, and we provide comprehensive documentation and support to help developers get started building their own extensions.',
+      'The Extension API uses Rust traits to let extensions add backend logic, custom routes, CLI commands, and database migrations - and go further than fixed plugin slots: extensions can intercept or replace built-in UI elements, inject fields into admin forms, and even install from the admin UI with live build logs on the all-in-one image.',
     link: {
       href: '/docs/panel/extensions/dev-environment',
       label: 'Build an extension',
@@ -55,7 +55,11 @@ const features = [
     icon: faDesktop,
     title: 'User-Friendly Interface',
     details:
-      'Calagopus provides an intuitive and user-friendly interface for managing game servers, making it easy for both beginners and experienced users to deploy, monitor, and maintain their game servers. Our interface stays simple and straightforward, while still providing powerful features and functionality for advanced users.',
+      'A guided first-run wizard gets you from install to a running server, and day-to-day management includes real-time collaborative file editing, a disk usage treemap, revision diffs with one-click restore, and 14+ languages with automatic right-to-left support. An "Advanced Mode" toggle keeps expert options out of the way until you want them.',
+    link: {
+      href: '/docs/about/features',
+      label: 'Browse the feature reference',
+    },
   },
   {
     icon: faRocket,

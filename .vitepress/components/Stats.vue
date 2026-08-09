@@ -3,7 +3,7 @@
     <div class="stats-grid">
       <div class="stat">
         <div class="stat-value">32,800%</div>
-        <div class="stat-label">Faster than alternatives</div>
+        <div class="stat-label">Faster than alternatives · <a class="stat-link" href="/docs/about/benchmarks">see methodology</a></div>
       </div>
       <div class="stat">
         <div class="stat-value">100%</div>
@@ -49,5 +49,14 @@
   font-size: 14px;
   color: var(--vp-c-text-2);
   font-weight: 500;
+}
+
+.stat-link {
+  color: var(--vp-c-brand-1);
+  text-decoration: none;
+}
+
+.stat-link:hover {
+  color: var(--vp-c-brand-2);
 }
 </style>
