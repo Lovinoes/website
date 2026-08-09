@@ -853,7 +853,8 @@ export const wingsConfigDoc: ConfigDoc = {
         },
         {
           key: 'docker.network.mode',
-          description: 'The internal network mode identifier used by the Docker daemon.',
+          description:
+            'The network mode containers are attached to, passed to the Docker daemon as-is. This should match `docker.network.name`; if `name` is changed without changing `mode`, Wings warns on startup that containers are being attached to a network that does not exist. Also accepted under the legacy key `network_mode`.',
           default: 'calagopus_nw',
         },
         {

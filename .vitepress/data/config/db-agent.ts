@@ -35,12 +35,6 @@ export const dbAgentConfigDoc: ConfigDoc = {
           default: '/var/log/calagopus-db-agent',
         },
         {
-          key: 'ignore_config_updates',
-          description:
-            'When set to `true`, DB Agent will ignore configuration update requests sent to the management API.',
-          default: false,
-        },
-        {
           key: 'disk_check_interval',
           description: 'The interval (in seconds) at which DB Agent checks disk usage for its data directory.',
           default: 60,
@@ -50,6 +44,12 @@ export const dbAgentConfigDoc: ConfigDoc = {
           description:
             'The number of concurrent allowed disk scans DB Agent can perform. This limits the number of simultaneous disk usage checks to prevent excessive background resource consumption.',
           default: 5,
+        },
+        {
+          key: 'websocket_log_count',
+          description:
+            'The number of log lines to send when a client connects to a database instance websocket. This provides the initial "backlog" of console history and also sizes the buffer of live log lines a slow client may fall behind by before it starts missing output.',
+          default: 150,
         },
       ],
     },
@@ -212,6 +212,11 @@ export const dbAgentConfigDoc: ConfigDoc = {
           default: '0.0.0.0:8090',
         },
         {
+          key: 'api.tls',
+          description: 'TLS configuration for the management API itself. See [TLS Configuration](#tls-configuration).',
+          example: TLS_DEFAULTS,
+        },
+        {
           key: 'api.token',
           description:
             'The API token clients must present to authenticate against the management API. Must be kept secret. Set it with `calagopus-db-agent configure --token <TOKEN>` rather than editing this by hand.',
@@ -223,20 +228,57 @@ export const dbAgentConfigDoc: ConfigDoc = {
           default: false,
         },
         {
-          key: 'api.ignore_upgrades',
-          description: 'When set to `true`, DB Agent will ignore remote upgrade requests sent to the management API.',
+          key: 'api.disable_remote_import',
+          description:
+            'Whether to prevent databases from being imported directly from a remote database through a connection string. When disabled, the import endpoint rejects every request instead of dumping the source.',
           default: false,
         },
         {
-          key: 'api.tls',
-          description: 'TLS configuration for the management API itself. See [TLS Configuration](#tls-configuration).',
-          example: TLS_DEFAULTS,
+          key: 'api.remote_import_blocked_cidrs',
+          description:
+            'A security list of CIDR ranges that remote imports may not connect to, preventing SSRF (Server-Side Request Forgery) attacks against databases reachable from the node. Every host in the connection string is checked, and hostnames are resolved and vetted before the dump runs, with the vetted address pinned so a second lookup cannot return a different one. A hostname that fails to resolve is rejected as well.',
+          default: [
+            '0.0.0.0/8',
+            '127.0.0.0/8',
+            '10.0.0.0/8',
+            '100.64.0.0/10',
+            '172.16.0.0/12',
+            '192.168.0.0/16',
+            '169.254.0.0/16',
+            '::1',
+            'fe80::/10',
+            'fc00::/7',
+          ],
         },
         {
           key: 'api.trusted_proxies',
           description:
             'A list of trusted CIDR ranges from proxy servers (like Cloudflare, NGINX, or a Load Balancer) that DB Agent uses to resolve the actual IP address of a client using the `X-Forwarded-For` or `X-Real-IP` header.',
           default: [],
+        },
+      ],
+    },
+    {
+      title: 'Remote Management',
+      body: 'These options control what the Panel is allowed to change on this node through the management API. They are written at the very end of the config file.',
+      options: [
+        {
+          key: 'ignore_config_updates',
+          description:
+            'When set to `true`, DB Agent will ignore configuration update requests sent to the management API.',
+          default: false,
+        },
+        {
+          key: 'ignore_upgrades',
+          description:
+            'When set to `true`, DB Agent will ignore remote upgrade requests sent to the management API, reporting the upgrade as not applied instead of replacing its own binary. Upgrades are unsupported in containerized environments regardless of this option.',
+          default: false,
+          notesAfter: [
+            {
+              type: 'info',
+              body: 'This option used to live under `api.ignore_upgrades`. An existing config file is migrated automatically on startup, moving the value to the top level and logging a warning about it.',
+            },
+          ],
         },
       ],
     },

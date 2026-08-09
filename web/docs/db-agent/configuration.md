@@ -38,14 +38,6 @@ Default value:
 log_dir: /var/log/calagopus-db-agent
 ```
 
-### ignore_config_updates
-When set to `true`, DB Agent will ignore configuration update requests sent to the management API.
-
-Default value:
-```yaml
-ignore_config_updates: false
-```
-
 ### disk_check_interval
 The interval (in seconds) at which DB Agent checks disk usage for its data directory.
 
@@ -60,6 +52,14 @@ The number of concurrent allowed disk scans DB Agent can perform. This limits th
 Default value:
 ```yaml
 disk_check_concurrency: 5
+```
+
+### websocket_log_count
+The number of log lines to send when a client connects to a database instance websocket. This provides the initial "backlog" of console history and also sizes the buffer of live log lines a slow client may fall behind by before it starts missing output.
+
+Default value:
+```yaml
+websocket_log_count: 150
 ```
 
 ## Database Proxies
@@ -265,6 +265,9 @@ Default value:
 bind: 0.0.0.0:8090
 ```
 
+### api.tls
+TLS configuration for the management API itself. See [TLS Configuration](#tls-configuration).
+
 ### api.token
 The API token clients must present to authenticate against the management API. Must be kept secret. Set it with `calagopus-db-agent configure --token <TOKEN>` rather than editing this by hand.
 
@@ -281,16 +284,31 @@ Default value:
 disable_openapi_docs: false
 ```
 
-### api.ignore_upgrades
-When set to `true`, DB Agent will ignore remote upgrade requests sent to the management API.
+### api.disable_remote_import
+Whether to prevent databases from being imported directly from a remote database through a connection string. When disabled, the import endpoint rejects every request instead of dumping the source.
 
 Default value:
 ```yaml
-ignore_upgrades: false
+disable_remote_import: false
 ```
 
-### api.tls
-TLS configuration for the management API itself. See [TLS Configuration](#tls-configuration).
+### api.remote_import_blocked_cidrs
+A security list of CIDR ranges that remote imports may not connect to, preventing SSRF (Server-Side Request Forgery) attacks against databases reachable from the node. Every host in the connection string is checked, and hostnames are resolved and vetted before the dump runs, with the vetted address pinned so a second lookup cannot return a different one. A hostname that fails to resolve is rejected as well.
+
+Default value:
+```yaml
+remote_import_blocked_cidrs:
+- 0.0.0.0/8
+- 127.0.0.0/8
+- 10.0.0.0/8
+- 100.64.0.0/10
+- 172.16.0.0/12
+- 192.168.0.0/16
+- 169.254.0.0/16
+- ::1
+- fe80::/10
+- fc00::/7
+```
 
 ### api.trusted_proxies
 A list of trusted CIDR ranges from proxy servers (like Cloudflare, NGINX, or a Load Balancer) that DB Agent uses to resolve the actual IP address of a client using the `X-Forwarded-For` or `X-Real-IP` header.
@@ -299,6 +317,30 @@ Default value:
 ```yaml
 trusted_proxies: []
 ```
+
+## Remote Management
+
+These options control what the Panel is allowed to change on this node through the management API. They are written at the very end of the config file.
+
+### ignore_config_updates
+When set to `true`, DB Agent will ignore configuration update requests sent to the management API.
+
+Default value:
+```yaml
+ignore_config_updates: false
+```
+
+### ignore_upgrades
+When set to `true`, DB Agent will ignore remote upgrade requests sent to the management API, reporting the upgrade as not applied instead of replacing its own binary. Upgrades are unsupported in containerized environments regardless of this option.
+
+Default value:
+```yaml
+ignore_upgrades: false
+```
+
+::: info
+This option used to live under `api.ignore_upgrades`. An existing config file is migrated automatically on startup, moving the value to the top level and logging a warning about it.
+:::
 
 ## TLS Configuration
 
@@ -349,9 +391,9 @@ debug: false
 socket_dir: /run/calagopus-db-agent
 data_dir: /var/lib/calagopus-db-agent/data
 log_dir: /var/log/calagopus-db-agent
-ignore_config_updates: false
 disk_check_interval: 60
 disk_check_concurrency: 5
+websocket_log_count: 150
 postgres:
   enabled: true
   bind: 0.0.0.0:5432
@@ -407,13 +449,26 @@ docker:
       max-size: 5m
 api:
   bind: 0.0.0.0:8090
-  token: ''
-  disable_openapi_docs: false
-  ignore_upgrades: false
   tls:
     enabled: false
     ktls_enabled: false
     cert: cert.pem
     key: key.pem
+  token: ''
+  disable_openapi_docs: false
+  disable_remote_import: false
+  remote_import_blocked_cidrs:
+  - 0.0.0.0/8
+  - 127.0.0.0/8
+  - 10.0.0.0/8
+  - 100.64.0.0/10
+  - 172.16.0.0/12
+  - 192.168.0.0/16
+  - 169.254.0.0/16
+  - ::1
+  - fe80::/10
+  - fc00::/7
   trusted_proxies: []
+ignore_config_updates: false
+ignore_upgrades: false
 ```
