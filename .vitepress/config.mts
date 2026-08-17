@@ -214,6 +214,7 @@ export default withMermaid({
           { text: 'Calagopus vs Pelican', link: '/compare/calagopus-vs-pelican' },
           { text: 'Calagopus vs AMP', link: '/compare/calagopus-vs-amp' },
           { text: 'Benchmarks', link: '/docs/about/benchmarks' },
+          { text: 'Feature Reference', link: '/docs/about/features' },
         ],
       },
       { text: 'Releases', link: '/docs/releases/' },
