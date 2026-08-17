@@ -310,6 +310,7 @@ export default withMermaid({
                   { text: 'Activity Logging', link: '/docs/panel/extensions/concepts/activity-logging' },
                   { text: 'Translations', link: '/docs/panel/extensions/concepts/translations' },
                   { text: 'Mounting UI', link: '/docs/panel/extensions/concepts/mounting-ui' },
+                  { text: 'Quick Actions', link: '/docs/panel/extensions/concepts/quick-actions' },
                   { text: 'Forms', link: '/docs/panel/extensions/concepts/forms' },
                   { text: 'Toasts', link: '/docs/panel/extensions/concepts/toasts' },
                   { text: 'Extending Models', link: '/docs/panel/extensions/concepts/extending-models' },
