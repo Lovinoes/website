@@ -1,3 +1,8 @@
+---
+title: WHMCS
+description: The Calagopus WHMCS module provisions servers from your billing workflow, creating, suspending, upgrading, and terminating them automatically, with server details in the client area.
+---
+
 # WHMCS
 
 The **Calagopus WHMCS module** is a server provisioning module for [WHMCS](https://www.whmcs.com). It lets WHMCS automatically create, suspend, unsuspend, upgrade, and terminate Calagopus servers as part of your billing workflow, and shows customers their server details directly in the WHMCS client area.
@@ -21,7 +26,7 @@ Clients are matched to panel users by their WHMCS user ID (stored as the user's 
 
 The client area renders a server summary (name, status, address, memory, disk, CPU) with a **Go to Server Panel** button, and the admin services tab surfaces the server UUID, node, owner, and panel link.
 
-![](./images/whmcs/client-area.png)
+![](./images/whmcs/client-area.webp)
 
 ## Requirements
 
@@ -51,7 +56,7 @@ The client area renders a server summary (name, status, address, memory, disk, C
 
 4. Create a **Server Group** and assign your Calagopus server to it.
 
-![](./images/whmcs/add-new-server.png)
+![](./images/whmcs/add-new-server.webp)
 
 ::: info
 To store the panel's server UUID against each service, create two **custom fields** named `Server UUID` and `Server ID` on the product (admin-only). The module fills these in automatically on provisioning. They are optional - without them, the module falls back to looking the server up by its `external_id`.

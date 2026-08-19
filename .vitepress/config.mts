@@ -261,6 +261,126 @@ export default withMermaid({
           { text: 'Overview', link: '/docs/panel/overview' },
           { text: 'Environment', link: '/docs/panel/environment' },
           {
+            text: 'Features',
+            link: '/docs/panel/features/',
+            collapsed: true,
+            items: [
+              {
+                text: 'Authentication',
+                link: '/docs/panel/features/auth/',
+                collapsed: true,
+                items: [
+                  { text: 'Login', link: '/docs/panel/features/auth/login' },
+                  { text: 'Register', link: '/docs/panel/features/auth/register' },
+                  { text: 'Password Reset', link: '/docs/panel/features/auth/password-reset' },
+                ],
+              },
+              {
+                text: 'Dashboard',
+                link: '/docs/panel/features/dashboard/',
+                collapsed: true,
+                items: [
+                  { text: 'Servers', link: '/docs/panel/features/dashboard/servers' },
+                  { text: 'Account', link: '/docs/panel/features/dashboard/account' },
+                  { text: 'Security Keys', link: '/docs/panel/features/dashboard/security-keys' },
+                  {
+                    text: 'API Keys',
+                    link: '/docs/panel/features/dashboard/api-keys',
+                    collapsed: true,
+                    items: [{ text: 'Permissions Reference', link: '/docs/panel/features/dashboard/permissions' }],
+                  },
+                  { text: 'SSH Keys', link: '/docs/panel/features/dashboard/ssh-keys' },
+                  { text: 'Command Snippets', link: '/docs/panel/features/dashboard/command-snippets' },
+                  { text: 'OAuth Links', link: '/docs/panel/features/dashboard/oauth-links' },
+                  { text: 'Sessions', link: '/docs/panel/features/dashboard/sessions' },
+                  { text: 'Keyboard Shortcuts', link: '/docs/panel/features/dashboard/keyboard-shortcuts' },
+                  { text: 'Activity', link: '/docs/panel/features/dashboard/activity' },
+                ],
+              },
+              {
+                text: 'Server',
+                link: '/docs/panel/features/server/',
+                collapsed: true,
+                items: [
+                  { text: 'Console', link: '/docs/panel/features/server/console' },
+                  { text: 'Files', link: '/docs/panel/features/server/files' },
+                  { text: 'Databases', link: '/docs/panel/features/server/databases' },
+                  { text: 'Schedules', link: '/docs/panel/features/server/schedules' },
+                  { text: 'Subusers', link: '/docs/panel/features/server/subusers' },
+                  { text: 'Backups', link: '/docs/panel/features/server/backups' },
+                  { text: 'Network', link: '/docs/panel/features/server/network' },
+                  { text: 'Startup', link: '/docs/panel/features/server/startup' },
+                  { text: 'Mounts', link: '/docs/panel/features/server/mounts' },
+                  { text: 'Settings', link: '/docs/panel/features/server/settings' },
+                  { text: 'Activity', link: '/docs/panel/features/server/activity' },
+                ],
+              },
+              {
+                text: 'Admin',
+                link: '/docs/panel/features/admin/',
+                collapsed: true,
+                items: [
+                  {
+                    text: 'System',
+                    collapsed: true,
+                    items: [
+                      { text: 'Settings', link: '/docs/panel/features/admin/settings' },
+                      { text: 'Announcements', link: '/docs/panel/features/admin/announcements' },
+                      { text: 'Assets', link: '/docs/panel/features/admin/assets' },
+                      { text: 'Extensions', link: '/docs/panel/features/admin/extensions' },
+                    ],
+                  },
+                  {
+                    text: 'Infrastructure',
+                    collapsed: true,
+                    items: [
+                      { text: 'Locations', link: '/docs/panel/features/admin/locations' },
+                      { text: 'Nodes', link: '/docs/panel/features/admin/nodes' },
+                      { text: 'Servers', link: '/docs/panel/features/admin/servers' },
+                    ],
+                  },
+                  {
+                    text: 'Users & Access',
+                    collapsed: true,
+                    items: [
+                      { text: 'Users', link: '/docs/panel/features/admin/users' },
+                      { text: 'Roles', link: '/docs/panel/features/admin/roles' },
+                      { text: 'OAuth Providers', link: '/docs/panel/features/admin/oauth-providers' },
+                      { text: 'Activity', link: '/docs/panel/features/admin/activity' },
+                    ],
+                  },
+                  {
+                    text: 'Nests & Eggs',
+                    collapsed: true,
+                    items: [
+                      { text: 'Nests', link: '/docs/panel/features/admin/nests' },
+                      { text: 'Egg Configurations', link: '/docs/panel/features/admin/egg-configurations' },
+                      { text: 'Egg Repositories', link: '/docs/panel/features/admin/egg-repositories' },
+                    ],
+                  },
+                  {
+                    text: 'Databases',
+                    collapsed: true,
+                    items: [
+                      { text: 'Database Hosts', link: '/docs/panel/features/admin/database-hosts' },
+                      { text: 'Database Agent Hosts', link: '/docs/panel/features/admin/database-agent-hosts' },
+                      { text: 'Database Agent Templates', link: '/docs/panel/features/admin/database-agent-templates' },
+                    ],
+                  },
+                  {
+                    text: 'Storage',
+                    collapsed: true,
+                    items: [
+                      { text: 'Mounts', link: '/docs/panel/features/admin/mounts' },
+                      { text: 'Backup Configurations', link: '/docs/panel/features/admin/backup-configurations' },
+                      { text: 'System Backup Policies', link: '/docs/panel/features/admin/system-backup-policies' },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+          {
             text: 'Installation',
             link: '/docs/panel/installation/',
             collapsed: true,
