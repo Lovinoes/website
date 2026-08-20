@@ -165,6 +165,18 @@ Comma-separated list of trusted proxy IP addresses or CIDR ranges. Required when
 APP_TRUSTED_PROXIES=192.168.178.0/24,10.0.0.0/8
 ```
 
+## APP_BLOCKED_CIDRS
+
+Comma-separated list of IP ranges the Panel refuses to connect to when it fetches a URL someone supplied through the UI, such as importing an egg from a URL or syncing an egg repository over git. Hostnames are resolved first and every resulting address is checked, so a name pointing at an internal address is rejected too. This keeps an administrator from using the Panel as a proxy to reach services on its own network.
+
+The default blocks loopback, link-local, carrier-grade NAT and the private ranges:
+
+```plaintext
+APP_BLOCKED_CIDRS=0.0.0.0/8,127.0.0.0/8,10.0.0.0/8,100.64.0.0/10,172.16.0.0/12,192.168.0.0/16,169.254.0.0/16,::1/128,fe80::/10,fc00::/7
+```
+
+Set your own list if you host an internal egg repository or egg mirror that the Panel has to reach, remove only the range it lives in, rather than the whole list. Setting the variable to an empty value disables the protection entirely and lets the Panel connect anywhere.
+
 ## APP_LOG_DIRECTORY
 
 Directory where the Panel writes log files. Unset by default (logs are not persisted to disk). Set it to a directory writable by the Panel process to enable log files.
