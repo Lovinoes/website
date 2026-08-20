@@ -1,17 +1,16 @@
 import { markdownCandidates } from '../.vitepress/lib/markdown-candidates.ts';
+import { API_PREFIX, apiHandler } from './api/index.ts';
+import { refreshReleases } from './api/releases.ts';
+import { wantsMarkdown } from './http.ts';
 import { mcpHandler } from './mcp/server.ts';
 
 const MCP_ROUTE = '/mcp';
-
-function wantsMarkdown(request: Request, pathname: string): boolean {
-  if (pathname.endsWith('.md')) return true;
-  return (request.headers.get('Accept') ?? '').includes('text/markdown');
-}
 
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     if (url.pathname === MCP_ROUTE) return mcpHandler(env)(request, env, ctx);
+    if (url.pathname.startsWith(API_PREFIX)) return apiHandler(request, env);
 
     if (request.method !== 'GET' && request.method !== 'HEAD') return env.ASSETS.fetch(request);
     if (!wantsMarkdown(request, url.pathname)) return env.ASSETS.fetch(request);
@@ -27,5 +26,9 @@ export default {
     }
 
     return env.ASSETS.fetch(request);
+  },
+
+  async scheduled(_event, env) {
+    await refreshReleases(env);
   },
 } satisfies ExportedHandler<Env>;
