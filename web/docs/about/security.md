@@ -32,8 +32,8 @@ not access or modify data that is not yours, and act in good faith.
 
 | Version | Supported |
 | --- | --- |
-| 1.0.x | Yes |
 | 1.1.x | Yes |
+| 1.0.x | Yes |
 | < 1.0.0 | No |
 
 ## Threat model
