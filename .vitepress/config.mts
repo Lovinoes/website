@@ -389,6 +389,7 @@ export default withMermaid({
               { text: 'Binary', link: '/docs/panel/installation/binary' },
               { text: 'Package Manager', link: '/docs/panel/installation/pkgmanager' },
               { text: 'TrueNAS SCALE', link: '/docs/panel/installation/truenas' },
+              { text: 'Unraid', link: '/docs/panel/installation/unraid' },
             ],
           },
           { text: 'Updating', link: '/docs/panel/updating' },
