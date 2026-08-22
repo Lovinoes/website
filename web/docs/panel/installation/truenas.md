@@ -15,6 +15,10 @@ Calagopus is available directly in the TrueNAS Community Apps catalog. The app s
 Wings is included in the TrueNAS app and will work, but game servers are CPU- and RAM-intensive workloads that compete with TrueNAS's storage duties. This setup is well-suited for homelab use. For production hosting, consider running Wings on a dedicated machine connected to a standalone Panel instead.
 :::
 
+::: info Why the container runs as root
+The AIO image runs Wings as root by default, it needs that to manage other containers via the Docker socket. This is a deliberate, documented design choice with kernel-enforced isolation around it, not an oversight. See [Daemon isolation](../../about/security#daemon-isolation-wings) for what that does and doesn't expose, and how to enable rootless mode if you'd rather not run as root.
+:::
+
 ## 1. Open the Apps Catalog
 
 In the TrueNAS web UI, navigate to **Apps** in the left sidebar, then click **Discover Apps**.

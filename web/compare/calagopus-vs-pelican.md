@@ -34,7 +34,7 @@ Pelican inherited Pterodactyl's PHP/Laravel foundation and has modernized it in 
 
 Calagopus takes a completely different route. Both the panel and node daemon are written from scratch in Rust. There's no PHP interpreter or request-per-process worker pool, and memory safety is enforced at compile time rather than being left to runtime checks.
 
-The architectural difference is reflected in the benchmarks. Under the same CPU limits, Calagopus reports throughput improvements of more than **32,800%** compared with PHP-based panels such as Pelican and Pterodactyl. The [benchmarks page](/docs/about/benchmarks) includes the full methodology and raw results, along with options for comparing specific panels and hardware configurations.
+The architectural difference is reflected in the benchmarks. Under the same CPU limits, Calagopus reports throughput improvements of more than **32,800%** compared with PHP-based panels such as Pelican and Pterodactyl, as of v1.1.0 (August 2026). That figure is panel API throughput under concurrent load, not game-server tick rate or player capacity. The [benchmarks page](/docs/about/benchmarks) includes the full methodology and raw results, along with options for comparing specific panels and hardware configurations.
 
 Of course, performance only matters when your workload is large enough to expose the difference. A Discord community running a handful of servers probably won't put much pressure on either panel's backend. A hosting provider handling hundreds of simultaneous customer sessions, however, is much more likely to notice the difference.
 

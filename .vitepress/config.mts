@@ -144,6 +144,7 @@ export default withMermaid({
       },
     ],
     ['link', { rel: 'sitemap', type: 'application/xml', href: '/sitemap.xml' }],
+    ['link', { rel: 'alternate', type: 'text/markdown', href: '/llms.txt' }],
     [
       'script',
       {
@@ -587,7 +588,7 @@ export default withMermaid({
 
     footer: {
       message:
-        '<a href="https://github.com/calagopus" target="_blank" rel="noreferrer">GitHub</a> · <a href="https://discord.gg/uSM8tvTxBV" target="_blank" rel="noreferrer">Discord</a> · <a href="mailto:contact@calagopus.com">contact@calagopus.com</a>',
+        '<a href="https://github.com/calagopus" target="_blank" rel="noreferrer">GitHub</a> · <a href="https://discord.gg/uSM8tvTxBV" target="_blank" rel="noreferrer">Discord</a> · <a href="mailto:contact@calagopus.com">contact@calagopus.com</a> · <a href="/llms.txt">llms.txt</a>',
     },
 
     search: {
