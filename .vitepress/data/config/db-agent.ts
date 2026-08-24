@@ -49,6 +49,12 @@ export const dbAgentConfigDoc: ConfigDoc = {
           default: 5,
         },
         {
+          key: 'boot_autostart_concurrency',
+          description:
+            'The number of database instances DB Agent may start at the same time while restoring state on boot. On startup DB Agent reads the state each instance was last recorded in and restarts the ones that were running or starting but no longer have a live container, spreading those starts across this many slots so a node reboot does not try to bring every database up at once. Set to `0` to disable restoring instances on boot entirely.',
+          default: 5,
+        },
+        {
           key: 'websocket_log_count',
           description:
             'The number of log lines to send when a client connects to a database instance websocket. This provides the initial "backlog" of console history and also sizes the buffer of live log lines a slow client may fall behind by before it starts missing output.',

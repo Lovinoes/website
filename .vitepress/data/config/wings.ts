@@ -1018,7 +1018,7 @@ export const wingsConfigDoc: ConfigDoc = {
         {
           key: 'docker.startup_boost.enabled',
           description:
-            "Whether to lift a server's CPU limit while it is booting. With this on, a starting container runs without a CPU quota until it reports as running (or `docker.startup_boost.timeout` elapses), after which the configured limit and CFS burst are put back. This mainly helps single-threaded boot work like world generation or mod loading. Servers without a CPU limit are unaffected, they are already unthrottled.",
+            "Whether to lift a server's CPU limit while it is booting. With this on, a starting container runs without a CPU quota until it reports as running (or `docker.startup_boost.timeout` elapses), after which the configured limit and CFS burst are put back. This mainly helps single-threaded boot work like world generation or mod loading. Servers without a CPU limit are unaffected, they are already unthrottled. These are the node-wide defaults and can be overridden by the panel, which may give an individual server its own `enabled` and `timeout` to use in place of the values here.",
           default: false,
         },
         {
@@ -1030,7 +1030,49 @@ export const wingsConfigDoc: ConfigDoc = {
         {
           key: 'docker.startup_boost.max_concurrent',
           description:
-            'The number of servers that may be boosted at the same time on this node. Servers that start while this many boosts are already active simply boot with their normal CPU limit, so a mass restart cannot hand out unlimited CPU to every server at once.',
+            'The number of servers that may be boosted at the same time on this node. Servers that start while this many boosts are already active simply boot with their normal CPU limit, so a mass restart cannot hand out unlimited CPU to every server at once. Unlike the other options in this block, this one is always taken from the node config, a per-server override from the panel cannot raise it.',
+          default: 3,
+        },
+        {
+          key: 'docker.runtime_boost.enabled',
+          description:
+            "Whether to temporarily raise a server's CPU quota when it is pinned against its limit while running. Wings watches the per-second CPU samples it already collects for the stats websocket, and once a server has sat at or above `docker.runtime_boost.threshold` of its limit for `docker.runtime_boost.sustained` samples in a row it hands out extra quota for `docker.runtime_boost.duration` seconds before restoring the configured limit. Unlike `docker.startup_boost`, this applies to a server that is already running, so it covers spikes like a large world save or a burst of players joining rather than boot work. Servers without a CPU limit are unaffected, they are already unthrottled, and a server that is currently startup boosted is never boosted again on top of it. These are the node-wide defaults and can be overridden by the panel, which may give an individual server its own values for every option below except `docker.runtime_boost.max_concurrent`.",
+          default: false,
+        },
+        {
+          key: 'docker.runtime_boost.threshold',
+          description:
+            "The share (`%`) of a server's configured CPU limit that counts as pinned. A server limited to `200%` with the default threshold of `90` has to use at least `180%` CPU for a sample to count towards a boost.",
+          default: 90,
+        },
+        {
+          key: 'docker.runtime_boost.sustained',
+          description:
+            'The number of consecutive one second samples a server must spend at or above the threshold before it is boosted, so brief spikes do not trigger one. The streak resets whenever a sample falls below the threshold, the server leaves the running state, or a boost is granted.',
+          default: 10,
+        },
+        {
+          key: 'docker.runtime_boost.multiple',
+          description:
+            "The multiplier applied to the server's CPU quota while boosted. `2.0` gives it twice its configured limit for the duration of the boost. Values below `1.0` are clamped to `1.0`, since a boost never hands out less CPU than the server already has.",
+          default: float(2),
+        },
+        {
+          key: 'docker.runtime_boost.duration',
+          description:
+            "How long (in seconds) a boost lasts. Once this elapses the server's configured CPU limit and CFS burst are put back, whether or not it is still pinned.",
+          default: 60,
+        },
+        {
+          key: 'docker.runtime_boost.cooldown',
+          description:
+            'How long (in seconds) a server has to wait after a boost ends before it may be boosted again, so a permanently overloaded server cannot simply run at its boosted limit forever.',
+          default: 300,
+        },
+        {
+          key: 'docker.runtime_boost.max_concurrent',
+          description:
+            'The number of servers that may be boosted at the same time on this node. While this many boosts are active, a server that hits the threshold keeps its normal CPU limit and its streak resets, so a node-wide load spike cannot boost every server at once. Unlike the other options in this block, this one is always taken from the node config, a per-server override from the panel cannot raise it.',
           default: 3,
         },
         {

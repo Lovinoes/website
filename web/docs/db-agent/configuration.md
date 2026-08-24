@@ -59,6 +59,14 @@ Default value:
 disk_check_concurrency: 5
 ```
 
+### boot_autostart_concurrency
+The number of database instances DB Agent may start at the same time while restoring state on boot. On startup DB Agent reads the state each instance was last recorded in and restarts the ones that were running or starting but no longer have a live container, spreading those starts across this many slots so a node reboot does not try to bring every database up at once. Set to `0` to disable restoring instances on boot entirely.
+
+Default value:
+```yaml
+boot_autostart_concurrency: 5
+```
+
 ### websocket_log_count
 The number of log lines to send when a client connects to a database instance websocket. This provides the initial "backlog" of console history and also sizes the buffer of live log lines a slow client may fall behind by before it starts missing output.
 
@@ -489,6 +497,7 @@ data_dir: /var/lib/calagopus-db-agent/data
 log_dir: /var/log/calagopus-db-agent
 disk_check_interval: 60
 disk_check_concurrency: 5
+boot_autostart_concurrency: 5
 websocket_log_count: 150
 tcp_congestion_control: bbr
 postgres:

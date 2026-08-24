@@ -405,6 +405,7 @@ export default withMermaid({
             items: [
               { text: 'Installing Extensions', link: '/docs/panel/extensions/installing-extensions' },
               { text: 'Uninstalling Extensions', link: '/docs/panel/extensions/uninstalling-extensions' },
+              { text: 'Disabling Extensions', link: '/docs/panel/extensions/disabling-extensions' },
               { text: 'Switching to the Heavy Image', link: '/docs/panel/extensions/switching-to-the-heavy-image' },
               { text: 'Patching and Adding Translations', link: '/docs/panel/extensions/patching-translations' },
               { text: 'Development Environment', link: '/docs/panel/extensions/dev-environment' },
@@ -417,6 +418,7 @@ export default withMermaid({
                   { text: 'Theming', link: '/docs/panel/extensions/concepts/theming' },
                   { text: 'Events', link: '/docs/panel/extensions/concepts/events' },
                   { text: 'Settings', link: '/docs/panel/extensions/concepts/settings' },
+                  { text: 'User Settings', link: '/docs/panel/extensions/concepts/user-settings' },
                   { text: 'Routing', link: '/docs/panel/extensions/concepts/routing' },
                   { text: 'Permissions', link: '/docs/panel/extensions/concepts/permissions' },
                   { text: 'CLI Commands', link: '/docs/panel/extensions/concepts/cli-commands' },
