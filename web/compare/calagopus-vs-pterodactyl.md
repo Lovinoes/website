@@ -33,7 +33,7 @@ Pterodactyl's panel is built with PHP and Laravel, while its Go-based Wings daem
 
 Calagopus uses Rust throughout, including both the panel backend and node daemon. There's no interpreter, garbage collector, or PHP-FPM worker pool to tune. Memory safety is enforced at compile time rather than discovered at runtime.
 
-On identical hardware and under the same CPU limits, the difference in runtime architecture shows up clearly in the project's benchmarks: Calagopus reports throughput improvements of more than **32,800%** over Pterodactyl in its benchmarking suite. The [benchmarks page](/docs/about/benchmarks) provides the full methodology, raw results, and controls for comparing different hardware and CPU-quota configurations.
+On identical hardware and under the same CPU limits, the difference in runtime architecture shows up clearly in the project's benchmarks: Calagopus reports throughput improvements of more than **32,800%** over Pterodactyl in its benchmarking suite, as of v1.1.0 (August 2026). That figure is panel API throughput, public settings, account, and server-list endpoints under concurrent load, not game-server tick rate or player capacity. The [benchmarks page](/docs/about/benchmarks) provides the full methodology, raw results, and controls for comparing different hardware and CPU-quota configurations.
 
 How much that matters depends heavily on scale. A homelab running four servers for friends probably won't notice much difference in panel request latency. A hosting provider managing hundreds of nodes, on the other hand, can see the impact in CPU and memory usage—and especially when hundreds of customers are using the file manager simultaneously instead of just a handful.
 

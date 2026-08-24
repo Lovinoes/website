@@ -17,7 +17,7 @@ It draws inspiration from Pterodactyl but is written from scratch in Rust, with 
 
 ### How is Calagopus different from Pterodactyl?
 
-Calagopus is built in Rust, where Pterodactyl uses PHP. The result is meaningfully better performance - throughput improvements of over 32,800% in our [benchmarks](./benchmarks.md) - alongside Rust's memory-safety guarantees. Calagopus also ships its own extension API designed around Rust traits, rather than the PHP-based plugin systems of older panels. We provide a [migration guide](../additional/migrations/pterodactyl.md) for existing Pterodactyl users.
+Calagopus is built in Rust, where Pterodactyl uses PHP. The result is meaningfully better performance: panel API throughput up over 32,800% in our [benchmarks](./benchmarks.md), as of v1.1.0 (August 2026). That figure measures control-plane throughput under concurrent load, not game-server tick rate or player capacity, see the [benchmarks page](./benchmarks.md) for the full methodology. Calagopus also ships its own extension API designed around Rust traits, rather than the PHP-based plugin systems of older panels. We provide a [migration guide](../additional/migrations/pterodactyl.md) for existing Pterodactyl users.
 
 ### How is Calagopus different from Pelican?
 

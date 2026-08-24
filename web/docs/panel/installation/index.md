@@ -1,5 +1,5 @@
 ---
-description: Install the Calagopus panel with Docker, APT/RPM/APK package managers, a standalone binary, or on TrueNAS SCALE.
+description: Install the Calagopus panel with Docker, APT/RPM/APK package managers, a standalone binary, on TrueNAS SCALE or Unraid.
 ---
 
 # Panel Installation
@@ -20,4 +20,7 @@ See the [Binary Installation](./binary.md) guide. Download and run the panel bin
 
 === TrueNAS SCALE
 See the [TrueNAS SCALE Installation](./truenas.md) guide. Install Calagopus directly from the TrueNAS Community Apps catalog, no manual Docker setup required. Includes Wings in the same container.
+
+=== Unraid
+See the [Unraid Installation](./unraid.md) guide. Install Calagopus from a Community Applications template. Includes Wings in the same container.
 ::::

@@ -12,7 +12,7 @@ interface MiddlewareRequest {
 type MiddlewareResponse = { setHeader(k: string, v: string): void; end(b: string): void };
 
 function wantsMarkdown(req: MiddlewareRequest, pathname: string): boolean {
-  if (pathname.endsWith('.md')) return true;
+  if (pathname.endsWith('.md') && !(req.url ?? '').includes('?')) return true;
   const accept = req.headers.accept;
   const value = Array.isArray(accept) ? accept.join(',') : accept;
   return !!value && value.includes('text/markdown');
