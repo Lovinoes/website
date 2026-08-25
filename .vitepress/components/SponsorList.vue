@@ -1,8 +1,13 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { type Sponsor, data as sponsors } from '../data/sponsors.data.mts';
-
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+import { formatUsd } from '../lib/format.ts';
+import {
+  sponsorAvatarFallback as avatarFallback,
+  sponsorAvatarUrl as avatarUrl,
+  sponsorDisplayName as displayName,
+  sponsorMonthlyMeta as monthlyMeta,
+} from '../lib/sponsor-display.ts';
 
 const monthly = computed(() =>
   sponsors.sponsors
@@ -10,49 +15,10 @@ const monthly = computed(() =>
     .sort((a, b) => b.monthlyCents - a.monthlyCents || b.lifetimeCents - a.lifetimeCents),
 );
 
-function formatUsd(cents: number): string {
-  const digits = cents % 100 === 0 ? 0 : 2;
-  return (cents / 100).toLocaleString('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: digits,
-    maximumFractionDigits: digits,
-  });
-}
-
-function formatMonth(value: string | null): string {
-  if (!value) return '';
-  const date = new Date(value);
-  return `${MONTHS[date.getUTCMonth()]} ${date.getUTCFullYear()}`;
-}
-
-const displayName = (sponsor: Sponsor): string => sponsor.profile?.name ?? sponsor.profile?.login ?? 'Anonymous';
-
 const failedAvatars = ref<string[]>([]);
 
 const hasAvatar = (sponsor: Sponsor): boolean =>
   !!sponsor.profile?.avatarUrl && !failedAvatars.value.includes(sponsor.profile.login);
-
-// GitHub serves the avatar at the requested size instead of the full-resolution original.
-function avatarUrl(sponsor: Sponsor): string | undefined {
-  if (!sponsor.profile?.avatarUrl) return undefined;
-  try {
-    const url = new URL(sponsor.profile.avatarUrl);
-    url.searchParams.set('s', '96');
-    return url.toString();
-  } catch {
-    return sponsor.profile.avatarUrl;
-  }
-}
-
-// The initial stands in when there is no avatar or GitHub no longer serves it (e.g. deleted accounts).
-const avatarFallback = (sponsor: Sponsor): string => (sponsor.profile ? displayName(sponsor)[0].toUpperCase() : '?');
-
-function monthlyMeta(sponsor: Sponsor): string {
-  const parts = [`${formatUsd(sponsor.lifetimeCents)} total`];
-  if (sponsor.firstSponsoredAt) parts.push(`since ${formatMonth(sponsor.firstSponsoredAt)}`);
-  return parts.join(' · ');
-}
 </script>
 
 <template>

@@ -1,8 +1,9 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { fetchJson } from '../lib/fetch-retry.ts';
+import { formatMonth, formatUsd } from '../lib/format.ts';
 
 const API_URL = 'https://calagopus.com/api/sponsors';
-const RETRIES = 3;
 
 interface ApiProfile {
   github_id: number | null;
@@ -63,28 +64,8 @@ export interface SponsorsData {
 let pending: Promise<ApiSponsors> | null = null;
 
 function fetchSponsors(): Promise<ApiSponsors> {
-  pending ??= requestSponsors();
+  pending ??= fetchJson<ApiSponsors>(API_URL, 'sponsors', 'CALAGOPUS_SPONSORS_OFFLINE');
   return pending;
-}
-
-async function requestSponsors(): Promise<ApiSponsors> {
-  let lastError: unknown;
-
-  for (let attempt = 1; attempt <= RETRIES; attempt++) {
-    try {
-      const response = await fetch(API_URL, { headers: { accept: 'application/json' } });
-      if (!response.ok) throw new Error(`HTTP ${response.status} ${response.statusText}`);
-      return (await response.json()) as ApiSponsors;
-    } catch (error) {
-      lastError = error;
-      if (attempt < RETRIES) await new Promise((resolve) => setTimeout(resolve, 500 * attempt));
-    }
-  }
-
-  throw new Error(
-    `Could not load sponsors from ${API_URL}: ${lastError}. ` +
-      'Set CALAGOPUS_SPONSORS_OFFLINE=1 to build without them.',
-  );
 }
 
 function toSponsor(sponsor: ApiSponsor): Sponsor {
@@ -138,24 +119,6 @@ export async function loadSponsors(): Promise<SponsorsData> {
   };
 }
 
-function formatUsd(cents: number): string {
-  const digits = cents % 100 === 0 ? 0 : 2;
-  return (cents / 100).toLocaleString('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: digits,
-    maximumFractionDigits: digits,
-  });
-}
-
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-function formatMonth(value: string | null): string {
-  if (!value) return '-';
-  const date = new Date(value);
-  return `${MONTHS[date.getUTCMonth()]} ${date.getUTCFullYear()}`;
-}
-
 function sponsorLabel(sponsor: Sponsor): string {
   if (!sponsor.profile) return 'Anonymous';
   const { login, name, url } = sponsor.profile;
@@ -192,7 +155,7 @@ function sponsorsMarkdown(data: SponsorsData): string {
           `${formatUsd(sponsor.monthlyCents)}/month`,
           sponsor.oneTimeCents > 0 ? formatUsd(sponsor.oneTimeCents) : '-',
           formatUsd(sponsor.lifetimeCents),
-          formatMonth(sponsor.firstSponsoredAt),
+          formatMonth(sponsor.firstSponsoredAt, '-'),
         ]),
       ),
     );

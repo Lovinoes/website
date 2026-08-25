@@ -9,9 +9,9 @@ const props = defineProps<{ id: string }>();
 const category = computed(() => featureCategories.find((c) => c.id === props.id));
 
 function icon(value: boolean | null) {
-  if (value === true) return { icon: faCheck, cls: 'feature-yes' };
-  if (value === false) return { icon: faXmark, cls: 'feature-no' };
-  return { icon: faMinus, cls: 'feature-unknown' };
+  if (value === true) return { icon: faCheck, class: 'feature-yes' };
+  if (value === false) return { icon: faXmark, class: 'feature-no' };
+  return { icon: faMinus, class: 'feature-unknown' };
 }
 </script>
 
@@ -34,16 +34,16 @@ function icon(value: boolean | null) {
           <tr v-for="row in category.rows" :key="row.name">
             <td class="feature-col-name">{{ row.name }}</td>
             <td>
-              <FontAwesomeIcon :icon="icon(row.calagopus).icon" :class="icon(row.calagopus).cls" />
+              <FontAwesomeIcon v-bind="icon(row.calagopus)" />
             </td>
             <td>
-              <FontAwesomeIcon :icon="icon(row.pterodactyl).icon" :class="icon(row.pterodactyl).cls" />
+              <FontAwesomeIcon v-bind="icon(row.pterodactyl)" />
             </td>
             <td>
-              <FontAwesomeIcon :icon="icon(row.pelican).icon" :class="icon(row.pelican).cls" />
+              <FontAwesomeIcon v-bind="icon(row.pelican)" />
             </td>
             <td>
-              <FontAwesomeIcon :icon="icon(row.amp).icon" :class="icon(row.amp).cls" />
+              <FontAwesomeIcon v-bind="icon(row.amp)" />
             </td>
           </tr>
         </tbody>

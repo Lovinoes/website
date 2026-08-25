@@ -4,10 +4,10 @@ import MarkdownIt from 'markdown-it';
 import type StateCore from 'markdown-it/lib/rules_core/state_core.mjs';
 import type Token from 'markdown-it/lib/token.mjs';
 import { type ReleaseCallout, type ReleaseNote, releaseNotes } from '../data/release-notes.ts';
+import { fetchJson } from '../lib/fetch-retry.ts';
 
 const API_BASE = 'https://calagopus.com/api/releases';
 const SITE_URL = 'https://calagopus.com';
-const RETRIES = 3;
 
 export interface ReleaseProject {
   key: string;
@@ -167,29 +167,9 @@ function fetchProject(key: string): Promise<ApiProject> {
   const cached = pending.get(key);
   if (cached) return cached;
 
-  const request = requestProject(key);
+  const request = fetchJson<ApiProject>(`${API_BASE}/${key}`, `releases for "${key}"`, 'CALAGOPUS_RELEASES_OFFLINE');
   pending.set(key, request);
   return request;
-}
-
-async function requestProject(key: string): Promise<ApiProject> {
-  let lastError: unknown;
-
-  for (let attempt = 1; attempt <= RETRIES; attempt++) {
-    try {
-      const response = await fetch(`${API_BASE}/${key}`, { headers: { accept: 'application/json' } });
-      if (!response.ok) throw new Error(`HTTP ${response.status} ${response.statusText}`);
-      return (await response.json()) as ApiProject;
-    } catch (error) {
-      lastError = error;
-      if (attempt < RETRIES) await new Promise((resolve) => setTimeout(resolve, 500 * attempt));
-    }
-  }
-
-  throw new Error(
-    `Could not load releases for "${key}" from ${API_BASE}/${key}: ${lastError}. ` +
-      'Set CALAGOPUS_RELEASES_OFFLINE=1 to build without them.',
-  );
 }
 
 function normalizeBody(body: string): { markdown: string; compareUrl?: string } {

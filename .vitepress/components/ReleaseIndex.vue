@@ -1,15 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { data as releases } from '../data/releases.data.mts';
-
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+import { formatDate } from '../lib/format.ts';
 
 const projects = computed(() => Object.values(releases));
-
-function formatDate(value: string): string {
-  const date = new Date(value);
-  return `${MONTHS[date.getUTCMonth()]} ${date.getUTCDate()}, ${date.getUTCFullYear()}`;
-}
 </script>
 
 <template>
