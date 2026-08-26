@@ -21,6 +21,12 @@ The link is mailed to you and stays valid for 24 hours; requesting a new one is 
 
 Enter your current password, then your new password twice, and hit **Update**. You always have to confirm your current password first, even if you're already logged in. If your account was created through an OAuth provider and has no password set, the **Current Password** field is hidden and this is how you set one for the first time.
 
+Changing your password does not sign anyone out on its own, so a **Log Out Other Sessions** prompt follows a successful change.
+
+<img src="./images/account/password-log-out-others.webp" width="220" alt="" />
+
+**Log Out Others** ends every [session](./sessions.md) except the one you're using and reports how many were removed; **Cancel** leaves them alone. Take it if you changed your password because you suspect someone else has it, or if you were signed in somewhere you no longer control. It is the same action as **Log Out Others** on the Sessions page, so you can also do it later.
+
 ## Email
 
 Same idea: enter your new email and your current password, then **Update**.

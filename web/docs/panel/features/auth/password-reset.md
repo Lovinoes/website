@@ -27,6 +27,8 @@ Reset tokens expire after 20 minutes and work exactly once; if yours is rejected
 
 Completing a reset also marks your email address as verified, since receiving the link proves you own the mailbox. That makes this the way out if your account is stuck behind [email verification](../dashboard/account.md#email-verification) and the verification mail never arrives.
 
+A successful reset ends every [session](../dashboard/sessions.md) on the account, so anyone still logged in on another device is signed out and you have to log in again yourself. Nothing is left signed in if someone else got hold of the account.
+
 ::: info
 For admins: both endpoints are [rate limited](../admin/settings.md#ratelimits), and reset requests are additionally limited per email address, not just per IP.
 :::
