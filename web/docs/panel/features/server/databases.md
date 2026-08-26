@@ -76,7 +76,7 @@ Below that are live **CPU Load** and **Memory Load** graphs (with an "Instance i
 
 ### Databases Tab
 
-Not shown for Redis, which has no named databases. Lists the databases inside the instance with their size, up to its own per-instance cap. **Create** asks only for a name (letters and numbers only) and requires the instance to be running. A warning icon next to a database means it has no user attached yet, so nothing can connect to it.
+Not shown for Redis, which has no named databases. Lists the databases inside the instance with their size, up to its own per-instance cap. **Create** asks for a name (letters and numbers only) and requires the instance to be running. It also has a **Create a user for this database** switch, on by default, which "creates a user named after the database, grants it access and shows its credentials once the database is created" - leave it on and you get a working database and login in one step. A warning icon next to a database means it has no user attached yet, so nothing can connect to it.
 
 Right-click a database for:
 
@@ -91,9 +91,17 @@ Right-click a database for:
 
 ### Users Tab
 
-Per-instance database users, also capped ("0 of 10 maximum users created."). **Create** takes a **Username** (letters and numbers only) and, for everything except Redis, the **Database** the user is granted access to.
+Per-instance database users, also capped ("0 of 10 maximum users created."). Each row lists the databases that user can reach as badges under a **Databases** column, blue for read and write access, grey for read-only.
 
-Right-click a user for **Details**, which opens the **Database Credentials** modal: address, username, password, and a **JDBC Connection String**, plus the same **Rotate Password** button classic databases have. **Delete** removes the user.
+**Create** takes a **Username** (letters and numbers only) and, for everything except Redis, a **Database Access** list: every database in the instance with a **No Access** / **Read Only** / **Read & Write** control next to it. A user can hold access to as many databases as you like, at a different level in each.
+
+Right-click a user for:
+
+| Action | What it does |
+| --- | --- |
+| **Details** | Opens the **Database Credentials** modal: address, username, password, and a **JDBC Connection String**, plus the same **Rotate Password** button classic databases have. When the user can reach more than one database, a selector switches which one the connection string is built for. |
+| **Permissions** | Opens **Database Permissions** - "Controls which databases **{username}** can access, and what it may do in them." - the same No Access / Read Only / Read & Write list used when creating the user. |
+| **Delete** | Removes the user. |
 
 ### Logs Tab
 

@@ -11,7 +11,7 @@ The Account page covers everything about your own user profile: password, email,
 
 ## Password
 
-Enter your current password, then your new password twice, and hit **Update**. You always have to confirm your current password first, even if you're already logged in. If your account was created through an OAuth provider and has no password set, this section doesn't apply to you.
+Enter your current password, then your new password twice, and hit **Update**. You always have to confirm your current password first, even if you're already logged in. If your account was created through an OAuth provider and has no password set, the **Current Password** field is hidden and this is how you set one for the first time.
 
 ## Email
 
@@ -27,15 +27,21 @@ Right after enabling, a **Recovery Codes** dialog appears: "Below are your recov
 
 <img src="./images/account/2fa-recovery-codes.webp" width="220" alt="" />
 
-Once enabled, the card reads "Two-Factor Verification is currently enabled." with a **Disable Two-Factor** button and a line showing when 2FA was last used. Disabling asks for a valid authentication code and your password again.
+Once you have a second factor set up, the card lists each enrolled method as a green badge - **Authenticator App**, **Security Key**, or **Email** - plus a line showing when your authenticator app was last used. With nothing set up it reads "No second factor is set up on your account yet." instead.
 
-If your role or the panel requires 2FA and you haven't set it up, an alert at the top of the page says so; a frozen account shows an alert explaining that account details cannot be changed.
+Up to three buttons sit at the bottom of the card: **Setup Two-Factor** or **Disable Two-Factor** for the authenticator app, **Enable Email** or **Disable Email** when the administrator has turned on email two-factor, and **Security Keys**, which takes you to the [Security Keys](./security-keys.md) page. Disabling asks for a valid authentication code and your password again.
+
+If your role or the panel requires 2FA, the card also tells you whether your account currently meets that requirement. A frozen account shows an alert explaining that account details cannot be changed.
 
 <img src="./images/account/2fa-disable.webp" width="220" alt="" />
 
 ## Account Details
 
-Your first name, last name, username, panel language, and toast position (where notifications pop up on screen). There's also a toggle for whether the panel should open to the **Grouped Servers** view instead of **All Servers**, off by default. See [Servers](./servers.md) for the difference.
+Your first name, last name, username, and panel language. First and last name are optional; username is required, and the language selector only appears when the administrator allows changing it.
+
+## Preferences
+
+A separate card holding **Toast Position** (where notifications pop up on screen) and a toggle for whether the panel should open to the **Grouped Servers** view instead of **All Servers**, off by default. See [Servers](./servers.md) for the difference.
 
 ## Avatar
 

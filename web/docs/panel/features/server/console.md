@@ -30,7 +30,7 @@ The icons in the top right of the terminal:
 | **Search** | Search the scrollback (also `Ctrl`+`F`). Enter jumps to the next match, Shift+Enter to the previous. |
 | **SSH Details** | Connection details for SSH access, see below |
 | **Command History** | Previously sent commands, see below |
-| **Decrease Font Size** / **Increase Font Size** | Adjust the terminal font between 10px and 24px; the choice is remembered by your browser |
+| **Decrease Font Size** / **Increase Font Size** | Adjust the terminal font between 10px and 24px; the choice is saved to your account and follows you to other devices, unless you set it to this device only |
 
 Select text to copy it: `Ctrl`+`C` copies the selection, and on touch screens a long press starts selecting and shows a **Copy Selection** button. If you've scrolled up, an arrow button jumps back to the bottom.
 

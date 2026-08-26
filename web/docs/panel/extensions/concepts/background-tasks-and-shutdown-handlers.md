@@ -73,7 +73,7 @@ use std::str::FromStr;
 builder
     .add_cron_task(
         "daily-database-cleanup",
-        cron::Schedule::from_str("0 0 0 * * *").unwrap(),
+        croner::Cron::from_str("0 0 0 * * *").unwrap(),
         |state| async move {
             crate::cleanup::run_daily(&state).await?;
             Ok(())

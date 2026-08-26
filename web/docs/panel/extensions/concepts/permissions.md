@@ -213,7 +213,7 @@ The default behavior (hide everything) is usually right for **whole features** -
 But for **inline actions inside a feature they *can* otherwise see**, a disabled button with a tooltip is often better UX. The user sees what they *would* be able to do, gets a clear signal they can't, and can ask their admin for the right permission if they need it. That's what `cantSave` and `cantDelete` are for on `AdminCan` - they render a stock disabled button with a "you don't have permission to save" tooltip:
 
 ```tsx
-<AdminCan action='extensions.configure' cantSave>
+<AdminCan action='extensions.manage' cantSave>
   <Button onClick={doSave}>Save</Button>
 </AdminCan>
 ```

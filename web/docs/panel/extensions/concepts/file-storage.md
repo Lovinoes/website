@@ -15,7 +15,7 @@ This page covers the storage API, the convention around well-known directory pre
 Most extensions only ever need three methods on `state.storage`:
 
 - **`store(path, data, content_type)`** - write a file. Takes any `AsyncRead` for the body, returns the number of bytes written.
-- **`remove(path)`** - delete a file by path. No-op if the file doesn't exist.
+- **`remove(path)`** - delete a file by path. Takes an `Option`, so `None` is a no-op; it's also a no-op if the file doesn't exist.
 - **`retrieve_urls()`** - get a helper that turns paths into publicly-accessible URLs.
 
 Here's a concrete example - storing a user-uploaded image and returning a URL the frontend can use to display it:
@@ -87,20 +87,20 @@ Storage paths are global - whatever you write to `foo/bar.txt` is reachable as `
 | --- | --- | --- |
 | `assets/` | Yes | Admin assets - logos, branding images, anything the admin panel needs publicly available. |
 | `avatars/` | Yes | User avatar images. Structure is `avatars/{user_uuid}/{random}.webp`. **Don't write here directly** unless you're confident; the core Panel manages this and a botched write can leave a user with a missing or corrupted avatar. |
-| `userdata/` | Yes | Currently unused by the base Panel; available for extension use. Suggested structure: `userdata/extensions/{your.package.identifier}/...`. |
-| `privatedata/` | No | Not publicly accessible. Same suggested structure as `userdata/`: `privatedata/extensions/{your.package.identifier}/...`. |
+| `publicdata/` | Yes | Currently unused by the base Panel; available for extension use. Suggested structure: `publicdata/extensions/{your.package.identifier}/...`. |
+| `privatedata/` | No | Not publicly accessible. Same suggested structure as `publicdata/`: `privatedata/extensions/{your.package.identifier}/...`. |
 
 The "publicly accessible" distinction is enforced at the storage layer - paths under public prefixes are reachable via the URL `retrieve_urls().get_url(path)` returns, and paths under `privatedata/` aren't. If you write to `privatedata/...` and then call `get_url(...)` on it, the returned URL won't actually serve the file; it's the responsibility of your extension's own routes to authenticate-and-serve from `privatedata/`.
 
 The most common pattern for extensions:
 
-- **User-facing files that anyone with the link can see** (display avatars, exported chart images, etc.) → `userdata/extensions/dev.yourname.my-feature/...`
+- **User-facing files that anyone with the link can see** (display avatars, exported chart images, etc.) → `publicdata/extensions/dev.yourname.my-feature/...`
 - **Files that should require authentication** (private user data, internal exports, anything sensitive) → `privatedata/extensions/dev.yourname.my-feature/...` and serve them through your own permissioned route.
 
 Both prefixes accept the same path shape. Picking between them is purely about whether you want anyone-with-the-URL access or not.
 
 ::: warning Don't reach for `assets/` or `avatars/` unless you mean it
-The `assets/` prefix is for admin-managed branding; the `avatars/` prefix is structured around user UUIDs and managed by core. Writing into either of these from your extension can collide with core Panel operations - extensions should default to `userdata/` or `privatedata/` and only use `assets/` or `avatars/` if you have a specific, documented reason to be touching that namespace.
+The `assets/` prefix is for admin-managed branding; the `avatars/` prefix is structured around user UUIDs and managed by core. Writing into either of these from your extension can collide with core Panel operations - extensions should default to `publicdata/` or `privatedata/` and only use `assets/` or `avatars/` if you have a specific, documented reason to be touching that namespace.
 :::
 
 ## Getting Public URLs
@@ -110,9 +110,9 @@ The `assets/` prefix is for admin-managed branding; the `avatars/` prefix is str
 ```rs
 let urls = state.storage.retrieve_urls().await?;
 
-let avatar_url = urls.get_url("userdata/extensions/dev.yourname.my-feature/some-image.webp");
-// Filesystem backend: "https://panel.example.com/userdata/extensions/dev.yourname.my-feature/some-image.webp"
-// S3 backend:         "https://cdn.example.com/userdata/extensions/dev.yourname.my-feature/some-image.webp"
+let avatar_url = urls.get_url("publicdata/extensions/dev.yourname.my-feature/some-image.webp");
+// Filesystem backend: "https://panel.example.com/publicdata/extensions/dev.yourname.my-feature/some-image.webp"
+// S3 backend:         "https://cdn.example.com/publicdata/extensions/dev.yourname.my-feature/some-image.webp"
 ```
 
 The format depends on the configured driver: filesystem-backed installs serve through the Panel itself (URL prefixed with `app.url`), S3-backed installs serve from the configured `public_url` (typically a CDN). Either way, your extension code doesn't care - you get a URL string, you hand it to the frontend.
@@ -134,7 +134,7 @@ let mut reader = tokio_util::io::StreamReader::new(stream);
 let bytes = state
     .storage
     .store(
-        "userdata/extensions/dev.yourname.my-feature/cached-asset.bin",
+        "publicdata/extensions/dev.yourname.my-feature/cached-asset.bin",
         &mut reader,
         "application/octet-stream",
     )
@@ -150,7 +150,7 @@ For admin-style "show me what's in this directory" use cases, there's `state.sto
 ```rs
 let page = state
     .storage
-    .list("userdata/extensions/dev.yourname.my-feature", "", 1, 50)
+    .list("publicdata/extensions/dev.yourname.my-feature", "", 1, 50)
     .await?;
 
 for asset in page.data {
@@ -171,7 +171,7 @@ Where `list` is shallow, `state.storage.search(base, directory, search, limit)` 
 ```rs
 let results = state
     .storage
-    .search("userdata/extensions/dev.yourname.my-feature", "", "report", 50)
+    .search("publicdata/extensions/dev.yourname.my-feature", "", "report", 50)
     .await?;
 
 for asset in results {
@@ -220,7 +220,7 @@ For cases where the high-level API isn't enough - random-access reads, complex d
 use std::path::Path;
 
 let settings = state.settings.get().await?;
-let cap_fs = match settings.storage.get_cap_filesystem("userdata/extensions/dev.yourname.my-feature").await {
+let cap_fs = match settings.storage_driver.get_cap_filesystem("publicdata/extensions/dev.yourname.my-feature").await {
     Some(Ok(fs)) => fs,
     Some(Err(err)) => return Err(err.into()),
     None => {

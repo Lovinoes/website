@@ -314,7 +314,7 @@ mod put {
                 .ok();
         }
 
-        permissions.has_admin_permission("extensions.configure")?;
+        permissions.has_admin_permission("extensions.manage")?;
 
         // ... apply the update, save, etc.
         ApiResponse::new_serialized(Response {}).ok()

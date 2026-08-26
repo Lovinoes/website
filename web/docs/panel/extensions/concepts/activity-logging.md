@@ -41,7 +41,7 @@ pub async fn route(
     activity_logger: GetAdminActivityLogger,
     shared::Payload(data): shared::Payload<Payload>,
 ) -> ApiResponseResult {
-    permissions.has_admin_permission("extensions.configure")?;
+    permissions.has_admin_permission("extensions.manage")?;
 
     // ... do the actual work
 

@@ -355,7 +355,7 @@ The `zodShape` and `initialValues` here are doing more than just validation and 
 
 ## Reading Your Extension's Data
 
-The whole point of this exercise is so your extension can *use* the data it stores. The access pattern is pleasingly symmetric on the two sides: wherever a model is loaded, you parse your typed slice back out of it - `parse_model_extension` on the backend, `parseExtendedFromApi` on the frontend.
+The whole point of this exercise is so your extension can *use* the data it stores. The access pattern is pleasingly symmetric on the two sides: wherever a model is loaded, you parse your typed slice back out of it - `parse_model_extension` on the backend, your own Zod schema on the frontend.
 
 ### From Backend Routes
 
@@ -453,13 +453,14 @@ The same applies to any other API struct you've extended via `extend_validated` 
 
 ### From Frontend Components
 
-On the frontend, your extended fields are in the JSON the Panel returns when it loads a server - because of the `extend_validated` call. So you don't need a separate fetch and you don't need a custom API endpoint. There is one wrinkle: the Panel's API layer validates every response against its core Zod schemas (see [Frontend API Calls](./frontend-api.md)), and the *typed* objects it produces only contain the fields those schemas declare. Your extension's fields aren't lost, though - during parsing, every field the schema didn't recognize is kept on the parsed object under a hidden `__extension_data` property, mirroring how the backend models carry their extension data.
+On the frontend, your extended fields are in the JSON the Panel returns when it loads a server - because of the `extend_validated` call. So you don't need a separate fetch and you don't need a custom API endpoint.
 
-You read them back with `parseExtendedFromApi` - the frontend counterpart of `parse_model_extension`. Define a Zod schema for your extension's slice (camelCase keys, same conventions as any response schema) and hand it the parsed object node your fields live on:
+The Panel's API layer validates every response against its core Zod schemas (see [Frontend API Calls](./frontend-api.md)), and those core schemas are declared with `z.looseObject`. Any key the schema doesn't declare is camelCased and kept on the parsed object as-is, so your extension's fields are simply *there* alongside the core ones - there is no wrapper property to unpack and no special helper to call.
+
+They aren't typed, though: TypeScript only knows about the core schema's fields. Declare a Zod schema for your extension's slice (camelCase keys, same conventions as any response schema) and parse the node your fields live on. A plain `z.object` ignores the core keys it doesn't declare, so you can hand it the whole node:
 
 ```tsx
 import { z } from 'zod';
-import { parseExtendedFromApi } from '@/lib/api-transform.ts';
 import { useServerStore } from '@/stores/server.ts';
 
 const subdomainsExtensionSchema = z.object({
@@ -468,7 +469,7 @@ const subdomainsExtensionSchema = z.object({
 
 export default function SubdomainsCard() {
   const server = useServerStore((s) => s.server);
-  const { subdomains: limit } = parseExtendedFromApi(subdomainsExtensionSchema, server.featureLimits);
+  const { subdomains: limit } = subdomainsExtensionSchema.parse(server.featureLimits);
 
   return (
     <div>
@@ -478,11 +479,11 @@ export default function SubdomainsCard() {
 }
 ```
 
-Note that the second argument is `server.featureLimits`, not `server` - extras are tracked per object node, so you ask the node your backend extension actually extended. Your schema gets the same snake_case-to-camelCase remap and validation as any other response parse: the backend's `subdomains` column arrives as `subdomains`, a hypothetical `custom_flag` would arrive as `customFlag`, and a schema mismatch throws loudly (mark fields `.optional()` if older panel versions might not send them).
+Note that you parse `server.featureLimits`, not `server` - extension fields sit on the node your backend extension actually extended. Keys arrive camelCased like every other response field: the backend's `subdomains` column arrives as `subdomains`, and a hypothetical `custom_flag` would arrive as `customFlag`. Mark fields `.optional()` if older panel versions, or a panel running without your extension, might not send them.
 
 Two things to keep in mind:
 
-- **Go through `parseExtendedFromApi`, don't poke `__extension_data` yourself.** The property holds the raw wire values (snake_case, unvalidated); the helper is what applies your schema. Because it rides on the object as a normal property, it survives store updates that spread the object, `structuredClone`, and JSON round-trips.
+- **Parse, don't trust.** The values ride on the object unvalidated - the core schema declared nothing about them. Running your own schema over the node is what turns them into typed data, and it fails loudly when your extension and the panel disagree.
 - **This is read-only**, same as `parse_model_extension` on the backend. To change the value, submit it through the update flow like any other field.
 
 ## Where to Go From Here

@@ -9,9 +9,11 @@ When registration is enabled, the **Create account** link on the [login page](./
 
 ![](./images/register/form.webp)
 
-The form asks for **Username**, **Email**, **First Name**, **Last Name**, and **Password** (with a visibility toggle). Usernames are 3 to 15 characters of letters, numbers, and underscores; passwords need at least 8 characters. Hit **Register** to create the account, or **Login** below the separator to go back.
+The form asks for **Username**, **Email**, **Password** (with a visibility toggle), and optionally **First Name** and **Last Name**. Usernames are 3 to 15 characters of letters, numbers, and underscores; passwords need at least 8 characters. Hit **Register** to create the account, or **Login** below the separator to go back.
 
-Registering logs you in immediately. There is no email verification step; your session starts the moment the account is created. If the username or email is already taken, you get an error instead. The first account ever registered on a fresh panel automatically becomes a root admin.
+Registering logs you in immediately: your session starts the moment the account is created. If the username or email is already taken, you get an error instead. The first account ever registered on a fresh panel automatically becomes a root admin, and is marked verified straight away.
+
+If the administrator has turned on **Require Email Verification**, a verification link is mailed to you and the rest of the panel stays locked until you open it. You can still reach your account page, change your email, and request a new link, but nothing else - including SFTP and SSH - works until the address is verified. See [Account](../dashboard/account.md) for the verification banner and the resend button.
 
 When a captcha is configured, it renders below the card and **Register** stays disabled until it's solved.
 

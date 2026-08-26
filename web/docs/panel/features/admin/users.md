@@ -24,7 +24,7 @@ Click **Create** (or go to `/admin/users/new`) and fill in the form:
 | --- | --- |
 | **Username** | Required. |
 | **Email** | Required. |
-| **First Name** / **Last Name** | Required. |
+| **First Name** / **Last Name** | Optional. |
 | **Language** | Required. The user's panel language. |
 | **Role** | Optional; only shown to root admins. See [Roles](./roles.md). |
 | **External ID** | Optional identifier for linking external systems. |
