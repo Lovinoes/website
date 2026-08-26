@@ -17,11 +17,11 @@ It draws inspiration from Pterodactyl but is written from scratch in Rust, with 
 
 ### How is Calagopus different from Pterodactyl?
 
-Calagopus is built in Rust, where Pterodactyl uses PHP. The result is meaningfully better performance: panel API throughput up over 32,800% in our [benchmarks](./benchmarks.md), as of v1.1.0 (August 2026). That figure measures control-plane throughput under concurrent load, not game-server tick rate or player capacity, see the [benchmarks page](./benchmarks.md) for the full methodology. Calagopus also ships its own extension API designed around Rust traits, rather than the PHP-based plugin systems of older panels. We provide a [migration guide](../additional/migrations/pterodactyl.md) for existing Pterodactyl users.
+Calagopus is built in Rust, where Pterodactyl uses PHP. The result is meaningfully better performance: panel API throughput up over 32,800% in our [benchmarks](./benchmarks.md), as of v1.1.0 (August 2026). That figure measures control-plane throughput under concurrent load, not game-server tick rate or player capacity, see the [benchmarks page](./benchmarks.md) for the full methodology. Calagopus also ships its own extension API designed around Rust traits, rather than the PHP-based plugin systems of older panels. We provide a [migration guide](../additional/migrations/pterodactyl.md) for existing Pterodactyl users. For a feature-by-feature breakdown, see the full [Calagopus vs Pterodactyl comparison](/compare/calagopus-vs-pterodactyl).
 
 ### How is Calagopus different from Pelican?
 
-Pelican is a Pterodactyl fork that retains the same PHP/Laravel architecture. Calagopus is a complete rewrite in a different language stack, so the two share goals but very little code. If you're already on Pelican, see the [migration guide](../additional/migrations/pelican.md).
+Pelican is a Pterodactyl fork that retains the same PHP/Laravel architecture. Calagopus is a complete rewrite in a different language stack, so the two share goals but very little code. If you're already on Pelican, see the [migration guide](../additional/migrations/pelican.md). For a side-by-side breakdown, see [Calagopus vs Pelican](/compare/calagopus-vs-pelican).
 
 ### What games does Calagopus support?
 
@@ -41,15 +41,19 @@ Yes. Calagopus provides migration tooling for both panels. See the [Pterodactyl 
 
 ### Does Calagopus have an Extension API?
 
-Yes. Extensions can add backend logic, custom routes, UI elements, database migrations, and more. The API uses Rust traits for type safety and performance. See the [Extension Development Guide](../panel/extensions/dev-environment.md) to get started.
+Yes. [Extensions](../panel/extensions/index.md) can add backend logic, custom routes, UI elements, database migrations, and more. The API uses Rust traits for type safety and performance. See the [Extension Development Guide](../panel/extensions/dev-environment.md) to get started.
 
 ### Does Calagopus support Blueprint extensions?
 
 No. Blueprint targets the PHP-based Pterodactyl architecture and isn't compatible with Calagopus's Rust-based system. Calagopus's native extension API covers the same use cases - and more - with better performance and type safety.
 
+### What is Calagopus Wings?
+
+[Wings](../wings/index.md) is the node daemon that runs your game servers. It sits on each host, manages the Docker containers on behalf of the panel, and reports status back. One panel can drive many Wings nodes.
+
 ### Can I run Calagopus on Windows?
 
-The panel runs natively on Windows and via Docker Desktop. Wings (the daemon that runs game servers) requires Linux - WSL2 works for local testing, but a real Linux host is recommended for anything production-adjacent.
+The panel runs natively on Windows and via Docker Desktop. [Wings](../wings/index.md) (the daemon that runs game servers) requires Linux - WSL2 works for local testing, but a real Linux host is recommended for anything production-adjacent.
 
 ### Can I run Calagopus on a Raspberry Pi?
 

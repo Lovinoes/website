@@ -37,8 +37,8 @@ const features = [
     details:
       'The Extension API uses Rust traits to let extensions add backend logic, custom routes, CLI commands, and database migrations - and go further than fixed plugin slots: extensions can intercept or replace built-in UI elements, inject fields into admin forms, and even install from the admin UI with live build logs on the all-in-one image.',
     link: {
-      href: '/docs/panel/extensions/dev-environment',
-      label: 'Build an extension',
+      href: '/docs/panel/extensions/',
+      label: 'Explore the Extension API',
     },
   },
   {
