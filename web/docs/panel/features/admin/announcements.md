@@ -30,7 +30,7 @@ Click **Create**.
 The four types set the banner's color and icon, the language selector next to Title and Content holds the per-language variants, and the Enabled Start/End fields use a date picker with an optional time. Every user sees the variant matching their own panel language, with the default text as the fallback for languages you didn't fill in:
 
 <img src="./images/announcements/types.webp" width="399" alt="" />
-![](./images/announcements/languages.webp)
+<img src="./images/announcements/languages.webp" alt="" />
 <img src="./images/announcements/calendar.webp" width="200" alt="" />
 
 ### Targeting

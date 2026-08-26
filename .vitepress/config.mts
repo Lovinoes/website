@@ -11,6 +11,7 @@ import { acceptMarkdownPlugin } from './plugins/accept-markdown.ts';
 import { aiDocPlugin } from './plugins/ai-doc.ts';
 import { writeConfigDocs } from './plugins/config-docs.ts';
 import { generateLlmsArtifacts } from './plugins/llms.ts';
+import { imageAssetsPlugin, imageMime, writeImageManifest } from './plugins/mcp-images.ts';
 import { recordPage, writePageManifest } from './plugins/mcp-manifest.ts';
 import { expandReleaseMarkdown } from './plugins/releases.ts';
 import { expandSponsorsMarkdown } from './plugins/sponsors.ts';
@@ -80,6 +81,7 @@ export default withMermaid({
           return params;
         },
       }),
+      imageAssetsPlugin(),
       ViteImageOptimizer({
         exclude: /\.webp$/i,
         png: {
@@ -93,6 +95,9 @@ export default withMermaid({
         },
       }),
     ],
+    build: {
+      assetsInlineLimit: (filePath) => (imageMime(filePath) === undefined ? undefined : false),
+    },
     server: {
       allowedHosts: true,
     },
@@ -232,6 +237,7 @@ export default withMermaid({
           { text: 'Benchmarks', link: '/docs/about/benchmarks' },
           { text: 'Security', link: '/docs/about/security' },
           { text: 'Sponsors', link: '/docs/about/sponsors' },
+          { text: 'Documentation MCP Server', link: '/docs/about/mcp-server' },
           {
             text: 'Principles',
             collapsed: true,
@@ -613,6 +619,7 @@ export default withMermaid({
     await expandReleaseMarkdown(siteConfig.outDir);
     await expandSponsorsMarkdown(siteConfig.outDir);
     await writePageManifest(siteConfig.outDir, SITE_URL);
+    await writeImageManifest(siteConfig.outDir);
   },
 
   transformPageData(pageData, { siteConfig }) {

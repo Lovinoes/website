@@ -2,6 +2,7 @@ import { markdownCandidates } from '../.vitepress/lib/markdown-candidates.ts';
 import { API_PREFIX, apiHandler } from './api/index.ts';
 import { refreshReleases } from './api/releases.ts';
 import { wantsMarkdown } from './http.ts';
+import { imageAsset } from './images.ts';
 import { mcpHandler } from './mcp/server.ts';
 
 const MCP_ROUTE = '/mcp';
@@ -13,6 +14,10 @@ export default {
     if (url.pathname.startsWith(API_PREFIX)) return apiHandler(request, env);
 
     if (request.method !== 'GET' && request.method !== 'HEAD') return env.ASSETS.fetch(request);
+
+    const asset = await imageAsset(env, url.pathname);
+    if (asset !== null) return Response.redirect(new URL(asset, url.origin).toString(), 302);
+
     if (!wantsMarkdown(request, url.pathname)) return env.ASSETS.fetch(request);
 
     for (const candidate of markdownCandidates(url.pathname)) {

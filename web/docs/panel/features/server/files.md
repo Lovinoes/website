@@ -171,6 +171,7 @@ The clock icon ("File History") in the editor header opens a drawer listing the 
 - **Restore this revision into the editor**, which loads the old content into the editor as an unsaved change so you can review before saving.
 
 <img src="./images/files/history-drawer.webp" width="311" alt="File history drawer" />
+
 ![Revision diff view](./images/files/revision-diff.webp)
 
 ::: info

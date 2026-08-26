@@ -1,12 +1,17 @@
-import { McpServer } from '@modelcontextprotocol/server';
+import { type ContentBlock, McpServer } from '@modelcontextprotocol/server';
 import { createMcpHandler, type StatelessMcpHandler } from 'agents/mcp/server';
 import { z } from 'zod';
+import { base64, parseImageRef, readImage, resolveImage } from '../images.ts';
 import { extractSection, loadManifest, type ManifestPage, type PageRef, parsePageRef, readPage } from './pages.ts';
 import { queryPages, WEAK_SCORE } from './search.ts';
 
 const GET_PAGES_MAX = 10;
 const DEFAULT_MAX_BYTES = 60_000;
 const MIN_SLICE = 1_000;
+
+const GET_IMAGES_MAX = 4;
+const DEFAULT_IMAGE_BYTES = 500_000;
+const SVG_MIME = 'image/svg+xml';
 
 const INSTRUCTIONS = `Documentation for Calagopus, an open-source game server management panel written in Rust.
 Covers the Panel (web interface and API), Wings (the node daemon that runs game servers in Docker),
@@ -18,7 +23,8 @@ to see what exists in an area. Both return page names and their size in bytes; p
 get_pages to read the full Markdown. Page names are site paths such as "/docs/wings/installation",
 and links inside page bodies are absolute paths in the same form, so a link can be passed straight
 back to get_pages. Appending "#section-anchor" to a name reads only that section, which is worth
-doing for the larger pages.`;
+doing for the larger pages. Page bodies also reference screenshots by absolute path, and those go
+straight to get_images when the picture answers the question faster than the prose around it.`;
 
 function text(value: unknown) {
   return { content: [{ type: 'text' as const, text: typeof value === 'string' ? value : JSON.stringify(value) }] };
@@ -203,6 +209,90 @@ function buildServer(env: Env): McpServer {
       }
 
       return text(blocks.join('\n\n---\n\n'));
+    },
+  );
+
+  server.registerTool(
+    'get_images',
+    {
+      title: 'Read documentation screenshots',
+      description:
+        `Look at up to ${GET_IMAGES_MAX} documentation images. Takes the image paths that appear in ` +
+        'page bodies returned by get_pages (site paths such as ' +
+        '"/docs/panel/features/admin/images/users/list.webp"), and a full URL resolves too. Nearly ' +
+        'all of them are panel screenshots, so this is what to reach for when someone asks where a ' +
+        'control lives or what a screen looks like and the prose around the image does not settle ' +
+        `it. Output is capped at \`max_bytes\` (default ${DEFAULT_IMAGE_BYTES}), counted before base64 ` +
+        'encoding. Images are read in the order you list them, so put the most important first. ' +
+        'Nothing is cropped to fit: an image the remaining budget cannot cover is declined and ' +
+        'reported by name. SVG diagrams come back as their source markup instead of as a picture.',
+      inputSchema: z.object({
+        names: z
+          .array(z.string())
+          .min(1)
+          .max(GET_IMAGES_MAX)
+          .describe(`Image paths to read, at most ${GET_IMAGES_MAX} per call. Duplicates are collapsed.`),
+        max_bytes: z
+          .number()
+          .int()
+          .min(10_000)
+          .max(2_000_000)
+          .default(DEFAULT_IMAGE_BYTES)
+          .describe('Ceiling on the total size of the images returned.'),
+      }),
+    },
+    async ({ names, max_bytes }) => {
+      const content: ContentBlock[] = [];
+      const missing: string[] = [];
+      const declined: string[] = [];
+      let budget = max_bytes;
+
+      for (const path of new Set(names.map(parseImageRef))) {
+        const image = await resolveImage(env, path);
+        if (image === null) {
+          missing.push(path);
+          continue;
+        }
+        if (image.bytes > budget) {
+          declined.push(`${path} (${image.bytes} bytes)`);
+          continue;
+        }
+
+        const bytes = await readImage(env, image);
+        if (bytes === null) {
+          missing.push(path);
+          continue;
+        }
+
+        budget -= bytes.length;
+        if (image.mime === SVG_MIME) {
+          content.push({ type: 'text', text: `# ${path}\n\n${new TextDecoder().decode(bytes)}` });
+          continue;
+        }
+
+        content.push({ type: 'text', text: `# ${path}` });
+        content.push({ type: 'image', data: base64(bytes), mimeType: image.mime });
+      }
+
+      if (declined.length > 0) {
+        content.push({
+          type: 'text',
+          text:
+            `# not returned\n\nThe ${max_bytes} byte budget did not cover these, which were ` +
+            `requested after the images above: ${declined.join('; ')}. Ask for them in another call ` +
+            'or raise max_bytes.',
+        });
+      }
+      if (missing.length > 0) {
+        content.push({
+          type: 'text',
+          text:
+            `# not found\n\nNo image matched: ${missing.join(', ')}. Image paths come from the ` +
+            'Markdown that get_pages returns; read the page first and copy the path out of it.',
+        });
+      }
+
+      return { content };
     },
   );
 

@@ -64,17 +64,27 @@ export function pageUrlPath(page: string): string {
 function absoluteLinks(markdown: string, page: string): string {
   const base = new URL(pageUrlPath(page), 'https://site.invalid');
 
-  return markdown.replace(/\]\(([^)\s]+)\)/g, (whole, target: string) => {
-    if (/^[a-z][a-z\d+.-]*:/i.test(target) || target.startsWith('/') || target.startsWith('#')) return whole;
+  const resolve = (target: string): string | null => {
+    if (/^[a-z][a-z\d+.-]*:/i.test(target) || target.startsWith('/') || target.startsWith('#')) return null;
 
     try {
       const url = new URL(target, base);
       const path = url.pathname.replace(/\.md$/, '').replace(/\/index$/, '');
-      return `](${path === '' ? '/' : path}${url.hash})`;
+      return `${path === '' ? '/' : path}${url.hash}`;
     } catch {
-      return whole;
+      return null;
     }
-  });
+  };
+
+  return markdown
+    .replace(/\]\(([^)\s]+)\)/g, (whole, target: string) => {
+      const resolved = resolve(target);
+      return resolved === null ? whole : `](${resolved})`;
+    })
+    .replace(/(<img\b[^>]*?\bsrc=")([^"]+)(")/gi, (whole, head: string, target: string, tail: string) => {
+      const resolved = resolve(target);
+      return resolved === null ? whole : `${head}${resolved}${tail}`;
+    });
 }
 
 function cleanMarkdownExport(source: string, page: string): string {
