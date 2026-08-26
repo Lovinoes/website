@@ -1,16 +1,13 @@
 <script setup lang="ts">
 import { useData } from 'vitepress';
 import { computed } from 'vue';
-
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+import { formatDate } from '../lib/format.ts';
 
 const { theme, page } = useData();
 
 const date = computed(() => new Date(page.value.lastUpdated!));
 const isoDatetime = computed(() => date.value.toISOString());
-const datetime = computed(
-  () => `${MONTHS[date.value.getUTCMonth()]} ${date.value.getUTCDate()}, ${date.value.getUTCFullYear()}`,
-);
+const datetime = computed(() => formatDate(date.value));
 </script>
 
 <template>

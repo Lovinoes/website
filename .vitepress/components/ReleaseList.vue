@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
 import { data as releases } from '../data/releases.data.mts';
-
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+import { formatCount, formatDate, formatMebibytes as formatSize } from '../lib/format.ts';
 
 const props = defineProps<{ project: string }>();
 
@@ -22,18 +21,6 @@ const visible = computed(() => {
     return release.version.toLowerCase().includes(term) || release.html.toLowerCase().includes(term);
   });
 });
-
-function formatDate(value: string): string {
-  const date = new Date(value);
-  return `${MONTHS[date.getUTCMonth()]} ${date.getUTCDate()}, ${date.getUTCFullYear()}`;
-}
-
-function formatSize(bytes: number): string {
-  const mib = bytes / 1024 / 1024;
-  return mib >= 10 ? `${Math.round(mib)} MiB` : `${mib.toFixed(1)} MiB`;
-}
-
-const formatCount = (value: number): string => value.toLocaleString('en-US');
 
 // The page ships the releases known at build time; this only flags a newer one.
 onMounted(async () => {
