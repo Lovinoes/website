@@ -298,7 +298,7 @@ Because both fields are declared in `zodShape`, their values ride along in the s
 
 ## Advanced Mode
 
-Fields marked `advanced: true` are hidden by default. The Panel exposes an **Advanced Mode** toggle (persisted in `localStorage`) that shows all advanced fields globally. This is the right tool for fields that most operators will never need, configuration that's correct by default and only relevant in non-standard setups. When in doubt, don't mark a field advanced; it's better to show an unfamiliar field than to hide one someone needs.
+Fields marked `advanced: true` are hidden by default. The Panel exposes an **Advanced Mode** toggle (the synced user setting `form_engine::advanced_mode`, so it follows the operator across devices) that shows all advanced fields globally. This is the right tool for fields that most operators will never need, configuration that's correct by default and only relevant in non-standard setups. When in doubt, don't mark a field advanced; it's better to show an unfamiliar field than to hide one someone needs.
 
 ## Conditional Fields
 

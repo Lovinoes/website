@@ -15,6 +15,7 @@ Events are namespaced by the admin resource they touch, which makes searching ea
 settings:update      user:create           role:update
 server:create        oauth-provider:update node:allocation.create
 location:create      nest:create           egg-configuration:update
+extension:upload     extension:toggle      system-backup-policy:create
 ```
 
 <img src="./images/activity/details.webp" width="310" alt="" />

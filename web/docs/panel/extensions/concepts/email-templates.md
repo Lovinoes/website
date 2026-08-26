@@ -31,14 +31,14 @@ The five fields, in order:
 
 - **`available_variables`** is a `Vec<&'static str>` listing the variables your template can use. This is **metadata for the admin UI** - it shows operators which variables are available to put into the template - not enforcement. The actual rendering uses whatever variables the calling code passes; a typo in an override that references a non-existent variable will just render as nothing rather than error. Keep this list accurate so operators editing the template have something to work from.
 
-- **`default_subject`** is the email subject line, as a MiniJinja template string. It supports the same `{{ variable }}` syntax as the body - `{{ settings.app.name }}` works here just as it does in the body content. Operators can override the subject through the admin UI independently of the body.
+- **`default_subject`** is the email subject line, as a MiniJinja template string. It supports the same <code v-pre>{{ variable }}</code> syntax as the body - <code v-pre>{{ settings.app.name }}</code> works here just as it does in the body content. Operators can override the subject through the admin UI independently of the body.
 
 - **`default_content`** is the template body, a MiniJinja-formatted HTML string. It's `&'static str` because it's typically `include_str!`'d from a file in your extension at build time. Operators can override it through the admin UI; if no override is set, your default is used.
 
 - **`default_enabled`** controls whether the template is enabled out of the box. If `false`, `send_template` and `send_template_foreground` silently skip sending when no operator override is in place. Use this for opt-in notifications (e.g. "server installed" alerts) where most operators probably don't want the email unless they actively turn it on.
 
 ::: info
-Every template implicitly gets a `settings` variable in addition to whatever you declare - it's the Panel's app settings, accessible as `{{ settings.app.name }}`, `{{ settings.app.url }}`, etc. Two things happen automatically: `settings` is appended to your `available_variables` list during finalization (so it shows up in the admin UI even if you didn't list it), and it's injected into the rendering context by `send_template` / `send_template_foreground` at send time. You should not pass `settings` yourself in the context - whatever you pass gets overwritten by the framework-provided value anyway.
+Every template implicitly gets a `settings` variable in addition to whatever you declare - it's the Panel's app settings, accessible as <code v-pre>{{ settings.app.name }}</code>, <code v-pre>{{ settings.app.url }}</code>, etc. Two things happen automatically: `settings` is appended to your `available_variables` list during finalization (so it shows up in the admin UI even if you didn't list it), and it's injected into the rendering context by `send_template` / `send_template_foreground` at send time. You should not pass `settings` yourself in the context - whatever you pass gets overwritten by the framework-provided value anyway.
 :::
 
 ## Registering Templates
@@ -95,7 +95,7 @@ Storing the templates as separate `.html` files (rather than inline string liter
 
 ## Writing the Template Content
 
-Template content is a [MiniJinja](https://docs.rs/minijinja) template - close to Jinja2 if you've used Python templating, with the same `{{ variable }}` and `{% control %}` syntax. A minimal welcome email might look like:
+Template content is a [MiniJinja](https://docs.rs/minijinja) template - close to Jinja2 if you've used Python templating, with the same <code v-pre>{{ variable }}</code> and `{% control %}` syntax. A minimal welcome email might look like:
 
 ```html
 <p>Hello {{ user.name }},</p>
@@ -108,7 +108,7 @@ Template content is a [MiniJinja](https://docs.rs/minijinja) template - close to
 </p>
 ```
 
-`{{ user.name }}` and `{{ user.invite_expiry_hours }}` use field access - MiniJinja can dot-walk into structs that get serialized into the rendering context. The shape of `user` is whatever the sending code passed; if you registered `available_variables: vec!["user"]` and your sender passes `user => some_user_struct`, the template can access any of that struct's serialized fields. `{{ invite_link }}` is a simple string variable; `{{ settings.app.name }}` is the implicit settings variable, accessible without you passing anything.
+<code v-pre>{{ user.name }}</code> and <code v-pre>{{ user.invite_expiry_hours }}</code> use field access - MiniJinja can dot-walk into structs that get serialized into the rendering context. The shape of `user` is whatever the sending code passed; if you registered `available_variables: vec!["user"]` and your sender passes `user => some_user_struct`, the template can access any of that struct's serialized fields. <code v-pre>{{ invite_link }}</code> is a simple string variable; <code v-pre>{{ settings.app.name }}</code> is the implicit settings variable, accessible without you passing anything.
 
 ::: warning Default templates should be in English
 The `default_content` you ship with your extension should be written in English, regardless of where you or your users are. Operators who want a different language adjust the template content through the admin UI on a per-deployment basis - the override system is the localization story for emails. Don't try to ship multiple language variants by registering separate identifiers per language; that just creates fragmentation that operators can't sensibly customize.
@@ -152,7 +152,7 @@ The four arguments to `send_template` / `send_template_foreground`: the `State`,
 
 A few notes on this pattern:
 
-- **The subject comes from the template, not your code.** Both the subject and body are stored in the template and can be overridden by operators. The subject is itself a MiniJinja template string, so `{{ settings.app.name }}` and other variables work there too.
+- **The subject comes from the template, not your code.** Both the subject and body are stored in the template and can be overridden by operators. The subject is itself a MiniJinja template string, so <code v-pre>{{ settings.app.name }}</code> and other variables work there too.
 - **If the template is disabled, the send is silently skipped.** `send_template` returns immediately with no error; `send_template_foreground` returns `Ok(())`. A `tracing::debug` message is emitted so you can see it in logs. Check `default_enabled` on your template definition if you're wondering why emails aren't sending.
 - **The 15-second cache still applies.** Template content and the enabled/disabled state are cached from the database for 15 seconds. A change made in the admin UI won't be visible to senders for up to that long.
 - **`send_template` vs `send_template_foreground` is about who handles failures.** `send_template` returns almost immediately and spawns a tokio task for the actual send - SMTP errors, network errors, and rendering errors are logged from inside the task and the user-facing request is unaffected. `send_template_foreground` does everything in your async context and propagates errors back. Use `send_template` for fire-and-forget notifications; use `send_template_foreground` when the send result actually matters to your code (e.g. an SMTP connection test, where the whole point is to know whether it worked).
@@ -185,10 +185,10 @@ The core templates available for mutation, as of this writing, are:
 - `email_verification` - sent when a user must confirm an email address (on registration or an email change). Variables: `user`, `email`, `verification_link`.
 - `two_factor_code` - sent when a user requests an email two-factor login code. Variables: `user`, `code`.
 - `connection_test` - sent by the admin SMTP test feature. No variables (other than the implicit `settings`).
-- `added_to_server` - sent when a user is added as a subuser to a server. Variables: `user`, `server_link`.
-- `removed_from_server` - sent when a user is removed as a subuser from a server. Variables: `user`.
-- `server_installed` - sent when a server finishes installing. Variables: `user`, `server_link`. Disabled by default.
-- `server_restored` - sent when a server backup is restored. Variables: `user`, `server_link`. Disabled by default.
+- `added_to_server` - sent when a user is added as a subuser to a server. Variables: `server`, `server_link`.
+- `removed_from_server` - sent when a user is removed as a subuser from a server. Variables: `server`.
+- `server_installed` - sent when a server finishes installing. Variables: `server`, `server_link`. Disabled by default.
+- `server_restored` - sent when a server backup is restored. Variables: `server`, `server_link`. Disabled by default.
 
 ::: warning Don't extend `available_variables` on a core template
 The variables list reflects what the calling code actually passes when sending. If you add `"server_count"` to the `password_reset` template's variable list but the password-reset code path never passes a `server_count`, operators will see it in the UI as available but every reference to it in their template will render as nothing. If you need extra variables, register your own template under a new identifier instead and use it from your own code.

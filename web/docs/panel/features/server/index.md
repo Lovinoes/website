@@ -7,7 +7,17 @@ description: A tour of the Calagopus server view, the tabs you use to run, confi
 
 Clicking a server on the [Servers](../dashboard/servers.md) page opens the server view, where everything about that one server lives. Each tab only appears if you have the matching [permission](../dashboard/permissions.md) on that server, and admins can reshape the tab set per egg via [route configurations](../admin/egg-configurations.md#route-configuration): hiding pages, grouping them under dividers, or adding external links.
 
-Above every tab, the panel surfaces server-wide state: dismissible per-server announcements, status banners while the server is transferring (with progress, ETA, and an admin-only **Cancel**), suspended, restoring a backup, installing (cancellable with the `settings.cancel-install` permission), under node maintenance, or pending a restart, plus a websocket banner with a reconnect countdown if the live connection drops.
+Above every tab, the panel surfaces server-wide state: dismissible per-server announcements, status banners while the server is transferring (with progress, ETA, and an admin-only **Cancel**), suspended, restoring a backup, installing (cancellable with the `settings.cancel-install` permission), under node maintenance, or pending a restart, plus a websocket banner with a reconnect countdown if the live connection drops. Eggs whose install script reports its progress show a progress bar and a label in the installing banner instead of a plain "installing" message.
+
+## When the Server Is Blocked
+
+Some states replace the whole server view rather than sitting above it, and two of them need you to acknowledge the failure before you get back in.
+
+**Installation failed.** If the administrator has enabled **Allow Acknowledging Installation Failure**, an **Acknowledge Failure** button appears, needing the `settings.cancel-install` permission: "By acknowledging this installation failure, you are confirming that you are aware of the failed installation and have taken any necessary steps to resolve the issue. This will allow you to regain control over the server." With the setting off, only an admin can clear it. Where you can read installation logs, a **View Installation Logs** link sits next to the button.
+
+**Backup restore failed.** "This server failed to restore a backup and cannot be accessed until acknowledged. Its files may be incomplete." Acknowledging needs the `backups.restore` permission and unlocks the server again - check the files before trusting them, since a half-restored backup leaves the server in an unknown state.
+
+Suspension, node maintenance and an in-progress transfer block the view in the same way, but those clear on their own; there is nothing to acknowledge.
 
 | Page | Description |
 | --- | --- |
@@ -18,6 +28,7 @@ Above every tab, the panel surfaces server-wide state: dismissible per-server an
 | [Subusers](./subusers.md) | Give other users scoped access to the server |
 | [Backups](./backups.md) | Server backups, with groups and automatic retention |
 | [Network](./network.md) | The server's IP and port allocations |
+| [Firewall](./firewall.md) | Restrict which sources may reach the server's allocations |
 | [Startup](./startup.md) | Startup command, Docker image, and egg variables |
 | [Mounts](./mounts.md) | Toggle extra directories mounted into the server |
 | [Settings](./settings.md) | Rename, reinstall, auto-kill, auto-start, and timezone |

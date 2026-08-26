@@ -35,9 +35,13 @@ Eggs support bulk operations: drag across rows to select, Ctrl/Cmd-click or use 
 
 ### Importing Eggs
 
-**Import** accepts an egg file in JSON or YAML format (`.json`, `.yml`, `.yaml`), including eggs exported from Pterodactyl. You can also drag files from your file manager anywhere onto the page and drop them to import several at once.
+**Import** is a dropdown with two sources: **from File** and **from URL**.
 
-To pull eggs from a Git repository instead of files, use [Egg Repositories](./egg-repositories.md).
+**from File** accepts an egg file in JSON or YAML format (`.json`, `.yml`, `.yaml`), including eggs exported from Pterodactyl. You can also drag files from your file manager anywhere onto the page and drop them to import several at once.
+
+**from URL** fetches the eggs instead. Paste up to 25 `http`/`https` URLs and the panel downloads them (5 at a time), auto-detecting JSON or YAML. Each egg may be at most 1 MiB. If some URLs fail, the import still succeeds for the rest and lists the failures with a reason next to each URL. Eggs imported this way are not linked to a repository, so they won't be updated automatically - **Update** on an existing egg also offers **from URL** for refreshing one by hand.
+
+To pull eggs from a Git repository and keep them updated, use [Egg Repositories](./egg-repositories.md).
 
 ## Editing an Egg
 
@@ -90,9 +94,25 @@ The script that runs when a server using this egg is installed or reinstalled. *
 
 ![](./images/nests/egg-script.webp)
 
+#### Reporting Progress
+
+Wings gives the install container an `INSTALL_PROGRESS_FILE` environment variable pointing at a file inside the container. Write a line to that file and the server's installing banner turns into a progress bar with a label, instead of an indefinite "installing" message. Wings re-reads the file every 500 ms and uses the **last non-empty line**, so appending as you go is fine.
+
+Each line is a progress value, optionally followed by a space and a label:
+
+```sh
+echo "42" > "$INSTALL_PROGRESS_FILE"                    # 42%
+echo "42 Downloading" > "$INSTALL_PROGRESS_FILE"        # 42%, labeled
+echo "512/2048 Downloading" > "$INSTALL_PROGRESS_FILE"  # explicit total
+```
+
+With no `/`, the total is assumed to be 100, so the number is a percentage. Two things to watch out for. A trailing `%` makes the line **invalid**, and it is dropped without an error. When the total is anything other than 100, the panel renders the pair as a byte count, so `512/2048` shows as bytes: right for a download, misleading for anything else. Only the last 4096 bytes of the file are read, and labels are capped at 255 characters.
+
+There is a matching `INSTALL_STATUS_FILE` for the final status of the install.
+
 ### Variables
 
-Each variable is a card in a grid; drag cards to reorder them, which sets the order users see on the Startup page. **Add** creates a blank card.
+Each variable is a card in a grid; drag a card by the grip handle in its top-right corner to reorder them, which sets the order users see on the Startup page. **Add** creates a blank card.
 
 ![](./images/nests/egg-variables.webp)
 

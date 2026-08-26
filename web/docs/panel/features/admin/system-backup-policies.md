@@ -21,7 +21,7 @@ Click **Create** in the top right.
 | ----- | ----------- |
 | **Name** / **Description** | Display name and optional free text. |
 | **Backup Configuration** | Which [backup configuration](./backup-configurations.md) the policy's backups are written to. Defaults to **Inherit from Server**, the same resolution a manual backup would use. |
-| **Schedule** | "Cron expression (with seconds) that determines when backups are taken, in UTC." |
+| **Schedule** | "Cron expression (with seconds) that determines when backups are taken, in UTC." The field has a helper popover for building the expression segment by segment, describes the current expression in plain English underneath, and previews when the next run would be. |
 | **Keep count** | "Maximum number of successful backups to keep per server. Leave empty for no limit." |
 | **Keep days** | "Delete backups older than this many days. Leave empty for no limit." |
 | **Parallelism** | "Maximum number of backups this policy runs at the same time on a single node." |

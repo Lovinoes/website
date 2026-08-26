@@ -54,6 +54,16 @@ The checkpoint stays valid for five minutes after the password step; take longer
 
 Lost the authenticator? **Use Recovery Code** switches the form to a **Recovery Code** field. Recovery codes are ten characters and single-use, each one is deleted the moment it's accepted. **Use TOTP** switches back.
 
+### Email Codes
+
+When the administrator has enabled email two-factor and you've turned it on for your account, the checkpoint can mail you a code instead. If email is your only second factor the checkpoint opens straight on that step; otherwise the authenticator step gains an **Email me a code** button.
+
+Nothing is sent until you press **Send Code**. The code is six digits, lands in the six boxes like a TOTP code, stays valid for 10 minutes, and allows 5 attempts before it's burned. **Resend Code** counts down 60 seconds between sends.
+
+::: info
+A security key is **not** a checkpoint factor. It replaces the password rather than following it, so if a security key is your only second factor, a successful password login finishes without a checkpoint step - while still counting towards an administrator's two-factor requirement.
+:::
+
 ::: info
 For admins: **Two-Factor Authentication Requirement** in [Settings > Application](../admin/settings.md#application) decides who has to set up 2FA at all. Login attempts are [rate limited](../admin/settings.md#ratelimits) per IP, and when a [captcha](../admin/settings.md#captcha) is configured it appears below the card and must be solved before **Sign In** works.
 :::

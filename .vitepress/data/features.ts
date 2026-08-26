@@ -226,6 +226,7 @@ export const featureCategories: FeatureCategory[] = [
       { name: 'Backups', calagopus: true, pterodactyl: true, pelican: true, amp: true },
       { name: 'Advanced Backup Drivers', calagopus: true, pterodactyl: false, pelican: false, amp: null },
       { name: 'Dynamic Backup Configuration System', calagopus: true, pterodactyl: false, pelican: true, amp: null },
+      { name: 'Admin-Mandated System Backups', calagopus: true, pterodactyl: false, pelican: false, amp: null },
     ],
     bullets: [
       {
@@ -315,6 +316,7 @@ export const featureCategories: FeatureCategory[] = [
       { name: 'Extra Allocations', calagopus: true, pterodactyl: true, pelican: true, amp: true },
       { name: 'SFTP Support', calagopus: true, pterodactyl: true, pelican: true, amp: true },
       { name: 'SSH (Shell) Support', calagopus: true, pterodactyl: false, pelican: false, amp: false },
+      { name: 'Per-Server Firewall Rules', calagopus: true, pterodactyl: false, pelican: false, amp: null },
     ],
     bullets: [
       {
@@ -360,6 +362,13 @@ export const featureCategories: FeatureCategory[] = [
     rows: [
       { name: 'WebAuthn Authentication', calagopus: true, pterodactyl: false, pelican: true, amp: true },
       { name: 'OAuth Support', calagopus: true, pterodactyl: false, pelican: true, amp: true },
+      {
+        name: 'Email Verification & Optional Passwordless Login',
+        calagopus: true,
+        pterodactyl: false,
+        pelican: false,
+        amp: null,
+      },
       {
         name: 'OAuth Claim-Based Auto Role/Subuser Provisioning',
         calagopus: true,
@@ -540,6 +549,21 @@ export const featureCategories: FeatureCategory[] = [
     id: 'ui-ux',
     title: 'UI/UX & Internationalization',
     bullets: [
+      {
+        name: 'Command Palette for Everything',
+        description:
+          'Ctrl+Space opens quick actions from anywhere: jump to any page or server, fire power actions, search users, or evaluate a math expression, with the entries changing to match where you are.',
+      },
+      {
+        name: 'Settings That Follow Your Account',
+        description:
+          'Preferences, editor and console settings and keyboard rebinds sync across devices by default, and any single setting can be pinned to one device instead.',
+      },
+      {
+        name: 'Built for Phones and Tablets Too',
+        description:
+          'The panel is fully responsive: a drawer sidebar on small screens, touch selection and long-press menus in the console and file manager, and a touch-oriented code editor by default.',
+      },
       {
         name: 'Available in 14+ Languages',
         description:

@@ -207,7 +207,7 @@ frontend/extensions/
         dev.yourname.extension.json
 ```
 
-The filename is your package identifier - if your `Metadata.toml` says `name = "dev.0x7d8.test"`, the file is `dev.0x7d8.test.json`. The directory says the language code (`es` for Spanish, `de` for German, etc.).
+The filename is your package identifier - if your `Metadata.toml` says `package_name = "dev.0x7d8.test"`, the file is `dev.0x7d8.test.json`. The directory says the language code (`es` for Spanish, `de` for German, etc.).
 
 To get a starter file with the right shape, generate the English equivalent first:
 

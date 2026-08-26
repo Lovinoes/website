@@ -54,13 +54,15 @@ Each shortcut has three buttons next to it. The pencil rebinds: click it and pre
 
 ## Copy, Paste, and Reset All
 
-The toolbar at the top shows which layout was detected ("Windows/Linux detected" or "macOS detected") next to three actions:
+The toolbar at the top shows which layout was detected ("Windows/Linux detected" or "macOS detected") next to three actions and a scope button:
 
 <img src="./images/keyboard-shortcuts/toolbar.webp" width="289" alt="" />
 
 - **Copy All** copies every current binding as text, in a format you can edit directly and paste back in to apply changes. It's also the easiest way to carry your keybinds over to another Calagopus panel: copy from one, paste into the other.
 - **Paste** applies a previously copied (and optionally edited) set of bindings.
 - **Reset All** restores every shortcut to its default at once.
+
+The button at the end reads **Account** or **This Device** and controls where your rebinds live. By default they are saved to your account and follow you to every browser you log into - see [Settings Sync](./index.md#settings-sync). Copy and paste are still how you move bindings to a *different* panel.
 
 ```txt
 # Calagopus keyboard shortcuts

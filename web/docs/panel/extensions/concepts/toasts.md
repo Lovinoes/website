@@ -31,7 +31,6 @@ The hook hands you four things:
 | `addToast(message, type?, actions?)` | Shows a toast, returns its numeric id |
 | `dismissToast(id)` | Removes a toast early |
 | `toastPosition` | The corner the current user has chosen |
-| `setToastPosition(position)` | Moves the toast stack (see [Position](#position) - almost never yours to call) |
 
 The provider sits above the whole app, so the hook works from anywhere you render: a route you registered, a component you slotted into a core page, a modal, a form submit handler. It throws if called outside the provider, which in practice only happens if you call it outside React entirely - see [Toasting Outside React](#toasting-outside-react).
 
@@ -238,10 +237,10 @@ Toasts stack in the order they're raised, and nothing dedupes them. Firing one p
 
 ## Position
 
-Which corner toasts appear in is a **user preference**, not an extension setting. It's stored on the user record as `toastPosition`, edited from the account page, and pushed into the provider by `AuthProvider` whenever the user loads or changes. The six options are `top_left`, `top_center`, `top_right`, `bottom_left`, `bottom_center`, and `bottom_right`.
+Which corner toasts appear in is a **user preference**, not an extension setting. It's the synced user setting `app::toast_position`, edited from the account page's Preferences card. The six options are `top_left`, `top_center`, `top_right`, `bottom_left`, `bottom_center`, and `bottom_right`.
 
 ::: warning
-`setToastPosition` is exposed on the context, but it's there for the Panel's own auth wiring. Calling it from an extension moves *every* toast in the Panel - core ones included - away from the corner the user deliberately chose, and your change silently reverts the next time the user record syncs. Read `toastPosition` if you need to position something of your own relative to the stack; don't write it.
+The context exposes `toastPosition` for reading only - use it if you need to position something of your own relative to the stack. Don't write the underlying setting from an extension: it moves *every* toast in the Panel, core ones included, away from the corner the user deliberately chose.
 :::
 
 ## Toasting Outside React

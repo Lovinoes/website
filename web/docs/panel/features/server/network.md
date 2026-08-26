@@ -5,7 +5,9 @@ description: Manage the server's IPv4 and IPv6 allocations, the addresses and po
 
 # Network
 
-The Network page lists the server's allocations: the IP and port combinations it can be reached on. A counter at the top shows something like "2 of 15 maximum allocations assigned."; the limit is part of the server's [feature limits](../admin/servers.md#feature-limits), set by an admin.
+The Network page lists the server's allocations: the IP and port combinations it can be reached on. A counter at the top shows something like "2 of 5 maximum allocations assigned."; the limit is part of the server's [feature limits](../admin/servers.md#feature-limits), set by an admin.
+
+When you can also see the server's [Firewall](./firewall.md), Network splits into two tabs - **Allocations** and **Firewall** - and this page describes the first one.
 
 ![](./images/network/list.webp)
 

@@ -51,13 +51,15 @@ Pick **Create Backup Group** from the **Create** menu. Give it a name and option
 
 With neither set, the group never deletes backups automatically. Use the pencil icon in a group's header to edit it later. There is also a panel-wide limit on groups per server, set under [Settings > Server](../admin/settings.md#server); the **Create Backup Group** option disappears once you reach it.
 
+Once you have more than one group, each header grows a grip handle: drag it to reorder the groups on the page. This is display order only and doesn't affect retention.
+
 ### Deleting a Group
 
 Click the trash icon in the group header and type the group's name to confirm. The backups inside are not deleted, they become ungrouped and follow standard rotation. A **Lock backups** switch locks all backups in the group first, so they cannot be rotated out automatically afterwards.
 
 ## System Backups
 
-When the panel has taken automatic backups of this server through a [system backup policy](../admin/system-backup-policies.md), a sub-navigation appears with a **System Backups** tab at `/backups/system`: "Backups taken automatically by the panel. They cannot be modified or deleted." The rows are read-only, with no lock column and no edit or delete actions.
+When the panel has taken automatic backups of this server through a [system backup policy](../admin/system-backup-policies.md), a sub-navigation appears with a **System Backups** tab at `/backups/system`: "Backups taken automatically by the panel. They cannot be modified or deleted." The rows are read-only in the sense that you cannot rename, lock or delete them - but they are still fully usable backups: browsing, downloading, restoring, exporting to files and viewing metadata all work exactly as they do on your own backups, with the same permissions.
 
 ![System backups tab](./images/backups/system-backups.webp)
 

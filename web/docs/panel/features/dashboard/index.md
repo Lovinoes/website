@@ -24,6 +24,8 @@ The Dashboard is what every user lands on after logging in. It covers your own a
 
 The sidebar lists every page above, plus **Servers** and **Admin** (if you have admin permissions) at the top, under the **Quick actions** trigger (see below). At the bottom sits a server switcher: click into it to search and jump straight to one of your servers. The profile box below it leads to your [Account page](./account.md).
 
+Right-clicking any sidebar link offers two more ways to open it: **Open in Virtual Window** renders the page in a floating window inside the panel, so you can keep it next to whatever you're doing, and **Open in Popup** opens it in a separate browser window.
+
 <img src="./images/index/nav-search.webp" width="200" alt="" />
 
 ## Quick Actions
@@ -42,8 +44,36 @@ Whatever page you are on, its own tabs are listed too, under **Page Navigation**
 
 <img src="./images/index/quick-actions-modal.webp" width="310" alt="Quick actions palette" />
 
-A **Logout** action is available everywhere, under **Account**.
+A **Logout** action is available everywhere, under **Account**; it asks for confirmation before ending your session.
 
-The three dots next to your name open a small menu to jump to your **Account** page, switch to the **Admin** area (admins only), pick a **Theme**, or log out. **Auto** follows your browser's theme, **Dark** and **Light** force one; the panel starts on **Dark** until you pick.
+### Prefixes
+
+Typing one of four characters first switches the palette into a different mode. The palette shows these as hints along its footer, so you don't have to remember them.
+
+| Prefix | Mode |
+| --- | --- |
+| `=` | Evaluate a math expression, with the result shown as you type. **Enter** copies it. |
+| `#` | Search servers by name. In the admin area this searches every server on the panel, not just yours. |
+| `@` | Search users. Admin area only, and only with user permissions. |
+| `/` | Filter to pages only, showing each one's path. |
+
+The three dots next to your name open a small menu to jump to your **Account** page, switch to the **Admin** area (admins only), pick a **Theme**, reset your device overrides (see [Settings Sync](#settings-sync); the entry only appears when you have some), or log out. **Auto** follows your browser's theme, **Dark** and **Light** force one; the panel starts on **Dark** until you pick.
 
 <img src="./images/index/nav-menu.webp" width="200" alt="" />
+
+## Settings Sync
+
+Most preferences follow your account rather than your browser: change the console font size or your toast position on one machine and it is already set on the next one you log into. This covers the [Preferences](./account.md#preferences) card, console and file-manager settings, the form-engine **Advanced mode** toggle, and your [keyboard shortcut](./keyboard-shortcuts.md) rebinds.
+
+Every synced setting has a small icon next to its label that opens a scope menu:
+
+| Option | What it does |
+| --- | --- |
+| **Sync With Account** | The default. The value lives on your account and applies everywhere. |
+| **Only This Device** | Breaks the link and keeps a separate value on this device. The label then reads **This Device**. |
+| **Use the Account Value** | Drops the device override and goes back to the account's value. |
+| **Save This Value to My Account** | Pushes the current device value up as the new account value. |
+
+A few settings are inherently per-device and never sync: the editor engine, line-overflow wrapping, the VS Code URI scheme, and the audio player's volume.
+
+When you have any overrides, the profile menu at the bottom of the sidebar grows a **Reset Device Overrides** entry with a count, which clears them all at once and returns this device to your account's values.

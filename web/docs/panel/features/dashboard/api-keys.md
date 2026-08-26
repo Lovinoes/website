@@ -7,7 +7,7 @@ description: Create and manage personal API keys for the Calagopus API, with gra
 
 API keys are personal access tokens for the [API](https://demo.calagopus.com/api). Each key gets its own set of permissions, so you can hand out a key scoped to exactly what it needs rather than your full account access.
 
-The list shows each key's name, the beginning of its key value, how many user/server/admin permissions it has, and its last used, expiry, and created timestamps. A counter reads "N of M maximum api keys created.", and **API Documentation** in the top right opens your panel's `/api` reference.
+The list shows each key's name, the beginning of its key value, how many user/server/admin permissions it has, a **Status** badge reading **Enabled** or **Disabled**, and its last used, expiry, and created timestamps. A counter reads "N of M maximum api keys created.", and **API Documentation** in the top right opens your panel's `/api` reference.
 
 ![](./images/api-keys/list.webp)
 
@@ -28,7 +28,9 @@ Once you're happy with the selection, scroll down and hit **Save**, or **Close**
 
 ## Editing, Recreating, and Removing
 
-Right-click a key (or open the menu at the end of its row) for **Edit**, **Recreate**, or **Remove**.
+Right-click a key (or open the menu at the end of its row) for **Edit**, **Disable** (or **Enable**), **Recreate**, or **Remove**.
+
+**Disable** switches the key off without deleting it: it keeps its name, permissions and value, but every request made with it is refused with "api key is disabled" until you enable it again. Use it when you suspect a key is being misused but aren't ready to invalidate it; unlike **Remove**, it can be undone. A key cannot disable itself, so you can't lock yourself out through the API with the very key you're calling with.
 
 
 **Edit** opens the same form as creating one, letting you change the name, expiry, allowed IPs, and permissions.

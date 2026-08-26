@@ -7,6 +7,8 @@ description: Remove an extension from your Calagopus Panel, and what happens to 
 
 This page covers how to remove an extension from your Calagopus Panel - and what happens to its data when you do (it stays put).
 
+If you only want to stop an extension from running for a while, you don't have to uninstall it: [Disabling Extensions](./disabling-extensions.md) turns one off in place, with no rebuild and nothing removed.
+
 ::: warning Data is not removed when an extension is uninstalled
 Uninstalling an extension removes its code, not its data. The settings the extension stored, any rows it wrote into core tables via model extensions, and any tables/columns its migrations created **all stay in the database**. The Panel deliberately leaves them alone, because:
 

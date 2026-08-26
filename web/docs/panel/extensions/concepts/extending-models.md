@@ -455,7 +455,7 @@ The same applies to any other API struct you've extended via `extend_validated` 
 
 On the frontend, your extended fields are in the JSON the Panel returns when it loads a server - because of the `extend_validated` call. So you don't need a separate fetch and you don't need a custom API endpoint.
 
-The Panel's API layer validates every response against its core Zod schemas (see [Frontend API Calls](./frontend-api.md)), and those core schemas are declared with `z.looseObject`. Any key the schema doesn't declare is camelCased and kept on the parsed object as-is, so your extension's fields are simply *there* alongside the core ones - there is no wrapper property to unpack and no special helper to call.
+The Panel's API layer validates every response against its core Zod schemas (see [Frontend API Calls](./frontend-api.md)), and those core schemas are declared with `z.looseObject`. Any key the schema doesn't declare is camelCased and kept on the parsed object as-is, so your extension's fields sit alongside the core ones. There is no wrapper property to unpack and no helper to call.
 
 They aren't typed, though: TypeScript only knows about the core schema's fields. Declare a Zod schema for your extension's slice (camelCase keys, same conventions as any response schema) and parse the node your fields live on. A plain `z.object` ignores the core keys it doesn't declare, so you can hand it the whole node:
 
@@ -485,6 +485,30 @@ Two things to keep in mind:
 
 - **Parse, don't trust.** The values ride on the object unvalidated - the core schema declared nothing about them. Running your own schema over the node is what turns them into typed data, and it fails loudly when your extension and the panel disagree.
 - **This is read-only**, same as `parse_model_extension` on the backend. To change the value, submit it through the update flow like any other field.
+
+## Rewriting Variable Rules
+
+`ServerVariable::register_rules_handler` is a different kind of model hook: it lets you rewrite a variable's validation rules just before they are handed to the client. It is also the only way to make an egg variable's input *dynamic*.
+
+```rs
+use shared::models::server_variable::ServerVariable;
+
+ServerVariable::register_rules_handler(ListenerPriority::Normal, |server, env_variable, rules| {
+    Box::pin(async move {
+        if env_variable == "MINECRAFT_VERSION" {
+            rules.clear();
+            rules.push("required".into());
+            rules.push(format!("in:{}", fetch_versions(server).await?.join(",")).into());
+        }
+
+        Ok(())
+    })
+});
+```
+
+The rules do more than validate. They also decide **which input widget the panel renders**: `boolean` (or an `in:` of `1,0` / `true,false`) becomes a switch, any other `in:a,b,c` becomes a dropdown built from that list, `numeric` becomes a number input, and so on. Rewriting `in:` at request time is therefore how you build something like a version selector whose options come from an upstream API rather than being baked into the egg.
+
+Two caveats. The handler only runs on the client startup endpoints, meaning reading and updating a server's variables. It does not run on admin variable routes, server creation, or the remote endpoint Wings uses, so it shapes what the user sees rather than what ends up stored. You also cannot invent new rule *types*: the rule set is fixed, so your handler composes existing rules rather than adding a validator of its own. Unlike the other handler families, this one returns nothing, so a registered rules handler cannot be unregistered.
 
 ## Where to Go From Here
 

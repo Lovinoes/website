@@ -7,7 +7,7 @@ description: Pre-export checks and packaging steps that turn a finished extensio
 
 Once you've finished developing your extension, there are a few things to do before it's ready to ship. This guide walks through the pre-export checks you should run, then how to produce the `.c7s.zip` file that users will install.
 
-This guide assumes you already have a working [Development Environment](./dev-environment.md) and an extension initialized under `frontend/extensions/<package_identifier>` and `backend/extensions/<package_identifier>` (see [Extension File Structure](./file-structure.md) for how the layout works). Throughout this guide, `<package_name>` refers to your extension's regular (dotted) package name - for example, `dev.0x7d8.test`. The exported file uses the underscored form of that same name (e.g. `dev_0x7d8_test.c7s.zip`).
+This guide assumes you already have a working [Development Environment](./dev-environment.md) and an extension initialized under `backend-extensions/<package_identifier>` (see [Extension File Structure](./file-structure.md) for how the layout works). Throughout this guide, `<package_name>` refers to your extension's regular (dotted) package name - for example, `dev.0x7d8.test`. The exported file uses the underscored form of that same name (e.g. `dev_0x7d8_test.c7s.zip`).
 
 ## Pre-export checks
 
@@ -41,7 +41,7 @@ pnpm build:ci
 `pnpm build:ci` does a full production frontend build with all extensions compiled in. If your extension has a TypeScript error, a bad import, or a missing dependency in its `package.json`, this is where you'll catch it. The exported `.c7s.zip` ships your source, not a build artifact, so users will hit the same error on their side if you skip this step.
 
 ::: warning
-If `pnpm build:ci` fails because of an extension other than yours, that extension has problems of its own - but your extension still won't build cleanly alongside it. Fix what you own; for anything else, reach out to that extension's author or temporarily remove it from `frontend/extensions/` while you iterate.
+If `pnpm build:ci` fails because of an extension other than yours, that extension has problems of its own - but your extension still won't build cleanly alongside it. Fix what you own; for anything else, reach out to that extension's author or temporarily disable it while you iterate.
 :::
 
 ## Exporting the extension

@@ -42,7 +42,7 @@ Deleting a group never deletes the servers inside it, it just ungroups them.
 
 Groups are collapsible; click the chevron to expand or collapse one, and drag servers to reorder them within the group. Groups themselves reorder by their grip handle, and each header carries a server-count badge. While a server is stopping, its card's context menu offers **Kill** (with a Force Stop confirmation).
 
-Dragging also works *between* groups: drop a server onto another group to move it there, and a "Server moved to {group}." toast confirms it. Two things block the drop, and the target group says which as you hover it - **Already in this group**, or **Group is full** because a group cannot hold more than 100 servers. A collapsed group won't accept a drop either; expand it first.
+Dragging also works *between* groups: drop a server onto another group to move it there, and a "Server moved to {group}." toast confirms it. Two things block a drop, and the target group tells you which as you hover it: **Already in this group**, or **Group is full**, since a group cannot hold more than 100 servers. A collapsed group won't accept a drop either; expand it first.
 
 ![](./images/servers/group-collapsed.webp)
 ![](./images/servers/group-expanded.webp)

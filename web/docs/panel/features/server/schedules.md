@@ -123,7 +123,7 @@ Restoring stops the server and overwrites its files; avoid combining **Restore B
 | **Ensure** | Stop the schedule here unless a condition is true. | Condition builder |
 | **If** / **Else If** / **Else** / **End If** | Run the following steps only when a condition is true, until Else/End If. | Condition builder on **If** and **Else If** |
 | **Exit** | Stop the schedule here, marking the run as successful or failed. | **Mark run as successful** |
-| **Format** | Build a text value from variables and store it in a variable. | **Format String** (wrap variables in `{{...}}`), **Output into** |
+| **Format** | Build a text value from variables and store it in a variable. | **Format String** (wrap variables in <code v-pre>{{...}}</code>), **Output into** |
 | **Match Regex** | Extract parts of a text value using a regular expression. | **Input**, **Regex**, **Outputs** (one variable per capture, added via **Add Output**) |
 | **Wait for Console Line** | Wait until the server console outputs a matching line. | **Line Contains**, **Case Insensitive**, **Timeout (milliseconds)**, **Output into** |
 | **HTTP Request** | Send an HTTP request, for example to a webhook. | See below |

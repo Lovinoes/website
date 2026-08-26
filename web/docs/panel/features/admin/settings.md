@@ -27,12 +27,20 @@ The **Application** tab has an **Advanced mode** toggle in the top right. It rev
 | **Session Cookie** | Name of the session cookie (*advanced*) |
 | **Session Duration (seconds)** | How long login sessions last (*advanced*) |
 | **Two-Factor Authentication Requirement** | Who must enable 2FA: **Admins**, **All Users**, or **None**. Affected users without 2FA are blocked from everything except setting it up and logging out |
+| **Email Two-Factor** | Let users receive a one-time login code by email as a second factor. Requires a mail transport |
+| **Accepted Two-Factor Methods** | Which enrolled factors satisfy the requirement above: **TOTP**, **Security Key**, and/or **Email**. Defaults to TOTP and security keys |
+| **Require Email Verification** | New accounts must open a verification link before they can use the panel, including SFTP and SSH. Requires a mail transport |
 | **Enable Telemetry** | Allow Calagopus to collect limited and anonymous usage data to help improve the application |
 | **Enable Registration** | Let anyone create an account on this panel |
 
 **Preview Telemetry** (requires `stats.read`) shows exactly what data would be sent, so you can judge for yourself. Disabling telemetry asks for confirmation.
 
 Enabling registration also asks for confirmation and points out that doing it without a [captcha](#captcha) configured may be a mistake.
+
+Two combinations are rejected when you save, with an error rather than a silent fix:
+
+- *"at least one two-factor method must be accepted while two-factor is required"* - you cleared **Accepted Two-Factor Methods** while the requirement is anything other than None.
+- *"email two-factor and email verification require a mail transport to be configured"* - one of the two email options is on while [Mail](#mail) is set to no transport.
 
 ## Storage
 
@@ -64,9 +72,9 @@ The emails the panel sends, editable per template. The tab requires `email-templ
 
 ![](./images/settings/mail-templates.webp)
 
-Pick a template from the **Templates** sidebar to edit its **Subject**, an **Enabled** toggle, and the HTML content in the editor. The built-in templates cover account creation, password resets, the connection test, being added to or removed from a server, and server installs and restores.
+Pick a template from the **Templates** sidebar to edit its **Subject**, an **Enabled** toggle, and the HTML content in the editor. The built-in templates cover account creation, password resets, email verification, login codes for email two-factor, the connection test, being added to or removed from a server, and server installs and restores.
 
-The **Available Variables** box lists everything you can reference in that template. Templates use the [MiniJinja](https://github.com/mitsuhiko/minijinja) syntax: variables as `{{ variable }}`, control structures like `{% if %}` and `{% for %}`.
+The **Available Variables** box lists everything you can reference in that template. Templates use the [MiniJinja](https://github.com/mitsuhiko/minijinja) syntax: variables as <code v-pre>{{ variable }}</code>, control structures like `{% if %}` and `{% for %}`.
 
 **Reset to default** discards your custom template and restores the built-in one. This cannot be undone.
 
@@ -119,6 +127,8 @@ Limits and behavior toggles that apply to all servers on the panel.
 | **Max Backup Groups per Server** | Maximum backup groups each server can have |
 | **Max Databases per Database Instance** | Database cap per managed database instance |
 | **Max Users per Database Instance** | User cap per managed database instance |
+| **Max Firewall Rules** | Maximum [firewall](../server/firewall.md) rules per server |
+| **Max Firewall Rule Sources** | Maximum sources a single firewall rule may list |
 | **Allow Overwriting Custom Docker Image** | Users can pick a different Docker image from the Eggs list even when an admin has set a custom image |
 | **Allow Viewing Installation Logs** | Users with console read permission can watch installation logs; otherwise they're admin-only |
 | **Allow Acknowledging Installation Failure** | Users can acknowledge a failed install and try starting the server instead of waiting for an admin |
@@ -140,6 +150,8 @@ Per-account limits for [Dashboard](../dashboard/index.md) features.
 | **Max Command Snippets** | Cap on [command snippets](../dashboard/command-snippets.md) per user |
 | **Max Security Keys** | Cap on [security keys](../dashboard/security-keys.md) per user |
 | **Max SSH Keys** | Cap on [SSH keys](../dashboard/ssh-keys.md) per user |
+| **Max Synced Settings** | Cap on how many settings an account may sync across devices |
+| **Max Synced Setting Size (bytes)** | Largest value a single synced setting may hold |
 | **Allow Changing Language** | If enabled, users can change their language preferences |
 
 Below the limits, **Client Route Order** is a collapsible section: enable it to reorder the pages of the user dashboard sidebar for everyone. Drag entries to reorder, and use the row at the bottom to insert extra entries: a **Route**, a **Divider**, or a **Redirect** (a name plus an external URL). It's the same editor egg configurations use for the [server sidebar](./egg-configurations.md#route-configuration).
@@ -167,4 +179,4 @@ Retention for the three activity logs and what gets logged.
 
 Per-endpoint API rate limits. Each endpoint card has two values: **Hits**, the maximum number of requests allowed per window, and **Window**, the window duration in seconds.
 
-Endpoints covered: `auth/register`, `auth/login`, `auth/login/checkpoint`, `auth/login/security-key`, `auth/password/forgot`, `auth/password/reset`, `client`, `client/servers/backups/create`, `client/servers/files/pull`, `client/servers/files/pull/query`, `remote`, and `remote/sftp/auth`.
+Endpoints covered: `auth/register`, `auth/login`, `auth/login/checkpoint`, `auth/login/checkpoint/email`, `auth/login/security-key`, `auth/password/forgot`, `auth/password/reset`, `auth/email/verify`, `client`, `client/account/email/resend-verification`, `client/servers/backups/create`, `client/servers/files/pull`, `client/servers/files/pull/query`, `remote`, and `remote/sftp/auth`.

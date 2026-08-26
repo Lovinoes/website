@@ -18,6 +18,7 @@ Permissions that control the ability to change account settings.
 | `account.infos` | Allows changing the account's basic account information. |
 | `account.email` | Allows changing the account's email address. |
 | `account.password` | Allows changing the account's password. |
+| `account.password-login` | Allows enabling and disabling password login for the account. |
 | `account.two-factor` | Allows adding and removing two-factor authentication. |
 | `account.avatar` | Allows updating and removing the account's avatar. |
 
@@ -95,6 +96,15 @@ Permissions that control the ability to manage sessions on an account.
 | --- | --- |
 | `sessions.read` | Allows viewing sessions and their IP addresses. |
 | `sessions.delete` | Allows deleting sessions. |
+
+### Settings
+
+Permissions that control the ability to manage synced user settings on an account.
+
+| Permission | Description |
+| --- | --- |
+| `settings.read` | Allows viewing the account's synced user settings. |
+| `settings.update` | Allows modifying the account's synced user settings. |
 
 ### Activity
 
@@ -189,6 +199,15 @@ Permissions that control the ability to modify the port allocations for this ser
 | `allocations.create` | Allows assigning additional allocations to the server. |
 | `allocations.update` | Allows changing the primary server allocation and attaching notes to allocations. |
 | `allocations.delete` | Allows deleting allocations from the server. |
+
+### Firewall
+
+Permissions that control the ability to restrict which sources may reach this server's allocations.
+
+| Permission | Description |
+| --- | --- |
+| `firewall.read` | Allows viewing the firewall rules of the server. |
+| `firewall.update` | Allows adding, reordering, modifying and removing firewall rules. |
 
 ### Startup
 
@@ -330,7 +349,7 @@ Permissions that control the ability to view the activity log on this server.
 | `users.update` | Allows modifying users. |
 | `users.disable-two-factor` | Allows removing two-factor authentication from users. |
 | `users.delete` | Allows deleting users. |
-| `users.email` | Allows sending email actions to users, such as password resets. |
+| `users.email` | Allows sending email actions to users, such as password resets, and marking a user's email as verified. |
 | `users.activity` | Allows viewing a user's activity log. |
 | `users.oauth-links` | Allows viewing and managing a user's OAuth links. |
 | `users.impersonate` | Allows impersonating other users. |

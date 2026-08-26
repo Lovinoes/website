@@ -40,6 +40,7 @@ The **New** menu (shown when you can write to the current directory and hold `fi
 |---|---|
 | **File from Editor** | Opens an empty code editor; **Create** asks for a file name. |
 | **Directory** | Creates a new directory. |
+| **Symlink** | Creates a symbolic link. You give it a **Symlink Name** and a **Symlink Target**, "relative to the directory the symlink is created in", and the modal previews both resolved paths before you commit. |
 | **File from Pull** | Downloads a file from a URL directly onto the server, see [Pulling from a URL](#pulling-from-a-url). |
 | **File from Upload** | Uploads files from your device. |
 | **Directory from Upload** | Uploads an entire folder, keeping its structure. |
@@ -101,6 +102,7 @@ Right-click a row (or use its menu button) for the single-file context menu:
 | **Copy** | Copies it; in read-only directories you pick a destination instead. |
 | **Remote Copy** | Copies it to another server. |
 | **Move** | Marks it for moving, same paste-style flow as mass move. |
+| **Symlink** | Creates a symlink pointing at this entry, with the target pre-filled. |
 | **Archive** / **Extract** | Packs the entry into an archive; for archive files the item becomes **Extract** instead. |
 | **Download** | Downloads the file directly; for directories, pick an archive format from the **Download as** submenu. |
 | **More** > **Details** | Shows **Path**, **Mode**, **Logical Size**, **Physical Size**, **MIME Type**, **Last Modified At**, and **Created At**. |
@@ -140,11 +142,12 @@ The maximum size per uploaded file is set by the Wings option [`api.upload_limit
 
 ## The Editor
 
-Openable files launch a code editor at `/files/edit` with syntax highlighting, a minimap, and search. **Save** or `Ctrl+S` writes the file back; leaving with unsaved changes prompts you first. The gear next to the title holds the editor settings:
+Openable files launch a code editor at `/files/edit` with syntax highlighting and search. **Save** or `Ctrl+S` writes the file back; leaving with unsaved changes prompts you first. The gear next to the title holds the editor settings:
 
 | Setting | Effect |
 |---|---|
-| **Show File Minimap** | Toggles the code overview strip on the right. |
+| **Editor Engine** | **Monaco** or **Pierre**. Monaco is the full desktop editor; Pierre is lighter and built for touch. Touch devices default to Pierre, everything else to Monaco. |
+| **Show File Minimap** | Toggles the code overview strip on the right. Monaco only. |
 | **Wrap Line Overflow** | Wraps long lines instead of scrolling horizontally. |
 | **Editor Font Size** | Font size, 6 to 72. |
 | **VS Code URI Scheme** | Same setting as in the list view; the editor's **Connect** menu can hand the open file straight to your editor. |
@@ -157,7 +160,7 @@ Files above the panel-wide view-size limit ([Settings > Server](../admin/setting
 
 ## SQLite Databases
 
-SQLite files (`.db`, `.db3`, `.sqlite`, `.sqlite3`) don't open in the editor: they open a database explorer at `/files/sqlite`, where you can browse the file's tables and run SQL against it in a query console. This requires the `files.query-raw` permission, which grants full read and write access to the file's contents.
+SQLite files (`.db`, `.db3`, `.sqlite`, `.sqlite3`) don't open in the editor: they open the same [data explorer](./databases.md#data-explorer) the panel uses for managed databases, at `/files/sqlite` - browsing rows, inspecting and editing the schema, and a raw query console. This requires the `files.query-raw` permission, which grants full read and write access to the file's contents; changing rows or structure additionally needs `files.update`.
 
 ## File History
 
@@ -176,10 +179,16 @@ Revisions are recorded by Wings for edits made through the file manager and SFTP
 
 ## Live Collaboration
 
-When several people open the same file, the editor switches to a shared real-time session: everyone's avatar appears in the header, and each participant gets a colored cursor and selection labeled with their name. Edits merge live, and **Save** persists the shared document for everyone. The [VS Code extension](../../../integrations/vscode.md) supports the same real-time collaboration, synchronized through the panel.
+When several people open the same file, the editor switches to a shared real-time session: everyone's avatar appears in the header, and edits merge live. **Save** persists the shared document for everyone. In Monaco each participant also gets a colored cursor and selection labeled with their name; Pierre syncs the content but draws no remote cursors. The [VS Code extension](../../../integrations/vscode.md) supports the same real-time collaboration, synchronized through the panel.
 
 If the file changes on disk outside the session (for example via SFTP), a warning banner appears with **View Diff** to compare, **Load Disk Version** to replace the session contents with the file on disk, or **Keep Editor Version** to overwrite the disk with what the session has.
 
 ## Keyboard Shortcuts
 
-The file manager is fully keyboard-driven: `Ctrl+A` select all, `Ctrl+X`/`Ctrl+C`/`Ctrl+V` cut/copy/paste, `Delete`, `F2` rename, `Ctrl+K` search, arrow keys to move the selection, and `Alt+ArrowUp` to go up a directory. See [Keyboard Shortcuts](../dashboard/keyboard-shortcuts.md) for the full list and how to rebind them.
+The file manager is fully keyboard-driven: `Ctrl+A` select all, `Ctrl+X`/`Ctrl+C`/`Ctrl+V` cut/copy/paste, `Delete`, `F2` rename, `Ctrl+K` search, `Ctrl+Z` undo, arrow keys to move the selection, and `Alt+ArrowUp` to go up a directory. See [Keyboard Shortcuts](../dashboard/keyboard-shortcuts.md) for the full list and how to rebind them.
+
+## Undo
+
+Four operations can be taken back: moving files by dragging them, a single rename, a batch rename, and a permissions change. Each one shows an **Undo** button on its confirmation toast, and `Ctrl+Z` undoes the most recent one without having to reach for the toast.
+
+The window is short: an entry expires when its toast does, after about seven and a half seconds, and only the last ten are kept. **Deleting and copying are not undoable**, so deletion is permanent.

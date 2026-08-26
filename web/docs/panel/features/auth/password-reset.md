@@ -25,6 +25,8 @@ The emailed link opens `/auth/reset-password` with your reset token attached ("P
 
 Reset tokens expire after 20 minutes and work exactly once; if yours is rejected as invalid or expired, request a new email.
 
+Completing a reset also marks your email address as verified, since receiving the link proves you own the mailbox. That makes this the way out if your account is stuck behind [email verification](../dashboard/account.md#email-verification) and the verification mail never arrives.
+
 ::: info
 For admins: both endpoints are [rate limited](../admin/settings.md#ratelimits), and reset requests are additionally limited per email address, not just per IP.
 :::

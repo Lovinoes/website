@@ -42,6 +42,8 @@ Extensions are built around several core systems:
 - [Email Templates](./concepts/email-templates.md) - Define custom email templates for notifications and communications
 - [Speaking Game Protocols](./concepts/speaking-game-protocols.md) - Open raw TCP/UDP tunnels to a server's port to query it directly
 - [File Storage](./concepts/file-storage.md) - Manage files and directories within the Panel
+- [Forms](./concepts/forms.md) - Add fields to the Panel's existing forms
+- [User Settings](./concepts/user-settings.md) - Store per-user preferences that sync across devices
 
 ## Installation Methods
 

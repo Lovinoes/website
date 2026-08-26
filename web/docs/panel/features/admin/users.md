@@ -58,8 +58,9 @@ The **Update User** form, the same fields as [creating a user](#creating-a-user)
 
 | Button | Requires | What it does |
 | --- | --- | --- |
-| **Disable Two Factor** | `users.disable-two-factor` | Removes the user's two-factor authentication after a confirmation. Only enabled when the user actually has 2FA on. |
+| **Disable Two Factor** | `users.disable-two-factor` | Clears the user's authenticator app and email two-factor, along with their recovery codes, after a confirmation. Only enabled when the user actually has one of those on. It does **not** remove their security keys. |
 | **Send Password Reset Email** | `users.email` | Emails the user a password reset link after a confirmation. |
+| **Verify Email** | `users.email` | Marks the user's email address as verified without them having to open the emailed link. Disabled once the address is already verified. |
 | **Impersonate** | `users.impersonate` | Switches your session to this user, see [below](#impersonation). |
 | **Delete** | `users.delete` | Deletes the user after a confirmation. |
 

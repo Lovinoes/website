@@ -1,6 +1,6 @@
 .idea
-.vitepress/dist
-.vitepress/cache
+**/.vitepress/dist
+**/.vitepress/cache
 node_modules
 .wrangler
 worker/worker-configuration.d.ts

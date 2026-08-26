@@ -310,6 +310,7 @@ export default withMermaid({
                   { text: 'Subusers', link: '/docs/panel/features/server/subusers' },
                   { text: 'Backups', link: '/docs/panel/features/server/backups' },
                   { text: 'Network', link: '/docs/panel/features/server/network' },
+                  { text: 'Firewall', link: '/docs/panel/features/server/firewall' },
                   { text: 'Startup', link: '/docs/panel/features/server/startup' },
                   { text: 'Mounts', link: '/docs/panel/features/server/mounts' },
                   { text: 'Settings', link: '/docs/panel/features/server/settings' },

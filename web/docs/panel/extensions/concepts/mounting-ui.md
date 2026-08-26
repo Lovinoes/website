@@ -148,7 +148,7 @@ The definition types form a small hierarchy, each level adding fields. These are
 
 **Additionally for admin routes (`AdminRouteDefinition`):**
 
-- **`category?: string`** - the admin sidebar is grouped into labelled categories (Infrastructure, Nests & Eggs, Databases, Storage, Users & Access, System). Set `category` to one of the built-in category keys (`'infrastructure'`, `'eggs'`, `'databases'`, `'storage'`, `'access'`, `'system'`) to place your route under that heading. An unknown or omitted `category` puts the route in an unlabelled group at the bottom of the sidebar, below the built-in categories.
+- **`category?: string`** - the admin sidebar is grouped into labelled categories, in this order: System, Infrastructure, Users & Access, Nests & Eggs, Databases, Storage. Set `category` to one of the built-in category keys (`'infrastructure'`, `'eggs'`, `'databases'`, `'storage'`, `'access'`, `'system'`) to place your route under that heading. An unknown or omitted `category` puts the route in an unlabelled group at the bottom of the sidebar, below the built-in categories.
 
 ### A More Complete Example
 

@@ -23,6 +23,9 @@ What actually shows up on these pages depends on panel settings:
 | --- | --- |
 | Registration on or off | **Enable Registration** in [Settings > Application](../admin/settings.md#application) |
 | Who must use 2FA | **Two-Factor Authentication Requirement** in [Settings > Application](../admin/settings.md#application) |
+| Which factors count towards that requirement | **Accepted Two-Factor Methods** in [Settings > Application](../admin/settings.md#application) |
+| Codes by email as a second factor | **Email Two-Factor** in [Settings > Application](../admin/settings.md#application) |
+| Whether new accounts must verify their email | **Require Email Verification** in [Settings > Application](../admin/settings.md#application) |
 | Captcha on the auth forms | [Settings > Captcha](../admin/settings.md#captcha) |
 | Passkeys and usernameless login | [Settings > Webauthn](../admin/settings.md#webauthn) |
 | OAuth login buttons | [OAuth Providers](../admin/oauth-providers.md) |

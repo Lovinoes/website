@@ -24,16 +24,21 @@ panel-rs extensions init dev.0x7d8.test # <-- replace this with your package nam
 ## Frontend
 
 ```bash
-frontend/extensions/
-  (package_name_with_underscores)/
+backend-extensions/
+  (package_identifier)/
+    frontend/
     package.json # REQUIRED file containing additional dependencies
     public/ # optional directory to include static files,
       file1.jpg # this file would be available at <url>/file1.jpg
     src/ # REQUIRED directory for typescript src
-      app.css # optional css file that will be bundled into the main panel css
+      app.css # optional css file, bundled as its own chunk so it can be disabled with the extension
       index.(ts|tsx) # REQUIRED file containing extension entrypoint
       translations.ts # optional file containing extension translations
 ```
+
+::: info Compatibility symlinks
+Everything an extension owns lives under `backend-extensions/<package_identifier>/`. The older paths `frontend/extensions/<identifier>` and `database/extension-migrations/<identifier>` still exist as symlinks so existing tooling keeps working, and which of the pair is the real directory depends on the container type. Treat `backend-extensions/` as canonical: deleting or copying "the directory" through the legacy path may only move a link.
+:::
 
 ### package.json
 
@@ -156,8 +161,9 @@ impl Extension for ExtensionStruct {
 ## Database (optional)
 
 ```bash
-database/extension-migrations/
-  (package_name_with_underscores)/
+backend-extensions/
+  (package_identifier)/
+    migrations/
     (yyyymmddhhmmss)_migration_name/
       up.sql # REQUIRED file containing the SQL statements to apply the migration
       down.sql # REQUIRED file containing the SQL statements to rollback the migration

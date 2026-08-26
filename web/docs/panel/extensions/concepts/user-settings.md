@@ -23,7 +23,7 @@ Keys are namespaced with `::`, exactly like the global settings table. Use your 
 dev.example.myextension::view_mode
 ```
 
-Bare namespaces such as `file_manager::`, `console::`, `dashboard::`, `shortcuts::` and `appearance::` belong to the Panel itself - don't write into them.
+Bare namespaces such as `app::`, `file_manager::`, `console::`, `dashboard::`, `server::`, `shortcuts::` and `form_engine::` belong to the Panel itself - don't write into them.
 
 ## Frontend API
 
@@ -63,7 +63,13 @@ const unsubscribe = subscribeUserSetting('dev.example.myextension::view_mode', (
 
 Some preferences shouldn't follow the user around - anything derived from the hardware in front of them (touch input, installed software, attached audio devices). For those, write with `setUserSettingLocal` instead: the value is stored per device and never sent to the server, but reads through `useUserSetting`/`getUserSetting` work exactly the same, with the local value taking precedence.
 
-Users can also pin any synced setting to one device themselves; `setUserSettingLocalOverride(key, enabled)` copies the current value into the device map (or releases it back to the synced value). The Panel exposes this for the color scheme as "Only This Device" in the sidebar's theme menu.
+Users can also pin any synced setting to one device themselves, through the scope menu the Panel renders next to a setting's label. Three functions back that menu:
+
+| Function | What it does |
+| --- | --- |
+| `overrideUserSettingLocally(key, value)` | Pins a value to this device. No-op for keys in `DEVICE_ONLY_SETTING_KEYS`. |
+| `clearUserSettingOverride(key)` | Drops the device override, so the account value applies again. |
+| `pushUserSettingToAccount(key)` | Sends the current device value up as the new account value and clears the override. |
 
 ## Backend Access
 

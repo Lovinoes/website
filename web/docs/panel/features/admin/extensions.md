@@ -19,7 +19,11 @@ Each installed extension gets a card with its name, package name, **Version**, *
 
 ![Extensions page](./images/extensions/list.webp)
 
-**Configure** on a card opens the extension's own settings page at `/admin/extensions/<packageName>`; it's disabled when the extension doesn't ship a configuration page. The trash icon removes an extension (with a switch to also remove and roll back its database migrations); removal takes effect on the next rebuild.
+**Configure** on a card opens the extension's own settings page at `/admin/extensions/<packageName>`. It's disabled, with a tooltip saying why, when the extension has no backend, ships no configuration page, or is currently disabled.
+
+The switch next to it turns an extension **off without uninstalling it**: its entrypoints are skipped at boot, so its routes and background tasks stop existing, while its files, database tables and permission grants all stay put. Toggling shows a **Pending restart** badge until the panel restarts, and a **Disabled** badge afterwards. Flipping it back on restores the extension as it was. See [Disabling Extensions](../../extensions/disabling-extensions.md) for exactly what a disabled extension stops doing.
+
+The trash icon removes an extension entirely, with a switch to also remove and roll back its database migrations. The code stops being included on the next rebuild, but the migration rollback happens immediately.
 
 ![](./images/extensions/configure-example.webp)
 
@@ -41,4 +45,4 @@ The extension pictured across this page is [Custom Footer](https://www.sourcexch
 Extensions can only be built when the panel runs the heavy Docker image and its extension supervisor is reachable; the page warns you when either is missing. See [Installing Extensions](../../extensions/installing-extensions.md).
 :::
 
-Everything on this page is gated by the `extensions.manage` admin permission. See the [Permissions Reference](../dashboard/permissions.md).
+Viewing this page needs the `extensions.read` admin permission; installing, toggling, configuring and removing extensions all need `extensions.manage`. See the [Permissions Reference](../dashboard/permissions.md).
