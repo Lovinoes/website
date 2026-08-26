@@ -1,5 +1,29 @@
-import type { Sponsor } from '../plugins/sponsors.ts';
 import { formatMonth, formatUsd } from './format.ts';
+
+export type SponsorStatus = 'monthly' | 'former' | 'one_time';
+
+export interface SponsorProfile {
+  login: string;
+  name: string | null;
+  url: string;
+  avatarUrl: string;
+}
+
+export interface Sponsor {
+  status: SponsorStatus;
+  profile: SponsorProfile | null;
+  monthlyCents: number;
+  oneTimeCents: number;
+  lifetimeCents: number;
+  rank: number;
+  firstSponsoredAt: string | null;
+}
+
+export interface SponsorsData {
+  monthlyCents: number;
+  lifetimeCents: number;
+  sponsors: Sponsor[];
+}
 
 export function sponsorDisplayName(sponsor: Sponsor): string {
   return sponsor.profile?.name ?? sponsor.profile?.login ?? 'Anonymous';

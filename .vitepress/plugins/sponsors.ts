@@ -2,6 +2,14 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fetchJson } from '../lib/fetch-retry.ts';
 import { formatMonth, formatUsd } from '../lib/format.ts';
+import type { Sponsor, SponsorStatus, SponsorsData } from '../lib/sponsor-display.ts';
+
+export type {
+  Sponsor,
+  SponsorProfile,
+  SponsorStatus,
+  SponsorsData,
+} from '../lib/sponsor-display.ts';
 
 const API_URL = 'https://calagopus.com/api/sponsors';
 
@@ -34,31 +42,6 @@ interface ApiSponsors {
     lifetime_cents: number;
   };
   sponsors: ApiSponsor[];
-}
-
-export type SponsorStatus = 'monthly' | 'former' | 'one_time';
-
-export interface SponsorProfile {
-  login: string;
-  name: string | null;
-  url: string;
-  avatarUrl: string;
-}
-
-export interface Sponsor {
-  status: SponsorStatus;
-  profile: SponsorProfile | null;
-  monthlyCents: number;
-  oneTimeCents: number;
-  lifetimeCents: number;
-  rank: number;
-  firstSponsoredAt: string | null;
-}
-
-export interface SponsorsData {
-  monthlyCents: number;
-  lifetimeCents: number;
-  sponsors: Sponsor[];
 }
 
 let pending: Promise<ApiSponsors> | null = null;
