@@ -11,7 +11,7 @@ import {
 
 /** Plain scalars that YAML would read back as something other than a string. */
 const AMBIGUOUS_SCALAR = /^(?:[-+]?\d+(?:\.\d+)?|true|false|null|~|yes|no|on|off)$/i;
-const NEEDS_QUOTING = /^[{[*&!%@`#>|'"]|^\s|\s$|:\s|\s#/;
+const NEEDS_QUOTING = /^[{[*&!%@`#>|'"]|^\s|\s$|:\s|:$|\s#/;
 
 function scalar(value: string | number | boolean | YamlFloat): string {
   if (value instanceof YamlFloat) {

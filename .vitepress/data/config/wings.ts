@@ -104,14 +104,23 @@ export const wingsConfigDoc: ConfigDoc = {
           description:
             'A security list of CIDR ranges blocked for remote downloads to prevent SSRF (Server-Side Request Forgery) attacks.',
           default: [
+            '0.0.0.0/8',
             '127.0.0.0/8',
             '10.0.0.0/8',
+            '100.64.0.0/10',
             '172.16.0.0/12',
             '192.168.0.0/16',
             '169.254.0.0/16',
+            '192.0.0.0/24',
+            '198.18.0.0/15',
+            '224.0.0.0/4',
+            '240.0.0.0/4',
+            '::',
             '::1',
             'fe80::/10',
             'fc00::/7',
+            '2002::/16',
+            'ff00::/8',
           ],
         },
         {
@@ -214,9 +223,16 @@ export const wingsConfigDoc: ConfigDoc = {
             '172.16.0.0/12',
             '192.168.0.0/16',
             '169.254.0.0/16',
+            '192.0.0.0/24',
+            '198.18.0.0/15',
+            '224.0.0.0/4',
+            '240.0.0.0/4',
+            '::',
             '::1',
             'fe80::/10',
             'fc00::/7',
+            '2002::/16',
+            'ff00::/8',
           ],
         },
       ],
@@ -652,6 +668,53 @@ export const wingsConfigDoc: ConfigDoc = {
       ],
     },
     {
+      title: 'Websocket Configuration',
+      options: [
+        {
+          key: 'system.websocket.max_message_size',
+          description:
+            'The maximum size (in bytes) of a single websocket message Wings accepts on a server console connection. A larger message closes the connection instead of being processed.',
+          default: 1048576,
+        },
+        {
+          key: 'system.websocket.max_frame_size',
+          description:
+            'The maximum size (in bytes) of a single websocket frame. A message may be split across multiple frames, so this bounds an individual frame rather than the whole message.',
+          default: 1048576,
+        },
+        {
+          key: 'system.websocket.read_buffer_size',
+          description:
+            'The size (in bytes) of the read buffer allocated for each websocket connection. Raising it lowers the number of reads on busy consoles at the cost of memory per open connection.',
+          default: 8192,
+        },
+        {
+          key: 'system.websocket.authentication_timeout',
+          description:
+            'The amount of time (in seconds) a websocket connection may stay unauthenticated before Wings closes it. It is checked on the same 30 second interval as the connection ping, so the close lands on the first ping past the timeout (`0` = unlimited).',
+          default: 60,
+        },
+        {
+          key: 'system.websocket.unauthenticated_connections_per_ip',
+          description:
+            'The number of websocket connections a single IP address may hold open before sending a valid token. The slot is released the moment a connection authenticates, so this only bounds connections sitting in the pre-authentication state. Connections past the limit are rejected with `429 Too Many Requests` (`0` = unlimited).',
+          default: 32,
+          notesAfter: [
+            {
+              type: 'info',
+              body: 'Connections are counted against the client IP Wings resolved, so `api.trusted_proxies` has to be correct when Wings sits behind a reverse proxy. Without it every connection is attributed to the proxy and a single busy panel exhausts the limit for everyone.',
+            },
+          ],
+        },
+        {
+          key: 'system.websocket.max_connections_total',
+          description:
+            'The maximum number of websocket connections Wings holds open across all servers at once, authenticated or not. Connections past the limit are rejected with `429 Too Many Requests` (`0` = unlimited).',
+          default: 0,
+        },
+      ],
+    },
+    {
       title: 'Backups Configuration',
       options: [
         {
@@ -915,6 +978,18 @@ export const wingsConfigDoc: ConfigDoc = {
           key: 'docker.network.interfaces.v6.gateway',
           description: 'The IPv6 gateway address for the Docker network.',
           default: 'fdba:17c8:6c94::1011',
+        },
+        {
+          key: 'docker.firewall.backend',
+          description:
+            'Which backend Wings uses to apply per-server firewall rules on the host.\n\n- `auto` - Pick a backend on boot. Wings prefers `nftables`, falls back to `iptables`, and uses the helper container when it runs inside a container that has its own network namespace.\n- `nftables` - Run `nft` directly on the host.\n- `iptables` - Run `iptables` directly on the host.\n- `container` - Run `nft` through a helper container started from the Wings image. Use this when Wings runs as a container without host networking, where rules applied in its own network namespace would never see server traffic.\n- `disabled` - Never apply rules.',
+          default: 'auto',
+          notesAfter: [
+            {
+              type: 'warning',
+              body: 'Server firewalls are Linux only, and are not supported with a rootless container engine - published port traffic does not traverse the host netfilter forward path there.\n\nWhen no backend ends up usable - an unsupported platform, a rootless engine, neither `nft` nor `iptables` present, or a helper container that fails to start - a server that has firewall rules configured refuses to start rather than running unprotected. Set this to `disabled` to start such servers anyway, in which case Wings logs a warning per server and leaves its rules unapplied.',
+            },
+          ],
         },
         {
           key: 'docker.domainname',

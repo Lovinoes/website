@@ -169,10 +169,10 @@ APP_TRUSTED_PROXIES=192.168.178.0/24,10.0.0.0/8
 
 Comma-separated list of IP ranges the Panel refuses to connect to when it fetches a URL someone supplied through the UI, such as importing an egg from a URL or syncing an egg repository over git. Hostnames are resolved first and every resulting address is checked, so a name pointing at an internal address is rejected too. This keeps an administrator from using the Panel as a proxy to reach services on its own network.
 
-The default blocks loopback, link-local, carrier-grade NAT and the private ranges:
+The default blocks the unspecified and loopback addresses, the private ranges, carrier-grade NAT, link-local, IETF-reserved and benchmarking ranges, multicast, 6to4 and the remaining reserved space:
 
 ```plaintext
-APP_BLOCKED_CIDRS=0.0.0.0/8,127.0.0.0/8,10.0.0.0/8,100.64.0.0/10,172.16.0.0/12,192.168.0.0/16,169.254.0.0/16,::1/128,fe80::/10,fc00::/7
+APP_BLOCKED_CIDRS=0.0.0.0/8,127.0.0.0/8,10.0.0.0/8,100.64.0.0/10,172.16.0.0/12,192.168.0.0/16,169.254.0.0/16,192.0.0.0/24,198.18.0.0/15,224.0.0.0/4,240.0.0.0/4,::/128,::1/128,fe80::/10,fc00::/7,2002::/16,ff00::/8
 ```
 
 Set your own list if you host an internal egg repository or egg mirror that the Panel has to reach, remove only the range it lives in, rather than the whole list. Setting the variable to an empty value disables the protection entirely and lets the Panel connect anywhere.
