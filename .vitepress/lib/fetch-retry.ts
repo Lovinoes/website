@@ -1,11 +1,16 @@
 const RETRIES = 3;
 
-export async function fetchJson<T>(url: string, describe: string, offlineFlag: string): Promise<T> {
+export async function fetchJson<T>(
+  url: string,
+  describe: string,
+  offlineFlag: string,
+  headers: Record<string, string> = {},
+): Promise<T> {
   let lastError: unknown;
 
   for (let attempt = 1; attempt <= RETRIES; attempt++) {
     try {
-      const response = await fetch(url, { headers: { accept: 'application/json' } });
+      const response = await fetch(url, { headers: { accept: 'application/json', ...headers } });
       if (!response.ok) throw new Error(`HTTP ${response.status} ${response.statusText}`);
       return (await response.json()) as T;
     } catch (error) {

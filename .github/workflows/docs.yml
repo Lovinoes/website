@@ -41,6 +41,8 @@ jobs:
           pnpm install
 
       - name: Run docs:build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           pnpm run docs:build
 

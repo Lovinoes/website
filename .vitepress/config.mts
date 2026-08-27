@@ -107,6 +107,10 @@ export default withMermaid({
           find: /^.*\/VPDocFooterLastUpdated\.vue$/,
           replacement: fileURLToPath(new URL('./components/LastUpdated.vue', import.meta.url)),
         },
+        {
+          find: /^.*\/VPNavBarSocialLinks\.vue$/,
+          replacement: fileURLToPath(new URL('./components/NavBarSocialLinks.vue', import.meta.url)),
+        },
       ],
     },
   },
