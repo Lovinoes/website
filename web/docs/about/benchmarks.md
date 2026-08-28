@@ -42,7 +42,7 @@ const seriesFor = (pick) => Object.fromEntries(activeIds.value.map((id) => [
 ]))
 
 const baseHorizontal = (extra = {}) => ({
-  grid: { left: 170, right: 30, top: 56, bottom: 40, ...extra.grid },
+  grid: { left: 8, right: 30, top: 56, bottom: 40, containLabel: true, ...extra.grid },
   legend: { top: 4, left: 8, icon: 'roundRect', itemWidth: 12, itemHeight: 12 },
   tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
   yAxis: {
@@ -617,7 +617,7 @@ Raw numbers are only part of the picture. For feature-by-feature breakdowns agai
 }
 .chart-pair {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(360px, 100%), 1fr));
   gap: 1rem;
   margin: 0.5rem 0;
 }
