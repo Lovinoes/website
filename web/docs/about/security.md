@@ -433,7 +433,11 @@ also depends on the security of the user's mailbox.
 
 Discoverable passkeys can be used to sign in. With WebAuthn enabled and a security
 key registered, users can disable password login after confirming their password.
-CAPTCHA can also gate login. These are configurable account and operator choices;
+Operators can make the same choice panel-wide, which also closes local registration,
+self-service password resets, and SFTP password authentication. The Panel refuses that
+change unless an enabled OAuth provider exists and the administrator making it can
+still sign in without a password. CAPTCHA can also gate login. These are configurable
+account and operator choices;
 having an MFA feature does not mean every account has enabled it.
 
 Sources: [password hashing](https://github.com/calagopus/panel/blob/7e5c1b2ec4b050c9b078548f7557abee9843ce74/shared/src/crypt.rs#L4-L48), [credential cache](https://github.com/calagopus/panel/blob/7e5c1b2ec4b050c9b078548f7557abee9843ce74/shared/src/models/mod.rs#L961-L1016), [session cookie](https://github.com/calagopus/panel/blob/7e5c1b2ec4b050c9b078548f7557abee9843ce74/shared/src/models/user_session.rs#L355-L376), [MFA policy](https://github.com/calagopus/panel/blob/7e5c1b2ec4b050c9b078548f7557abee9843ce74/shared/src/models/user/mod.rs#L714-L767), [MFA defaults](https://github.com/calagopus/panel/blob/7e5c1b2ec4b050c9b078548f7557abee9843ce74/shared/src/settings/app.rs#L19-L34), [discoverable passkeys](https://github.com/calagopus/panel/blob/7e5c1b2ec4b050c9b078548f7557abee9843ce74/backend/src/routes/api/auth/login/security_key/discoverable.rs), [password-login control](https://github.com/calagopus/panel/blob/7e5c1b2ec4b050c9b078548f7557abee9843ce74/backend/src/routes/api/client/account/password_login.rs#L58-L76).

@@ -19,6 +19,8 @@ When a captcha is configured, it has to be solved first; after a successful requ
 The email only goes out if the panel has a [mail provider](../admin/settings.md#mail) configured. Admins can edit the message itself under [Mail Templates](../admin/settings.md#mail-templates).
 :::
 
+Self-service resets are off entirely when an admin has turned off **Enable Password Login** in [Settings](../admin/settings.md#application); the **Forgot Password** links disappear and `/auth/forgot-password` stops being a page. Setting a new password through a link an admin generated still works, so an admin can hand out a password ahead of turning the setting back on.
+
 ## Choosing a New Password
 
 The emailed link opens `/auth/reset-password` with your reset token attached ("Please enter your new password"). Enter the new **Password** twice, the second time in **Confirm Password**, and hit **Reset Password**. On success you're sent back to the login page with a "Password has been reset." confirmation. Opening the page without a token just redirects to login.

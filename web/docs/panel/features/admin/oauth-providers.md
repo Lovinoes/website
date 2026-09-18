@@ -45,6 +45,8 @@ The path fields use JSONPath syntax (see [serdejsonpath.live](https://serdejsonp
 
 Finish with **Save** (or **Save & Stay** when creating). An existing provider also offers **Export** (as JSON or YAML), **Duplicate**, **Delete**, and a **View Documentation** shortcut to the setup guides.
 
+While **Enable Password Login** is off in [Settings](./settings.md#application), the panel refuses to delete or disable the last enabled provider, since nobody without a security key would be able to sign in afterwards. Turn password login back on first if that is what you want.
+
 ![Configured provider with censored credentials](./images/oauth-providers/general.webp)
 
 

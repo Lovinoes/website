@@ -35,7 +35,7 @@ doubt, read the `LICENSE` file in the repository itself.
 | [`calagopus/benchmarking`](https://github.com/calagopus/benchmarking) | MIT | Benchmarking suite behind the [benchmarks page](./benchmarks.md). |
 | [`calagopus/website`](https://github.com/calagopus/website) | MIT | Docs and marketing site. |
 | [`calagopus/branding`](https://github.com/calagopus/branding) | CC0-1.0 | Branding assets (logos, icons, banners). |
-| [`calagopus/branding-generator`](https://github.com/calagopus/branding-generator) | CC0-1.0 | Web generator for branding assets. No license file is present. |
+| [`calagopus/branding-generator`](https://github.com/calagopus/branding-generator) | CC0-1.0 | Web generator for branding assets. |
 
 ### Deployment recipes
 

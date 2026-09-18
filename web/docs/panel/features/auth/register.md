@@ -21,4 +21,6 @@ When a captcha is configured, it renders below the card and **Register** stays d
 For admins: the **Enable Registration** toggle lives in [Settings > Application](../admin/settings.md#application), and turning it on without a [captcha](../admin/settings.md#captcha) configured is asking for bot signups. The `auth/register` endpoint is [rate limited](../admin/settings.md#ratelimits) per IP.
 
 Note that [OAuth login](../admin/oauth-providers.md) also creates accounts from the provider's profile, regardless of this toggle, unless the provider is set to **Only allow Login**.
+
+The page itself is only routed while registration is on, so `/auth/register` is a not-found card otherwise. Turning off **Enable Password Login** takes it away the same way, since the account it would create could never sign in. OAuth signup carries on as normal.
 :::

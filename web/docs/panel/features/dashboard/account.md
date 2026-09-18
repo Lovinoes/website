@@ -53,11 +53,13 @@ If your role or the panel requires 2FA, the card also tells you whether your acc
 
 ## Password Login
 
-This card only appears if your account has a password. It reads either "You can sign in with your password." or "Password login is turned off. Only your security keys can sign you in.", with a button to flip it. Both directions ask for your password to confirm.
+This card only appears if your account has a password, and only while password login is switched on panel-wide. It reads either "You can sign in with your password." or "Password login is turned off. Only your security keys can sign you in.", with a button to flip it. Both directions ask for your password to confirm.
 
 You cannot turn password login off until you have at least one [security key](./security-keys.md) - the button stays disabled with the tooltip "Add a security key before turning off password login." until then, and the panel refuses it server-side as well.
 
 Turning it off is broader than it sounds: your password stops working **everywhere**, including SFTP password authentication. SSH keys keep working, and so do your security keys. Attempting a password login afterwards fails with "password login is disabled for this account". While it's off you also can't delete your last remaining security key, which would otherwise lock you out entirely.
+
+An administrator can make the same call for the whole panel, through **Enable Password Login** in [Settings](../admin/settings.md#application). The card disappears while that is off, because there is nothing left for it to switch, and the last-security-key rule applies to you either way.
 
 ## Account Details
 
