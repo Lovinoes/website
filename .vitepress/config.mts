@@ -252,6 +252,7 @@ export default withMermaid({
           { text: 'Benchmarks', link: '/docs/about/benchmarks' },
           { text: 'Security', link: '/docs/about/security' },
           { text: 'Sponsors', link: '/docs/about/sponsors' },
+          { text: 'Telemetry', link: '/docs/about/telemetry' },
           { text: 'Documentation MCP Server', link: '/docs/about/mcp-server' },
           {
             text: 'Principles',

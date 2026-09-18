@@ -3,6 +3,7 @@ import { handleGuild } from './guild.ts';
 import { handleLatest, handleReleases, RELEASES_PATTERN } from './releases.ts';
 import { handleSponsorSections, handleSponsors } from './sponsors.ts';
 import { handleTelemetry } from './telemetry.ts';
+import { handleTelemetryHistory, handleTelemetryStats } from './telemetry-stats.ts';
 
 export const API_PREFIX = '/api/';
 
@@ -16,6 +17,11 @@ export async function apiHandler(request: Request, env: Env, ctx: ExecutionConte
     return handleSponsorSections(request);
   }
   if (pathname === '/api/sponsors' || pathname === '/api/sponsors/') return handleSponsors(request);
+  if (pathname === '/api/telemetry/stats' || pathname === '/api/telemetry/stats/')
+    return handleTelemetryStats(request, env);
+  if (pathname === '/api/telemetry/history' || pathname === '/api/telemetry/history/') {
+    return handleTelemetryHistory(request, env);
+  }
   if (pathname === '/api/telemetry' || pathname === '/api/telemetry/') return handleTelemetry(request, env, ctx);
 
   const releases = pathname.match(RELEASES_PATTERN);

@@ -85,11 +85,13 @@ function applyAxisTheme(axis, text, muted, grid) {
 const dataTable = computed(() => {
   const base = props.option;
   const yAxis = Array.isArray(base.yAxis) ? base.yAxis[0] : base.yAxis;
-  const categories = yAxis?.data ?? [];
+  const xAxis = Array.isArray(base.xAxis) ? base.xAxis[0] : base.xAxis;
+
+  const horizontal = Array.isArray(yAxis?.data);
+  const categories = (horizontal ? yAxis?.data : xAxis?.data) ?? [];
   const series = (base.series ?? []).filter((s) => Array.isArray(s.data));
   if (!categories.length || !series.length) return null;
-  const xAxis = Array.isArray(base.xAxis) ? base.xAxis[0] : base.xAxis;
-  return { categories, series, unit: xAxis?.name ?? '' };
+  return { categories, series, unit: (horizontal ? xAxis?.name : yAxis?.name) ?? '' };
 });
 
 const fmtCell = (v) => {

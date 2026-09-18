@@ -50,3 +50,48 @@ export async function insertRows(
 
   await response.body?.cancel();
 }
+
+const QUERY_TIMEOUT_MS = 20_000;
+const MAX_RESULT_ROWS = 100_000;
+
+/**
+ * Runs a read-only query and returns its rows. Values for `{name:Type}` placeholders in the
+ * statement must be passed through `params`, never interpolated, so callers cannot build SQL.
+ */
+export async function queryRows<T>(
+  config: ClickHouseConfig,
+  query: string,
+  params: Record<string, string | number> = {},
+): Promise<T[]> {
+  const endpoint = new URL(config.url);
+  endpoint.searchParams.set('database', config.database);
+  endpoint.searchParams.set('default_format', 'JSON');
+  endpoint.searchParams.set('output_format_json_quote_64bit_integers', '0');
+  endpoint.searchParams.set('max_result_rows', String(MAX_RESULT_ROWS));
+  endpoint.searchParams.set('result_overflow_mode', 'throw');
+  endpoint.searchParams.set('max_execution_time', String(Math.ceil(QUERY_TIMEOUT_MS / 1_000)));
+  endpoint.searchParams.set('readonly', '2');
+
+  for (const [name, value] of Object.entries(params)) {
+    endpoint.searchParams.set(`param_${name}`, String(value));
+  }
+
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    headers: {
+      'X-ClickHouse-User': config.user,
+      'X-ClickHouse-Key': config.password,
+      'Content-Type': 'text/plain',
+    },
+    body: query,
+    signal: AbortSignal.timeout(QUERY_TIMEOUT_MS),
+  });
+
+  if (!response.ok) {
+    const detail = await response.text().catch(() => '');
+    throw new Error(`clickhouse query failed: HTTP ${response.status} ${detail.slice(0, ERROR_EXCERPT)}`);
+  }
+
+  const body = (await response.json()) as { data?: T[] };
+  return body.data ?? [];
+}

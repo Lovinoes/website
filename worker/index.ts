@@ -1,6 +1,7 @@
 import { markdownCandidates } from '../.vitepress/lib/markdown-candidates.ts';
 import { API_PREFIX, apiHandler } from './api/index.ts';
 import { refreshReleases } from './api/releases.ts';
+import { refreshTelemetryStats } from './api/telemetry-stats.ts';
 import { wantsMarkdown } from './http.ts';
 import { imageAsset } from './images.ts';
 import { mcpHandler } from './mcp/server.ts';
@@ -35,5 +36,6 @@ export default {
 
   async scheduled(_event, env) {
     await refreshReleases(env);
+    await refreshTelemetryStats(env);
   },
 } satisfies ExportedHandler<Env>;

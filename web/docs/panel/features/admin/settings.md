@@ -30,11 +30,11 @@ The **Application** tab has an **Advanced mode** toggle in the top right. It rev
 | **Email Two-Factor** | Let users receive a one-time login code by email as a second factor. Requires a mail transport |
 | **Accepted Two-Factor Methods** | Which enrolled factors satisfy the requirement above: **TOTP**, **Security Key**, and/or **Email**. Defaults to TOTP and security keys |
 | **Require Email Verification** | New accounts must open a verification link before they can use the panel, including SFTP and SSH. Requires a mail transport |
-| **Enable Telemetry** | Allow Calagopus to collect limited and anonymous usage data to help improve the application |
+| **Enable Telemetry** | Allow Calagopus to collect limited and anonymous usage data to help improve the application. [What is collected and published](/docs/about/telemetry) |
 | **Enable Registration** | Let anyone create an account on this panel |
 | **Enable Password Login** | Let users sign in with a username and password. Turning it off leaves OAuth providers and security keys as the only way in |
 
-**Preview Telemetry** (requires `stats.read`) shows exactly what data would be sent, so you can judge for yourself. Disabling telemetry asks for confirmation.
+**Preview Telemetry** (requires `stats.read`) shows the payload your panel would send, so you can judge for yourself. The receiving server adds two fields the panel does not send, so they are not in the preview: the country the submission arrived from, and its arrival time. [Telemetry](/docs/about/telemetry) covers both, and what gets published. Disabling telemetry asks for confirmation.
 
 Enabling registration also asks for confirmation and points out that doing it without a [captcha](#captcha) configured may be a mistake.
 
