@@ -7,10 +7,10 @@ description: Create and manage Calagopus nodes, from the connection settings and
 
 A node is a machine running wings that hosts servers. This page covers the admin UI surface; for the step-by-step setup of a new node, follow [Configuring a New Node](../../../wings/next-steps/configure-node.md).
 
-The list shows a health indicator, ID, Name, Location, and Created timestamp for each node. The heart is green when the panel can reach wings, yellow and pulsing when a wings update is available, and broken red when the node is unreachable. Next to the name, a badge shows whether the node can still take new servers: **Deployment Enabled** (green), **Nearly Full** (yellow), **No Capacity** (orange), or **Deployment Disabled** (red). Hovering it shows allocated memory and disk against the node's limits, or "no node limit" where a limit is `0`. A red **Under Maintenance** badge sits alongside it while the node is in maintenance, and an All-in-One node (wings built into the panel container) gets a purple heart after its badges, separate from the health heart in the first column.
+The list shows a health indicator, ID, Name, Location, and Created timestamp for each node. The heart is green when the panel can reach wings, yellow and pulsing when a wings update is available, and broken red when the node is unreachable. Next to the name, a badge shows whether the node can still take new servers: **Deployment Enabled** (green), **Nearly Full** (yellow), **No Capacity** (orange), **Under Maintenance** (red), or **Deployment Disabled** (red). Hovering it shows allocated memory and disk against the node's limits, or "no node limit" where a limit is `0`. An All-in-One node (wings built into the panel container) gets a purple heart after the badge, separate from the health heart in the first column.
 
 ::: info
-The capacity states compare allocated memory (including reserved container overhead) and allocated disk against the node's configured limits, whichever of the two is worse: **Nearly Full** from 90%, **No Capacity** at 100% or over. A limit of `0` is unlimited and never counts toward either. **Deployment Disabled** takes precedence over any capacity state, and the allocation figures are cached for 30 seconds. These are the same numbers the [Allocated Resources](#overview) card breaks down per node.
+The capacity states compare allocated memory (including reserved container overhead) and allocated disk against the node's configured limits, whichever of the two is worse: **Nearly Full** from 90%, **No Capacity** at 100% or over. A limit of `0` is unlimited and never counts toward either. **Deployment Disabled** wins over **Under Maintenance**, and both win over the capacity states, because either one rules the node out on its own. The allocation figures are cached for 30 seconds. These are the same numbers the [Allocated Resources](#overview) card breaks down per node.
 
 The badge falls back to **Deployment Enabled** when the allocation figures cannot be loaded, so green on its own is not proof that the node has room.
 :::
@@ -50,7 +50,7 @@ Click **Create** in the top right (requires `nodes.create`). If no location exis
 | **Disk** | Required, default 10 GiB. "The total disk available for servers on this node." `0` means no limit. |
 | **Backup Configuration** | Optional. Defaults to **Inherit from Location**. See [Backup Configurations](../../../wings/advanced/backup-configurations.md). |
 
-**Options** section: **Deployment Enabled** (on by default) controls whether new servers can be deployed to this node, and **Maintenance Enabled** (off by default) marks it as under maintenance.
+**Options** section: **Deployment Enabled** (on by default) controls whether new servers can be deployed to this node. **Maintenance Enabled** (off by default) marks the node as under maintenance. New servers are not deployed to it while that is on, and users cannot interact with the servers it already hosts.
 
 Hit **Save**, or **Save & Stay** to create another. These limits are what deployment checks, not the physical machine capacity, so setting them above the real hardware over-allocates the node.
 

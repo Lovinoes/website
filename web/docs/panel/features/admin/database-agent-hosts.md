@@ -11,7 +11,13 @@ A database agent host is a machine running the [Calagopus DB Agent](../../../db-
 Install the agent on the machine first; the [DB Agent docs](../../../db-agent/index.md) cover installation and the [configuration reference](../../../db-agent/configuration.md). The panel side below hands you the exact config file to drop in.
 :::
 
-The list at `/admin/database-agent-hosts` shows each host's ID, Name, and Created date. Rows have selection checkboxes; drag across rows or Ctrl/Cmd-click to select several (Ctrl/Cmd+A for all, Escape to clear). With hosts selected, an action bar appears with **Update Config**, which applies a YAML configuration snippet to every selected host at once.
+The list at `/admin/database-agent-hosts` shows a health indicator, ID, Name, and Created date for each host. The heart is green when the panel can reach the agent, yellow and pulsing when an agent update is available, and broken red when the host is unreachable; hovering it gives the agent version. Next to the name, a badge shows whether the host can still take new instances: **Deployment Enabled** (green), **Nearly Full** (yellow), **No Capacity** (orange), **Under Maintenance** (red), **No Types Enabled** (red), or **Deployment Disabled** (red). Hovering it shows allocated memory and disk against the host's limits, or "no host limit" where a limit is `0`.
+
+Rows have selection checkboxes; drag across rows or Ctrl/Cmd-click to select several (Ctrl/Cmd+A for all, Escape to clear). With hosts selected, an action bar appears with **Update Config**, which applies a YAML configuration snippet to every selected host at once.
+
+::: info
+The capacity states compare the memory and disk claimed by the host's instances against its configured limits, whichever of the two is worse: **Nearly Full** from 90%, **No Capacity** at 100% or over. A limit of `0` is unlimited and never counts toward either. **Deployment Disabled**, **Under Maintenance** and **No Types Enabled** each rule the host out on their own, so they are checked first, in that order. The allocation figures are cached for 30 seconds.
+:::
 
 ![Database agent hosts list](./images/database-agent-hosts/list.webp)
 
@@ -24,9 +30,10 @@ Click **Create** in the top right.
 | Field | Description |
 | ----- | ----------- |
 | **Name** | Display name for the host. |
-| **URL** | Where the panel reaches the agent, e.g. `https://agent.example.com:8080`. If you omit the port, a warning explains the panel will connect on the URL's default port while the agent listens on `8080` by default; an **Add :8080** button appends it for you. |
+| **URL** | Where the panel reaches the agent, e.g. `https://agent.example.com:8090`. If you omit the port, a warning explains the panel will connect on the URL's default port while the agent listens on `8090` by default; an **Add :8090** button appends it for you. |
 | **Description** | Optional free text. |
-| **Memory** / **Disk** | The capacity budget for this host. New instances are only placed on the host while the combined limits of its instances fit within these values. |
+| **Memory** | "The total memory available for database instances on this host." New instances are only placed while the combined limits of the host's instances fit within it. Defaults to `0`, which means no limit. |
+| **Disk** | "The total disk available for database instances on this host." The same placement rule applies. Defaults to `0`, which means no limit. |
 | **Deployment Enabled** | Whether new instances may be placed on this host. On by default. |
 | **Maintenance Enabled** | Puts the host into maintenance mode, see below. Off by default. |
 
@@ -102,11 +109,11 @@ Live host metrics streamed from the agent: CPU, memory, disk, and network cards 
 
 ## How Instances Are Placed
 
-Like database hosts, agent hosts must be attached to a node or location from that node's or location's **Database Agent Hosts** tab. When a user creates a managed database, the panel picks among hosts that are attached to the server's node or its location, have **Deployment Enabled** on, are not in maintenance, have the requested database type enabled, and still have enough free memory and disk; the least utilized eligible host is preferred.
+Like database hosts, agent hosts must be attached to a node or location from that node's or location's **Database Agent Hosts** tab. When a user creates a managed database, the panel picks among hosts that are attached to the server's node or its location, have **Deployment Enabled** on, are not in maintenance, have the requested database type enabled, and still have enough free memory and disk; the least utilized eligible host is preferred. A limit of `0` always passes the capacity check and counts as zero utilization in that ranking, so a host with neither limit set comes first.
 
 ## Maintenance Mode
 
-While **Maintenance Enabled** is on, users cannot send power actions to instances on the host, update them, or delete them. Template updates skip instances on hosts in maintenance too.
+While **Maintenance Enabled** is on, the host takes no new instances, and users cannot send power actions to the instances already on it, update them, or delete them. Template updates skip instances on hosts in maintenance too.
 
 ::: info
 The buttons on these pages follow the `database-agent-hosts.*` admin permission keys (`create`, `read`, `update`, `delete`, `test`, `read-token`, `reset-token`). See the [Permissions Reference](../dashboard/permissions.md).
