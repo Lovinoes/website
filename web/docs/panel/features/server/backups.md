@@ -57,6 +57,18 @@ The group header shows:
 
 The tooltip lists only the rules that are switched on, so it doubles as a summary of what the group keeps without opening the edit form.
 
+Each backup row inside a group has a **Retention** column: a badge for the rule that keeps that backup the longest, with that rule's value (for example "Daily: 7"), and under it the time the panel expects to delete it. Hover the badge to see every rule that currently applies, each with its value.
+
+The deletion time is a forecast. The panel takes the cron triggers of the enabled [schedules](./schedules.md) that create backups into the group and works out at which run the backup falls out of its last rule, so it assumes every run succeeds and that nobody changes the rules in between. **Keep all within days** is the exception: it expires on its own, so its date is exact. Without such a schedule the column reads "No deletion forecast" for every other rule, and it says the same on a server at its backup limit, where the limit decides what goes rather than the rules.
+
+| Badge | Meaning |
+| --- | --- |
+| **Latest**, **Recent**, **Daily**, **Weekly**, **Monthly**, **Yearly** | The rule keeping this backup the longest, with its configured value. |
+| **Locked** | Locked backups are never removed by retention. |
+| **Kept indefinitely** | The group has no rules. |
+| **Pending removal** | No rule keeps this backup any more; the hourly check removes it. |
+| **Cleanup** | A failed backup, with the time its 24 hour grace period ends. |
+
 ### Retention Rules
 
 A group has six rules, each off when you leave it empty or set it to 0.
@@ -98,7 +110,7 @@ Click the trash icon in the group header and type the group's name to confirm. T
 
 ## System Backups
 
-When the panel has taken automatic backups of this server through a [system backup policy](../admin/system-backup-policies.md), a sub-navigation appears with a **System Backups** tab at `/backups/system`: "Backups taken automatically by the panel. They cannot be modified or deleted." The rows are read-only in the sense that you cannot rename, lock or delete them - but they are still fully usable backups: browsing, downloading, restoring, exporting to files and viewing metadata all work exactly as they do on your own backups, with the same permissions. The table carries **Kind** and **Source** columns, because a policy can back up either the server files or one of the server's database instances.
+When the panel has taken automatic backups of this server through a [system backup policy](../admin/system-backup-policies.md), a sub-navigation appears with a **System Backups** tab at `/backups/system`: "Backups taken automatically by the panel. They cannot be modified or deleted." The rows are read-only in the sense that you cannot rename, lock or delete them - but they are still fully usable backups: browsing, downloading, restoring, exporting to files and viewing metadata all work exactly as they do on your own backups, with the same permissions. The table carries **Kind** and **Source** columns, because a policy can back up either the server files or one of the server's database instances, and a **Retention** column with the same badge and deletion forecast as [group rows](#backup-groups), worked out from the policy's own cron schedule.
 
 ![System backups tab](./images/backups/system-backups.webp)
 

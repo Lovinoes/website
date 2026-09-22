@@ -50,7 +50,7 @@ The return shape:
 
 - **`Ok(None)`** - you're up to date, nothing to show.
 - **`Ok(Some(ExtensionUpdateInfo { version, changes }))`** - there's a newer version. `version` is the new `semver::Version`, `changes` is a list of human-readable changelog lines. The changes list *should* cover everything between the current version and the new one, so if there have been multiple releases since the user's version, walk your changelog and collect every entry that's newer than `current_version`.
-- **`Err(...)`** - something went wrong (network issue, malformed response from your update server, etc.). The Panel logs it and tries again on the next cycle; the user sees no update notification.
+- **`Err(...)`** - something went wrong (network issue, malformed response from your update server, etc.). The Panel records the error text against your extension, the admin updates page lists it in its extension errors block, and the check runs again on the next cycle.
 
 An empty `changes` vec is fine - the Panel will still show the update as available, it just won't render a changelog list.
 
@@ -89,7 +89,7 @@ Use `state.client` (the Panel's shared reqwest client) rather than instantiating
 
 ### Caching
 
-`check_for_updates` runs on every Panel startup and every 12 hours. If your update source is rate-limited (GitHub's unauthenticated API, for example, allows 60 requests/hour per IP), wrap the fetch in `state.cache.cached(...)` so repeated calls during development or after restart storms don't burn through your quota:
+`check_for_updates` runs on every Panel startup and every 12 hours, on the primary instance only, and again whenever an admin presses the recheck button on the updates page. If your update source is rate-limited (GitHub's unauthenticated API, for example, allows 60 requests/hour per IP), wrap the fetch in `state.cache.cached(...)` so repeated calls during development, restart storms or an impatient admin don't burn through your quota. The cached type needs `Serialize` as well as `Deserialize`, since the value is stored encoded:
 
 ```rs
 let release_info: ReleaseInfo = state
@@ -114,7 +114,7 @@ The cache key should be scoped to your extension (prefix with your package name)
 
 ## Extension Calls
 
-`process_call` is how your extension exposes a callable surface to *other extensions* running in the same Panel. It's a synchronous in-process RPC - not HTTP, not events, just one extension calling a function on another.
+`process_call` is how your extension exposes a callable surface to *other extensions* running in the same Panel. It's an in-process async call - not HTTP, not events, just one extension awaiting a function on another.
 
 The sending side looks like this:
 
@@ -201,8 +201,4 @@ They're the wrong tool when:
 - The caller and receiver are in the same extension. Just call the function directly; there's no reason to go through the dispatcher.
 - The data needs to cross a trust boundary. `Box<dyn Any>` dispatch has no schema validation - if the receiver gets a different type than it expects, it returns `None` and the caller has no idea why. Only use extension calls between extensions you control or trust.
 
-### Picking Between `process_call` and `process_call_owned`
-
-The trait has two methods - `process_call(&self, name, &args)` and `process_call_owned(&self, name, Vec<args>)`. The default `process_call_owned` implementation just delegates to `process_call(&args)`, so you normally only implement `process_call` and get the owned version for free.
-
-Override `process_call_owned` only if you specifically need to consume the args (move out of them, for example to avoid cloning a large value). For most extensions, implementing `process_call` alone is enough.
+Arguments are always borrowed. Every extension in the chain sees the same `&[ExtensionCallValue]` until one answers, so a call cannot hand ownership of a large value to the receiver; clone what you need, or pass an `Arc`. (Panels before 1.2.3 also declared a `process_call_owned` method, which nothing ever dispatched to; it has been removed.)

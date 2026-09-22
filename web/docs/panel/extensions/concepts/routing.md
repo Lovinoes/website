@@ -23,7 +23,7 @@ The `ExtensionRouteBuilder` exposes seven different routers, each mounted at a d
 | `add_remote_api_router` | `/api/remote` | Node token | Endpoints called by Wings nodes |
 | `add_remote_server_api_router` | `/api/remote/servers/{server}` | Node token + server scope | Endpoints called by Wings about a specific server |
 
-The important thing to understand is that **authentication and permission middleware is already applied by the parent router** for every method except `add_global_router` and `add_auth_api_router`. You don't write auth code, you just check specific permissions inside your handler (more on that further down).
+The important thing to understand is that **authentication and permission middleware is already applied by the parent router** for every method except `add_global_router` and `add_auth_api_router`. You don't write auth code, you just check specific permissions inside your handler (more on that further down). The admin middleware only lets through admin accounts and roles holding at least one admin permission (anyone else gets a 401), and the client-server middleware also answers 409 while the server is installing, transferring or suspended, for every path except the server's own GET, its websocket, install cancellation and backup unlock; admins stay exempt from the suspended case. Your server routes inherit that gate.
 
 All seven methods return `Self`, so you can chain as many as you like. Calling the same method twice is additive - the second call receives the router you built in the first, so you can split registration across files if your extension grows.
 
@@ -63,7 +63,7 @@ impl Extension for ExtensionStruct {
 }
 ```
 
-A couple of things to notice. First, **always make sure your routes do not collide with other extensions or the panel itself**. The Panel doesn't do anything to prevent collisions, so if two extensions both register a route at `/api/client/servers/{server}/foo`, utoipa will panic on startup and the process exits. That's a pretty hard failure mode, so just be considerate and pick paths that are unlikely to clash. Calling your routes `/config` is really just asking for trouble, but `/extensions/dev.yourname.test/config` is perfectly reasonable.
+A couple of things to notice. First, **always make sure your routes do not collide with other extensions or the panel itself**. The Panel doesn't do anything to prevent collisions, so if two extensions both register a route at `/api/client/servers/{server}/foo`, axum panics while merging the routers on startup and the process exits. That's a pretty hard failure mode, so just be considerate and pick paths that are unlikely to clash. Calling your routes `/config` is really just asking for trouble, but `/extensions/dev.yourname.test/config` is perfectly reasonable.
 
 How pretty those paths need to be is up to you and depends on who's going to call them. For an admin API that only your extension's own frontend talks to, a namespace like `/extensions/dev.yourname.test/settings` is fine - it's ugly, but it's guaranteed not to collide, and nobody's typing it by hand. For a client API that end users might call with their API key, a cleaner path like `/my-feature` makes for a much nicer public surface. Both are valid choices, pick the one that fits your use case.
 
@@ -185,7 +185,7 @@ Let's dissect this, because there's a lot going on in a small amount of code.
 
 **The extractors.** `GetState` gives you the Panel's `State`, `GetPermissionManager` gives you a permission checker for the current session. These are shared aliases that do the right thing depending on which router you're in - inside an admin router, `GetPermissionManager` checks admin permissions; inside a client-server router, it checks user-plus-server permissions. You never manually parse an auth token.
 
-**The permission check.** `permissions.has_admin_permission("settings.read")?` returns a `DisplayError` (which `?` bubbles up as a `403 Forbidden`) if the current admin doesn't have that permission node. Always do this as the first line of the handler so you don't accidentally leak data before the check.
+**The permission check.** `permissions.has_admin_permission("settings.read")?` returns `Err` with a ready-made `403 Forbidden` `ApiResponse` (which `?` hands straight back to the client) if the current admin doesn't have that permission node. Always do this as the first line of the handler so you don't accidentally leak data before the check.
 
 **The return type.** `ApiResponseResult` is an alias for `Result<ApiResponse, ApiResponse>` - yes, both sides are `ApiResponse`, which is a bit unusual but intentional. See [Response Types and Errors](#response-types-and-errors) below.
 
@@ -381,7 +381,7 @@ let item = find_item(&id)?; // bubbles as 404 "item not found"
 
 This is the idiomatic way to signal "this specific thing went wrong, here's the status I want" from somewhere that isn't the handler itself. A helper function three or four calls deep has no access to `ApiResponse`, and threading it back up through every layer would be miserable - but every one of those layers already returns `anyhow::Error`, which means `DisplayError` slots in cleanly. You specify the HTTP response at the point where the error *happens*, which is usually where you have the best information about what went wrong, and the handler doesn't need to care.
 
-`DisplayError::new` defaults to `400 Bad Request` if you don't call `.with_status(...)`.
+`DisplayError::new` defaults to `400 Bad Request` if you don't call `.with_status(...)`. The message has to outlive the function that produced it, so pass a string literal or an owned `String`; a slice borrowed from a local won't convert into `anyhow::Error`.
 
 ### Shortcut for simple error responses
 

@@ -29,7 +29,7 @@ The five fields, in order:
 
 - **`identifier`** is a `&'static str` that uniquely names this template. It's how your code looks the template up later when sending an email, and it's how the admin UI keys overrides in the database. Identifiers are global across the whole Panel - core templates and every extension share one namespace - so prefix yours with your package name (e.g. `dev.0x7d8.test.welcome`, not just `welcome`) to avoid collisions.
 
-- **`available_variables`** is a `Vec<&'static str>` listing the variables your template can use. This is **metadata for the admin UI** - it shows operators which variables are available to put into the template - not enforcement. The actual rendering uses whatever variables the calling code passes; a typo in an override that references a non-existent variable will just render as nothing rather than error. Keep this list accurate so operators editing the template have something to work from.
+- **`available_variables`** is a `Vec<&'static str>` listing the variables your template can use. This is **metadata for the admin UI** - it shows operators which variables are available to put into the template - not enforcement. The actual rendering uses whatever variables the calling code passes. A reference to an undefined variable renders as nothing, but reaching *into* one (`{{ usr.name }}` with a typo in `usr`) fails the render, and the send is logged or propagated as an error. Keep this list accurate so operators editing the template have something to work from.
 
 - **`default_subject`** is the email subject line, as a MiniJinja template string. It supports the same <code v-pre>{{ variable }}</code> syntax as the body - <code v-pre>{{ settings.app.name }}</code> works here just as it does in the body content. Operators can override the subject through the admin UI independently of the body.
 
@@ -38,7 +38,7 @@ The five fields, in order:
 - **`default_enabled`** controls whether the template is enabled out of the box. If `false`, `send_template` and `send_template_foreground` silently skip sending when no operator override is in place. Use this for opt-in notifications (e.g. "server installed" alerts) where most operators probably don't want the email unless they actively turn it on.
 
 ::: info
-Every template implicitly gets a `settings` variable in addition to whatever you declare - it's the Panel's app settings, accessible as <code v-pre>{{ settings.app.name }}</code>, <code v-pre>{{ settings.app.url }}</code>, etc. Two things happen automatically: `settings` and `language` are appended to your `available_variables` list during finalization (so they show up in the admin UI even if you didn't list them), and it's injected into the rendering context by `send_template` / `send_template_foreground` at send time. You should not pass `settings` yourself in the context - whatever you pass gets overwritten by the framework-provided value anyway.
+Every template implicitly gets a `settings` variable in addition to whatever you declare - it's the Panel's app settings, accessible as <code v-pre>{{ settings.app.name }}</code>, <code v-pre>{{ settings.app.url }}</code>, etc. Two things happen automatically: `settings` and `language` are appended to your `available_variables` list during finalization (so they show up in the admin UI even if you didn't list them), and it's injected into the rendering context by `send_template` / `send_template_foreground` at send time. Don't pass `settings` yourself in the context: the framework registers it as a template global, and a context value with the same name shadows the global, so you would replace the real settings with whatever you passed.
 :::
 
 ## Registering Templates
@@ -181,7 +181,7 @@ A few rules for variables:
 - **Values are MiniJinja fragments** rendered with the same context as the template, so <code v-pre>{{ user.username }}</code> and <code v-pre>{{ settings.app.name }}</code> work inside them. For the body they are rendered with HTML auto-escaping and inserted as safe HTML; for the subject they are rendered as plain text. A variable can reference another one as <code v-pre>{{ vars.&lt;name&gt; }}</code>, one level deep: a chain of three renders the innermost as empty.
 - **Resolution order** for a recipient language is: the operator's value for that language, the operator's English value, your translated default for that language, your English default. Once an operator customises a variable in English, that wording is what every language without its own override receives.
 - **Template variables shadow global ones** with the same name.
-- `add_template_variable` is a no-op if the variable already exists, `mutate_template_variable(identifier, name, |variable| ...)` changes an existing one, mirroring `add_template` and `mutate_template`.
+- `add_template_variable` is a no-op if the variable already exists, `mutate_template_variable(Some(identifier), name, |variable| ...)` changes an existing one, mirroring `add_template` and `mutate_template`.
 
 The core templates each declare a `subject` variable plus `greeting`, `intro`, `button`, `note`, `footer` and a few template-specific ones; look at `shared/mails/variables/en.json` in the panel source for the full list. Their translations are maintained through the panel's Crowdin project, so if you want to reword a core mail without replacing its layout, `mutate_template_variable` is the tool.
 
@@ -229,7 +229,7 @@ A few notes on this pattern:
 
 - **The subject comes from the template, not your code.** Both the subject and body are stored in the template and can be overridden by operators. The subject is itself a MiniJinja template string, so <code v-pre>{{ settings.app.name }}</code> and other variables work there too, and it is rendered as plain text rather than HTML.
 - **If the template is disabled, the send is silently skipped.** `send_template` returns immediately with no error; `send_template_foreground` returns `Ok(())`. A `tracing::debug` message is emitted so you can see it in logs. Check `default_enabled` on your template definition if you're wondering why emails aren't sending.
-- **The 15-second cache still applies.** Template content and the enabled/disabled state are cached from the database for 15 seconds. A change made in the admin UI won't be visible to senders for up to that long.
+- **The 15-second cache still applies.** Template content and the enabled/disabled state are cached from the database for 15 seconds. A save from the admin UI invalidates the cache on the instance that handled it, so that instance sees the change at once; other instances behind a load balancer, and edits made straight in the database, take up to 15 seconds to show.
 - **`send_template` vs `send_template_foreground` is about who handles failures.** `send_template` returns almost immediately and spawns a tokio task for the actual send - SMTP errors, network errors, and rendering errors are logged from inside the task and the user-facing request is unaffected. `send_template_foreground` does everything in your async context and propagates errors back. Use `send_template` for fire-and-forget notifications; use `send_template_foreground` when the send result actually matters to your code (e.g. an SMTP connection test, where the whole point is to know whether it worked).
 
 ## Overriding Core Templates
@@ -253,7 +253,7 @@ async fn initialize_email_templates(
 
 `mutate_template` finds the template by identifier and runs your closure against it, letting you change any field - `default_content` (the most common case), `default_subject`, or `default_enabled`. If no template with that identifier exists, the closure is silently skipped.
 
-The core templates available for mutation, as of this writing, are:
+The core templates available for mutation in 1.2.3 are:
 
 - `account_created` - sent when a new user account is created. Variables: `user`, `reset_link`.
 - `password_reset` - sent when a user requests a password reset. Variables: `user`, `reset_link`.
@@ -261,10 +261,10 @@ The core templates available for mutation, as of this writing, are:
 - `two_factor_code` - sent when a user requests an email two-factor login code. Variables: `user`, `code`.
 - `session_created` - sent when a session is created for a user, on any successful login. Variables: `user`, `ip`, `user_agent`, `sessions_link`. Disabled by default.
 - `connection_test` - sent by the admin SMTP test feature. No variables (other than the implicit `settings`).
-- `added_to_server` - sent when a user is added as a subuser to a server. Variables: `server`, `server_link`.
+- `added_to_server` - sent when a user is added as a subuser to a server. Variables: `user`, `server`, `server_link`.
 - `removed_from_server` - sent when a user is removed as a subuser from a server. Variables: `server`.
-- `server_installed` - sent when a server finishes installing. Variables: `server`, `server_link`. Disabled by default.
-- `server_restored` - sent when a server backup is restored. Variables: `server`, `server_link`. Disabled by default.
+- `server_installed` - sent when a server finishes installing. Variables: `user`, `server`, `server_link`. Disabled by default.
+- `server_restored` - sent when a server backup is restored. Variables: `user`, `server`, `server_link`. Disabled by default.
 
 ::: warning Don't extend `available_variables` on a core template
 The variables list reflects what the calling code actually passes when sending. If you add `"server_count"` to the `password_reset` template's variable list but the password-reset code path never passes a `server_count`, operators will see it in the UI as available but every reference to it in their template will render as nothing. If you need extra variables, register your own template under a new identifier instead and use it from your own code.
@@ -274,7 +274,11 @@ Mutating core templates is a sharp tool - it changes behavior other parts of the
 
 ## What Operators See
 
-The whole point of using the template system rather than hardcoded HTML is that operators get a UI for editing your templates. From the admin panel's "Email Templates" page they can:
+The whole point of using the template system rather than hardcoded HTML is that operators get a UI for editing your templates. Your template appears in the same list as the core ones, on the Mail Templates tab of the admin settings:
+
+<img src="../../features/admin/images/settings/mail-templates.webp" alt="The Mail Templates tab of the admin settings, with the account_created template open in the editor and its variables listed per language on the right" width="960">
+
+From there they can:
 
 - See the list of all registered templates (core and extension-provided), each labeled by its identifier
 - See the available variables for each template, so they know what they can reference
@@ -284,7 +288,7 @@ The whole point of using the template system rather than hardcoded HTML is that 
 - Reset the subject and/or content back to the default at any time
 - Edit every variable per language, add custom variables, and reset a variable back to your defaults
 
-Overrides are per-template and stored in the Panel's database, so they persist across restarts and are shared across panel instances. Resetting deletes the database row for that field, falling back to your `default_subject` / `default_content` immediately.
+Overrides are per-template and stored in the Panel's database, so they persist across restarts and are shared across panel instances. Resetting a subject or body clears the stored value, so the template falls back to whatever `default_subject` / `default_content` your current release ships, immediately and on every later release too. (Panels before 1.2.3 copied the default text into the row instead, which froze it at that version.)
 
 ## Where to Go From Here
 

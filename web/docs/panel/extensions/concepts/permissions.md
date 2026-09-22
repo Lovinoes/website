@@ -269,6 +269,8 @@ function MyComponent() {
 }
 ```
 
+The same module also exports `useServerCan(action, matchAny?)` and `useAdminCan(action, matchAny?)`, which fold the two calls above into one boolean. Their `matchAny` defaults to `true`, the opposite of the `<Can>` components, so pass it explicitly when the distinction matters.
+
 Prefer the `<Can>` components for rendering decisions and the hooks only for cases where the JSX wrapper is awkward.
 
 ::: warning

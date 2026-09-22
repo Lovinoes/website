@@ -87,7 +87,7 @@ Keep messages short. The toast card is a fixed 288px wide and long text just wra
 
 A toast can carry action buttons - small icon buttons rendered inside the card, to the left of the close button. They're for the "and now what" follow-up: jump to the thing you just created, or undo it.
 
-An action is `{ name, icon, disabled?, onClick }`:
+An action is `{ name, icon, disabled?, onClick }`, where `icon` is a FontAwesome `IconDefinition` rather than a rendered element:
 
 ```tsx
 import { faFolderOpen } from '@fortawesome/free-solid-svg-icons';
@@ -152,6 +152,10 @@ export default function RenameModal({ server, file }: Props) {
 ```
 
 That one call gets you a success toast carrying an Undo button (a left-arrow icon, tooltipped with the Panel's translated `common.button.undo`), plus an entry in the undo history. You don't wire the action yourself and you don't dismiss the toast in your callback - clicking Undo takes the toast down before running your function.
+
+<img src="./images/toasts/undo-action.webp" alt="A green success toast reading File has been renamed, with an undo arrow action button to the left of the close button" width="288">
+
+That is the file manager's rename toast, and it is what every `useUndoableToast` call looks like: the message, one action, the close button.
 
 ### Writing the undo callback
 
@@ -281,7 +285,7 @@ updateToast(id, { message: next === lastMessage ? undefined : next, progress });
 lastMessage = next;
 ```
 
-`updateToast` works on ordinary toasts too, but it can't add a progress bar to a toast that was raised without one, and it can't take a close button away. Those are decided when the toast is created.
+`updateToast` works on ordinary toasts too. Passing `progress` to a toast raised with `addToast` even switches it to the progress layout, but the toast keeps the 7500ms timeout and the close button it was created with, and nothing can take that close button away later. Use `addProgressToast` from the start for anything that should stay up.
 
 ### They don't leave on their own
 
@@ -441,7 +445,7 @@ The opt-outs differ, and two of the hooks don't have one:
 - **`useResource` and `usePollingResource`** take `silent: true`, which suppresses the error toast while still returning `error`. Reach for it when you want to render the failure inline instead.
 - **`useModalForm`** takes an `onError` callback that *replaces* the built-in toast entirely. Pass it and you own the error path; omit it and you get `httpErrorToHuman` in an error toast.
 - **`useSearchableResource` and `useSearchablePaginatedTable`** always toast fetch errors, with no way to opt out.
-- **`useResourceForm`** always toasts too, and its success messages are built from the `resourceName` you pass (`"Item created."`, `"Item updated."`, `"Item deleted."`). If you want different wording, that argument is the lever, not a second toast.
+- **`useResourceForm`** always toasts too, and its success messages are the Panel's translated "{resource} created." / "updated." / "deleted." strings with the `resourceName` you pass filled in. If you want different wording, that argument is the lever, not a second toast.
 
 ::: warning
 The fetch-error toasts fire from an effect on `error`, so a query that keeps failing - a poll against a down node, say - toasts each time the error updates. `usePollingResource`'s `retryOnError` bounds that by stopping the poll after N consecutive failures; on a long-lived poll where the failure is already visible on the page, `silent: true` is usually the kinder choice.

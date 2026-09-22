@@ -177,7 +177,7 @@ return (
 
 ### Missing Keys
 
-If you call `t`, `tReact`, or `tItem` with a key that doesn't exist (in the active language *or* in the English base), the call **throws an Error**. There is no runtime fallback to the key name, no empty string, no warning - it throws and your component bubbles up to the error boundary.
+If you call `t`, `tReact`, or `tItem` with a key that doesn't exist in the English base, the call **throws an Error**. A key that is only missing from the active language falls back to English, so the throw is reserved for keys nobody defined. There is no runtime fallback to the key name, no empty string, no warning - it throws and your component bubbles up to the error boundary.
 
 This is intentional. With TypeScript-inferred key types, missing keys are caught at compile time before they reach runtime. The runtime throw is a backstop for cases where the key is constructed dynamically (e.g. `t(\`status.${state}\`, {})` where `state` is a value from an API), and in those cases throwing is what you want - you'd rather know immediately that your data has a value the translation system can't handle than ship a UI showing literal "status.frobnicated" to users.
 
@@ -198,24 +198,25 @@ function statusLabel(state: State): string {
 By default, the Panel only uses the English translations you defined in `translations.ts`. To ship translations for other languages, drop a JSON file per language into your extension's `public/translations/<language>/` directory:
 
 ```yml
-frontend/extensions/
+backend-extensions/
   (package_name_with_underscores)/
-    public/translations/
-      es/
-        dev.yourname.extension.json
-      de/
-        dev.yourname.extension.json
+    frontend/
+      public/translations/
+        es/
+          dev.yourname.extension.json
+        de/
+          dev.yourname.extension.json
 ```
 
-The filename is your package identifier - if your `Metadata.toml` says `package_name = "dev.0x7d8.test"`, the file is `dev.0x7d8.test.json`. The directory says the language code (`es` for Spanish, `de` for German, etc.).
+The filename is your package identifier - if your `Metadata.toml` says `package_name = "dev.0x7d8.test"`, the file is `dev.0x7d8.test.json`. The directory says the language code (`es` for Spanish, `de` for German, etc.). The build discovers the files through the `frontend/extensions/<identifier>` compatibility symlink described in [Extension File Structure](../file-structure.md#frontend), so the older path works too.
 
-To get a starter file with the right shape, generate the English equivalent first:
+To get a starter file with the right shape, generate the English equivalent first, from the Panel's `frontend/` directory:
 
 ```bash
 pnpm build:translations
 ```
 
-You'll find the result at `public/translations/en/dev.yourname.extension.json`. Copy it, replace the English strings with translations for your target language, save under the right language folder. Repeat per language.
+The generated file lands in the Panel's own public directory, at `frontend/public/translations/en/dev.yourname.extension.json`, not inside your extension. Copy it, replace the English strings with translations for your target language, save under the right language folder in your extension. Repeat per language.
 
 The shape of the JSON file is **flat** - `items` and `translations` at the top level, with keys exactly as you defined them in `translations.ts`. The framework handles namespacing across extensions internally; you don't put your package identifier inside the JSON, only on the filesystem path.
 
@@ -249,13 +250,7 @@ For non-English item translations, you fill in **each plural category your langu
 ::: warning Never ship incomplete translations
 If you ship a Spanish translation file, every translation key your extension uses needs a Spanish value. Users with their language set to Spanish will see your Spanish file, and any missing key falls back to the **English** translation - mixed-language UIs look broken and confused. If you'd rather not ship Spanish at all than ship 80% of it, that's fine: users get the English fallback for the whole extension, which is consistent.
 
-You can check for missing keys in a translation file by running:
-
-```bash
-pnpm diff:translations public/translations/es/dev.yourname.extension.json
-```
-
-This compares your target file against the generated English file and reports any keys present in English but missing in the target.
+The Panel's `pnpm diff:translations` script compares the Panel's *own* language files, which carry every namespace at once, so pointing it at a per-extension file reports every one of your keys as extra. To find gaps in your file, diff it against the generated English file yourself; the two share a structure, so any JSON diff tool shows the missing keys.
 :::
 
 ## Using Base Panel Translations
@@ -265,13 +260,13 @@ You don't have to redefine translations the base Panel already provides. Common 
 ```tsx
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 
-export default function MyConfirmDialog() {
+export default function MyDeleteDialog() {
   const { t } = useTranslations();
 
   return (
     <Modal>
       <Button>{t('common.button.cancel', {})}</Button>
-      <Button>{t('common.button.confirm', {})}</Button>
+      <Button color='red'>{t('common.button.delete', {})}</Button>
     </Modal>
   );
 }

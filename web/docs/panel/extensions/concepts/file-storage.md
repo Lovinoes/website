@@ -72,7 +72,7 @@ pub async fn route(
 
 A few things to call out:
 
-- **`store` accepts any `AsyncRead`** - direct from a multipart upload, from a `tokio::fs::File`, from a `Cursor` over an in-memory buffer, from an HTTP stream, anything. No need to buffer the whole file into memory unless you want to.
+- **`store` accepts any `AsyncRead + Unpin`** - direct from a multipart upload, from a `tokio::fs::File`, from a `Cursor` over an in-memory buffer, from an HTTP stream, anything. No need to buffer the whole file into memory unless you want to. The `content_type` only reaches S3; the filesystem driver ignores it and serves public files with a type derived from the extension, so name files with a real extension rather than `.bin` if browsers should render them.
 - **The path is yours to construct.** No `id`-keyed lookup, no auto-generated names. The path you pass to `store` is the path used to retrieve and remove later. UUIDs in the filename are a good idea if you don't want users to be able to guess each other's filenames.
 - **`retrieve_urls()` returns a helper, not a URL directly.** This is because it needs to read the storage settings, and that's an awaited operation - getting the helper once and calling `.get_url(...)` repeatedly is cheaper than awaiting per call. Hold on to it for the lifetime of your handler if you're constructing many URLs.
 
@@ -91,7 +91,7 @@ Storage paths are global - whatever you write to `foo/bar.txt` is reachable as `
 | `publicdata/` | Yes | Currently unused by the base Panel; available for extension use. Suggested structure: `publicdata/extensions/{your.package.identifier}/...`. |
 | `privatedata/` | No | Not publicly accessible. Same suggested structure as `publicdata/`: `privatedata/extensions/{your.package.identifier}/...`. |
 
-The "publicly accessible" distinction is enforced at the storage layer - paths under public prefixes are reachable via the URL `retrieve_urls().get_url(path)` returns, and paths under `privatedata/` aren't. If you write to `privatedata/...` and then call `get_url(...)` on it, the returned URL won't actually serve the file; it's the responsibility of your extension's own routes to authenticate-and-serve from `privatedata/`.
+The "publicly accessible" distinction is enforced by the Panel's HTTP layer, not by `Storage` itself, and only on the filesystem driver: the Panel serves `assets/`, `avatars/` and `publicdata/` from disk and answers 404 for everything else, so a `privatedata/` URL is dead there. On S3 the Panel serves nothing at all and `get_url` is plain string concatenation onto the configured public URL, which means whether `privatedata/...` is reachable depends entirely on the bucket or CDN policy the operator set up. Treat `privatedata/` as a convention you enforce yourself: keep the bucket private, and have your extension's own routes authenticate and stream those files.
 
 The most common pattern for extensions:
 
@@ -118,7 +118,9 @@ let avatar_url = urls.get_url("publicdata/extensions/dev.yourname.my-feature/som
 
 The format depends on the configured driver: filesystem-backed installs serve through the Panel itself (URL prefixed with `app.url`), S3-backed installs serve from the configured `public_url` (typically a CDN). Either way, your extension code doesn't care - you get a URL string, you hand it to the frontend.
 
-For paths under `privatedata/`, `get_url(...)` will still return *a* URL, but hitting it won't serve the file. Treat the returned value as a path identifier for your own routes' use, not as something to expose to clients.
+For paths under `privatedata/`, `get_url(...)` will still return *a* URL. On the filesystem driver hitting it is a 404; on S3 it is whatever the bucket policy says. Treat the returned value as a path identifier for your own routes' use, not as something to expose to clients.
+
+The retriever holds a read guard on the settings for as long as it lives. That is fine for the lifetime of a request handler, but don't park one in a long-running task, where it would block the next settings write.
 
 ## Storing Streamed Data
 
@@ -161,7 +163,7 @@ for asset in page.data {
 
 Returns a paginated list of `StorageAsset` entries, each with name, size, URL, creation time, and a flag indicating whether it's a directory or a file. Directories sort before files, both alphabetically.
 
-`list` is shallow - it shows you the immediate children of `directory` and nothing deeper. Each returned `name` is the entry's path relative to `base`, so within a subdirectory you'll get `images/logo.png` rather than a bare `logo.png`.
+`list` is shallow - it shows you the immediate children of `directory` and nothing deeper. Each returned `name` is the entry's path relative to `base`, so within a subdirectory you'll get `images/logo.png` rather than a bare `logo.png`. `base` must not be empty and `directory` must not end in a slash; both `list` and `search` reject those with an "invalid directory path" error, on top of the usual `..` and leading-slash rules.
 
 This method is primarily used by the admin panel's asset-browser UI; most extensions don't need it. If you're tracking your own files (you wrote them, you know where they are), prefer keeping a record in your own database table - that's both faster than listing the storage backend and more flexible for the kinds of queries your code actually wants to do.
 
@@ -201,7 +203,7 @@ The same advice as `list` applies, only more strongly: if the files are yours, i
 
 Sometimes you need a file briefly - to write some intermediate output, to hand a path to a subprocess, to do anything that involves "I need this file to exist for the next ten seconds and then disappear." **Don't use `state.storage` for this.** That's persistent storage; using it for ephemeral data means your operator's S3 bill goes up and you have to remember to delete the file when you're done.
 
-The right tool is the [tempfile](https://docs.rs/tempfile) crate, which is already in the workspace. You'll be able to use it directly:
+The right tool is the [tempfile](https://docs.rs/tempfile) crate, which is already a workspace dependency. Add `tempfile = { workspace = true }` to your extension's `Cargo.toml` and use it directly:
 
 ```rs
 use tempfile::NamedTempFile;

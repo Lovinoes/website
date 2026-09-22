@@ -7,7 +7,7 @@ description: Write audit log entries from your extension so operators can see wh
 
 Let's say you just shipped an admin endpoint that lets operators update a critical setting, or a server endpoint that nukes a user's files. Great. Now imagine six months later someone goes "who the hell deleted my world folder" and you have absolutely no way to answer. Awkward. This is why every mutation in the Panel ends with an activity log entry, and it's why your extension should do the same.
 
-The good news is that logging is basically free - you extract a logger from your route handler, call `.log(...).await`, and the Panel handles the rest. IP, user agent, timestamp, and who did it are all captured automatically, so your payload only has to describe *what* happened.
+The good news is that logging is basically free - you extract a logger from your route handler, call `.log(...).await`, and the Panel handles the rest. IP, timestamp, and who did it (including the impersonating admin or the API key, when either applies) are all captured automatically, so your payload only has to describe *what* happened.
 
 ## The Three Loggers
 
@@ -19,7 +19,7 @@ There are three logger extractors, one per activity scope. Pick the one that mat
 | `GetServerActivityLogger` | `shared::models::server` | The server's activity tab | `add_client_server_api_router` routes |
 | `GetUserActivityLogger` | `shared::models::user_activity` | The user's account activity page | `add_client_api_router` routes |
 
-All three have the same `.log(event_name, payload).await` signature, so once you've used one you've used all of them. The only thing that changes is *who sees the entry*.
+All three have the same `.log(event_name, payload).await` signature, so once you've used one you've used all of them. The only thing that changes is *who sees the entry*. `log` returns nothing: a database failure is logged as a warning and swallowed, so there is no `?` to add and no way for a broken audit write to fail the request. The server logger also drops the entry when the actor is an admin who is neither the owner nor a subuser of that server, unless the operator turned on the "log admin activity" setting under the activity settings.
 
 ## Logging an Event
 
@@ -77,7 +77,7 @@ Some examples of well-formed event names:
 | `settings:extensions:update` | Extension settings were updated in the admin panel |
 | `server:version.install` | A server had a new version installed |
 | `server:backup.create` | A backup was created for a server |
-| `user:apikey.revoke` | A user revoked one of their API keys |
+| `user:api-key.update` | A user changed one of their API keys |
 
 If you're adding a new event type, try to fit it into an existing scope rather than inventing a new top-level one - users scanning the audit log will have a much easier time filtering `server:*` than trying to remember that your extension uses `minecraftstuff:*`. When in doubt, prefix with the resource you're acting on (`server`, `node`, `settings`, `user`) and let the sub-action carry the extension-specific meaning.
 
@@ -85,7 +85,7 @@ If you're adding a new event type, try to fit it into an existing scope rather t
 
 The second argument is any `serde_json::Value` (or anything that serializes into one). It shows up in the audit UI as structured data that admins can inspect when investigating an event.
 
-A good payload answers the question "if I saw this log entry with no other context, would I understand what happened?" Include the IDs of anything that was touched, any before/after values that matter, and any decision points the code took. Don't include things that are already captured automatically - IP address, user agent, timestamp, and the acting user's ID are all added for you by the Panel.
+A good payload answers the question "if I saw this log entry with no other context, would I understand what happened?" Include the IDs of anything that was touched, any before/after values that matter, and any decision points the code took. Don't include things that are already captured automatically - IP address, timestamp, and the acting user's ID are all added for you by the Panel. The user agent is not recorded anywhere, so if it matters for your event, put it in the payload yourself.
 
 ```rs
 // Good: tells you what changed and on which resource
@@ -135,9 +135,9 @@ You generally don't need to log pure reads (`GET` handlers), idempotent no-ops, 
 
 ## Logging from Helper Functions
 
-The activity logger is an axum extractor, which means it's only available inside route handlers. If the code that actually does the work lives in a helper module, you have two options:
+The activity logger is an axum extractor, which means it's only available inside route handlers, and it is a consuming one: a handler can extract each logger type once, a second extraction of the same type fails the request. If the code that actually does the work lives in a helper module, you have two options:
 
-1. **Pass the logger down.** The logger is cheap to clone, so you can just take it as an argument to your helper function. This is the cleanest approach and makes the dependency obvious.
+1. **Pass the logger down.** The logger is a plain struct with public fields that is cheap to clone, so you can just take it as an argument to your helper function. This is the cleanest approach and makes the dependency obvious. A background job that has no request can build one by hand from the same fields.
 
 2. **Return the data to log, and log in the handler.** Have your helper return enough information for the handler to build the payload, then call `.log(...)` at the top level. This keeps helpers agnostic of the logging system.
 

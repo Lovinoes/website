@@ -87,7 +87,7 @@ Every managed database on this host, searchable: Name, Server (linked), Type, Ad
 
 ### Backups
 
-Every [database backup](../server/backups.md) taken from an instance on this host, searchable: Name, **Source** (the instance the dump came from), Server, Node, Checksum, Size, and Created. A dump taken by a [system backup policy](./system-backup-policies.md) carries a **SYSTEM** badge linking to the policy. There is no file count, because a dump is a single file.
+Every [database backup](../server/backups.md) taken from an instance on this host, searchable: Name, **Source** (the instance the dump came from), Server, Node, Checksum, Size, Retention, and Created. A dump taken by a [system backup policy](./system-backup-policies.md) carries a **SYSTEM** badge linking to the policy. **Retention** is filled in for backups that belong to a [backup group](../server/backups.md#backup-groups) or were taken by a [system backup policy](./system-backup-policies.md): a badge for the rule keeping the backup longest and the time the panel expects to delete it. There is no file count, because a dump is a single file.
 
 Right-click a row to **Download**, **Reassign** or **Delete** it. Restore, export to files and the detach and reattach actions are file-backup concepts and are not offered for dumps.
 

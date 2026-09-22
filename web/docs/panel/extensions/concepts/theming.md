@@ -47,7 +47,7 @@ export default new MyExtension();
 
 `initializeMantineTheme()` runs once at load, on every installed extension. The Panel deep-merges each returned override - in installation order - into one object, runs it through Mantine's `createTheme`, and hands it to the top-level `MantineProvider`. So:
 
-- Your override is **merged, not replacing**. You only name what you want to change; everything else keeps its Panel default.
+- Your override is **merged, not replacing**. You only name what you want to change; everything else keeps Mantine's default. The Panel has no theme object of its own, since its look lives in `app.css`, so the merge starts from an empty object.
 - **Multiple extensions can contribute.** Two extensions setting `primaryColor` is last-writer-wins (later install order wins). Two extensions setting *different* keys both take effect.
 - It's a deep merge, so nested stuff like `components.Button.defaultProps` combines key-by-key instead of clobbering the whole `components` map.
 
@@ -158,13 +158,13 @@ A couple of things to watch:
 
 ## Hookable Components
 
-Every element in the Panel's component library - `Button`, `Card`, `Modal`, `Spinner`, the inputs, all of it - gets wrapped before it's exported. Instead of exporting the bare component, each module does:
+Most elements in the Panel's component library - `Button`, `Card`, `Modal`, `Spinner`, the inputs - get wrapped before they're exported. Instead of exporting the bare component, the module does:
 
 ```ts
 export default makeComponentHookable(Button);
 ```
 
-`makeComponentHookable` returns a thin wrapper that's a **process-wide singleton**. Importing `@/elements/buttons/Button.tsx` from anywhere - core code or your extension - gives you the *same* wrapper instance. It exposes three methods, and because the instance is shared, registering a hook changes every render of that component across the whole Panel:
+`makeComponentHookable` returns a thin wrapper that's a **process-wide singleton**. Importing `@/elements/buttons/Button.tsx` from anywhere - core code or your extension - gives you the *same* wrapper instance. That call at the bottom of a module is also how you tell whether an element is hookable at all: a few layout pieces such as `ContentContainer` and `ExtensionSlot` are exported bare. The wrapper exposes three methods, and because the instance is shared, registering a hook changes every render of that component across the whole Panel:
 
 ```ts
 Button.addPropsInterceptor((props) => props); // transform incoming props
@@ -256,7 +256,7 @@ Replace a base component only when intercepting props or wrapping the render gen
 
 ### Compound and sub-components
 
-Some elements ship sub-components, and each is independently hookable. `Spinner` carries `Spinner.Centered` and `Spinner.Suspense`, for instance, and `Modal` is exported alongside `ModalFooter`. Each is its own hookable wrapper, so hook them separately:
+Some elements ship sub-components, and each is independently hookable. `Spinner` carries `Spinner.Centered` and `Spinner.Suspense`, for instance, and `Modal` is exported alongside `ModalFooter` (both are named exports of `@/elements/modals/Modal.tsx`, not the default). Each is its own hookable wrapper, so hook them separately:
 
 ```ts
 import Spinner from '@/elements/feedback/Spinner.tsx';

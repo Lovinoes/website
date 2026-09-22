@@ -37,11 +37,12 @@ Extensions are built around several core systems:
 - [Translations](./concepts/translations.md) - Provide multi-language support
 - [Mounting UI](./concepts/mounting-ui.md) - Inject UI elements into the Panel interface
 - [Quick Actions](./concepts/quick-actions.md) - Add entries, categories and prefix modes to the command palette
+- [File Manager](./concepts/file-manager.md) - Slot components, context menu items, file icons and custom editors into the file manager
 - [Toasts](./concepts/toasts.md) - Show transient feedback to the user
 - [Extending Models](./concepts/extending-models.md) - Add fields to existing data models
 - [Email Templates](./concepts/email-templates.md) - Define custom email templates for notifications and communications
 - [Speaking Game Protocols](./concepts/speaking-game-protocols.md) - Open raw TCP/UDP tunnels to a server's port to query it directly
-- [File Storage](./concepts/file-storage.md) - Manage files and directories within the Panel
+- [File Storage](./concepts/file-storage.md) - Store extension-owned files on the local disk or an S3 bucket
 - [Forms](./concepts/forms.md) - Add fields to the Panel's existing forms
 - [User Settings](./concepts/user-settings.md) - Store per-user preferences that sync across devices
 
