@@ -11,7 +11,7 @@ If you've used [clap](https://docs.rs/clap) before, you already know most of wha
 
 ## Registering a Command Group
 
-CLI registration happens in your extension's `initialize_cli` method - the CLI counterpart to `initialize_router` and `initialize_permissions`:
+CLI registration happens in your extension's `initialize_cli` method - the CLI counterpart to `initialize_router` and `initialize_permissions`, with one difference: it runs before the Panel reads which extensions are disabled, so a disabled extension's commands stay available (see [Disabling Extensions](../disabling-extensions.md)):
 
 ```rs
 use shared::{
@@ -203,7 +203,7 @@ use clap::{Args, FromArgMatches};
 use colored::Colorize;
 use compact_str::ToCompactString;
 use dialoguer::{Input, theme::ColorfulTheme};
-use shared::models::ByUuid;
+use shared::models::{ByUuid, user::User};
 use std::io::IsTerminal;
 
 #[derive(Args)]
@@ -232,9 +232,10 @@ impl shared::extensions::commands::CliCommand<Disable2FAArgs> for Disable2FAComm
                     Some(user) => user,
                     None => {
                         if std::io::stdout().is_terminal() {
-                            Input::with_theme(&ColorfulTheme::default())
+                            let user: String = Input::with_theme(&ColorfulTheme::default())
                                 .with_prompt("Username, Email or UUID")
-                                .interact_text()?
+                                .interact_text()?;
+                            user
                         } else {
                             eprintln!(
                                 "{}",
@@ -247,11 +248,11 @@ impl shared::extensions::commands::CliCommand<Disable2FAArgs> for Disable2FAComm
                 };
 
                 let user = if let Ok(uuid) = user.parse() {
-                    shared::models::user::User::by_uuid_optional(&state.database, uuid).await
+                    User::by_uuid_optional(&state.database, uuid).await
                 } else if user.contains('@') {
-                    shared::models::user::User::by_email(&state.database, &user).await
+                    User::by_email(&state.database, &user).await
                 } else {
-                    shared::models::user::User::by_username(&state.database, &user).await
+                    User::by_username(&state.database, &user).await
                 }?;
 
                 let Some(user) = user else {
@@ -259,7 +260,7 @@ impl shared::extensions::commands::CliCommand<Disable2FAArgs> for Disable2FAComm
                     return Ok(1);
                 };
 
-                if !user.totp_enabled {
+                if !user.totp_enabled && !user.email_two_factor_enabled {
                     eprintln!(
                         "{}",
                         "two-factor authentication is not enabled for this user".red()
@@ -273,14 +274,23 @@ impl shared::extensions::commands::CliCommand<Disable2FAArgs> for Disable2FAComm
                 )
                 .await?;
 
+                shared::models::user_two_factor_code::UserTwoFactorCode::delete_by_user_uuid(
+                    &state.database,
+                    user.uuid,
+                )
+                .await?;
+
                 sqlx::query!(
                     "UPDATE users
-                    SET totp_enabled = false, totp_last_used = NULL, totp_secret = NULL
+                    SET totp_enabled = false, totp_last_used = NULL, totp_secret = NULL,
+                        email_two_factor_enabled = false
                     WHERE users.uuid = $1",
                     user.uuid
                 )
                 .execute(state.database.write())
                 .await?;
+
+                User::invalidate_cached(&state.database, user.uuid).await;
 
                 eprintln!(
                     "2FA has been disabled for the user {}",
@@ -297,6 +307,7 @@ impl shared::extensions::commands::CliCommand<Disable2FAArgs> for Disable2FAComm
 A few patterns worth pulling out of this:
 
 - **Build state early**, right after parsing args. If it fails (no database, malformed env), the user sees the error before any other work happens.
+- **Invalidate the cache after a raw write.** Models loaded by UUID are cached for a while, so a `sqlx::query!` that bypasses the model layer must be followed by `User::invalidate_cached(...)` or the running Panel keeps serving the stale row.
 - **Interactive fallback for missing arguments**, guarded by `std::io::stdout().is_terminal()`. When the command is run interactively, prompt for what's missing; when it's piped or scripted, fail fast with a clear error message and exit `1`. The [dialoguer](https://docs.rs/dialoguer) crate handles the prompt rendering.
 - **Use `eprintln!` for status and error messages**, not `println!`. Success output (like the "2FA disabled" line at the end) goes to stderr too in this example because it's user-facing information rather than a machine-readable value. Reserve `println!` for output that should be pipeable to another command.
 - **Use [colored](https://docs.rs/colored) for ANSI output**. Red for errors, cyan for identifiers, green for success - matches the convention used across the Panel's built-in CLI.
@@ -308,12 +319,12 @@ The `env: Option<Arc<Env>>` your executor receives reflects whether the Panel's 
 - **`Some(env)`** - the env file was parsed. The Panel has config, a valid database connection is constructable, and everything the runtime expects is in place.
 - **`None`** - the env file couldn't be read or parsed. This happens during install/setup commands that need to run *before* the Panel is properly configured - think a `generate-env` or `first-time-setup` helper.
 
-For most commands you want `Some(env)` and you'll bail out on `None`. `AppState::new_cli(env)` will fail gracefully if the env is `None` and the command can't proceed without state, so in practice you can just `?` it and get the right behavior.
+For most commands you want `Some(env)` and you'll bail out on `None`. `AppState::new_cli(env)` handles that case itself: with `None` it prints "please setup the new panel environment before using this command." and exits the process with code 1 on the spot. It never returns an `Err` for a missing env, so nothing you wrote after it runs in that case; if you need your own message or cleanup, check `env.is_some()` before calling it.
 
 If your command specifically needs to work *without* the env (e.g. it's the command that generates the env file in the first place), branch on `env.is_some()` and handle the cases explicitly - you've seen this pattern in the core Panel's `service install` command, which optionally starts the service with `systemctl enable --now` if the env is present, but registers the service for later startup if not.
 
 ## Exit Codes
 
-Return `Ok(0)` for success and `Ok(non_zero)` for failure - scripts calling your command will check `$?` and expect Unix conventions. Don't return `Err(...)` for user-facing failures like "user not found" or "file already exists"; those are expected outcomes and should print a helpful message to stderr and return a non-zero exit code. Reserve `Err(...)` for genuine unexpected failures (database connection lost, filesystem I/O error) that you want propagated with a stack trace in debug mode.
+Return `Ok(0)` for success and `Ok(non_zero)` for failure - scripts calling your command will check `$?` and expect Unix conventions. Don't return `Err(...)` for user-facing failures like "user not found" or "file already exists"; those are expected outcomes and should print a helpful message to stderr and return a non-zero exit code. Reserve `Err(...)` for genuine unexpected failures (database connection lost, filesystem I/O error). The Panel prints those as a debug dump of the error and exits with code 1, with a backtrace only if `RUST_BACKTRACE` is set.
 
 A simple convention that works fine for most extensions: `0` for success, `1` for any expected failure with a printed error, and bubble up `Err(...)` for anything else.

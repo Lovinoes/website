@@ -49,7 +49,7 @@ A few things to know before you start writing protocol code:
 - **The TCP tunnel is a real `AsyncRead + AsyncWrite`.** Bring `tokio::io::{AsyncReadExt, AsyncWriteExt}` into scope and you get `read_exact`, `write_all`, `read_u8`, and friends for free. Internally each WebSocket binary frame becomes a chunk of the read stream, so a single `read_exact(&mut buf)` may span several frames or stop partway through one - exactly like a normal TCP socket. Don't assume one `read` equals one logical message; frame your reads yourself.
 - **The UDP tunnel is message-oriented.** `send` writes one datagram, `recv` reads one datagram into your buffer and returns the number of bytes. There's no stream reassembly because UDP has no stream.
 - **`recv` on the UDP tunnel has a built-in 5-second timeout.** If the node doesn't get a reply in time you get an `io::ErrorKind::TimedOut`. This is deliberate - a UDP query to a dead server would otherwise hang forever, since there's no connection to break. The TCP tunnel has no such timeout; wrap it in `tokio::time::timeout` yourself if you need one.
-- **A refused UDP connection surfaces as `io::ErrorKind::ConnectionRefused`.** If Wings can't reach the port at all, the first `recv` returns this rather than timing out. Handle it as "server is down" rather than bubbling a raw 500.
+- **A refused UDP connection surfaces as `io::ErrorKind::ConnectionRefused`.** If Wings can't reach the port at all, the first `recv` returns this rather than timing out. Handle it as "server is down" rather than bubbling a raw 500. A tunnel that Wings closes underneath you reads as `UnexpectedEof` on UDP, and as a zero-byte read on TCP (so `read_exact` reports `UnexpectedEof` there too); TCP never produces `ConnectionRefused`.
 - **Datagrams are capped at `MAX_DATAGRAM_SIZE` (64 KiB).** That's `wings_api::tunnel::MAX_DATAGRAM_SIZE`. Size your `recv` buffer to it and you'll never truncate a reply.
 
 ::: info
@@ -144,14 +144,20 @@ pub async fn query_minecraft(
 
 A couple of things worth pointing out:
 
-- **The `host` you pass into the handshake is cosmetic for most servers** - vanilla ignores it, but servers behind a proxy (BungeeCord, Velvet, forced-host setups) route on it, so pass the address players actually connect with. The server's allocation IP is a reasonable default.
+- **The `host` you pass into the handshake is cosmetic for most servers** - vanilla ignores it, but servers behind a proxy (BungeeCord, Velocity, forced-host setups) route on it, so pass the address players actually connect with. The allocation's `ip_alias` is that address when the operator set one; otherwise fall back to the allocation IP itself, which is an `IpNetwork` and needs `.ip().to_string()` to become a host string.
 - **We send the protocol version as `-1`.** When you only want the status, you don't have to pretend to be a specific client version; `-1` is the conventional "I'm just pinging" value and avoids "outdated client/server" rejections.
 - **`read_exact` does the framing for us.** Because the tunnel is a real `AsyncRead`, we can read the exact JSON length even if it arrives split across multiple WebSocket frames - the `tokio` extension trait loops until it has every byte.
 
 The MOTD is the `description` field of the returned JSON. Depending on the server it's either a plain string or a [chat component](https://minecraft.wiki/w/Raw_JSON_text_format) object, so handle both:
 
 ```rs
-let status = query_minecraft(&client, server.uuid, &allocation.allocation.ip, port).await?;
+let host = allocation
+    .allocation
+    .ip_alias
+    .clone()
+    .unwrap_or_else(|| allocation.allocation.ip.ip().to_compact_string());
+
+let status = query_minecraft(&client, server.uuid, &host, port).await?;
 
 let motd = match &status["description"] {
     serde_json::Value::String(s) => s.clone(),
@@ -244,6 +250,7 @@ Neither helper is useful on its own - put them behind a [client-server route](./
 
 ```rs
 mod get {
+    use compact_str::ToCompactString;
     use serde::Serialize;
     use shared::{
         ApiError, GetState,
@@ -284,10 +291,16 @@ mod get {
             .api_client(&state.database)
             .await?;
 
+        let host = allocation
+            .allocation
+            .ip_alias
+            .clone()
+            .unwrap_or_else(|| allocation.allocation.ip.ip().to_compact_string());
+
         let status = crate::query::query_minecraft(
             &client,
             server.uuid,
-            &allocation.allocation.ip,
+            &host,
             allocation.allocation.port as u16,
         )
         .await

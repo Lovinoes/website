@@ -40,7 +40,7 @@ Opening a configuration shows tabs for **General** (the edit form, plus **Duplic
 
 ![Stats tab](./images/backup-configurations/stats.webp)
 
-**Backups** lists every backup stored on the configuration: Name, **Kind**, **Source**, Server, Node, Checksum, Size, Files, and Created. Kind separates file archives from database dumps, and Source names either the server files or the instance a dump came from.
+**Backups** lists every backup stored on the configuration: Name, **Kind**, **Source**, Server, Node, Checksum, Size, Files, Retention, and Created. Kind separates file archives from database dumps, and Source names either the server files or the instance a dump came from. **Retention** is filled in for backups that belong to a [backup group](../server/backups.md#backup-groups) or were taken by a [system backup policy](./system-backup-policies.md): a badge for the rule keeping the backup longest and the time the panel expects to delete it.
 
 When there are failed backups, a **Delete Failed** button appears above the table (requires `nodes.backups`), showing how many it would remove. It asks for confirmation, keeps locked backups and any whose configuration is in maintenance, and runs in the background. A **Force** switch removes them even when the configuration is missing or the remote storage is unreachable, at the risk of leaving orphaned files behind.
 

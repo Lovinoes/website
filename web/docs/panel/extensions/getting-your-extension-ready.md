@@ -36,9 +36,9 @@ pnpm biome:fix-unsafe
 pnpm build:ci
 ```
 
-`pnpm biome:fix` runs [Biome](https://biomejs.dev) with its auto-fixes enabled. This normalizes formatting and fixes a broader set of lint issues - after running it once, run it again to see things that you need to manually look at. Like `cargo fmt`, it edits files in place, so commit or stash before running if you want to review the diff.
+`pnpm biome:fix-unsafe` runs [Biome](https://biomejs.dev) with its auto-fixes enabled, including the ones Biome marks unsafe. This normalizes formatting and fixes a broader set of lint issues - after running it once, run it again to see things that you need to manually look at. Like `cargo fmt`, it edits files in place, so commit or stash before running if you want to review the diff. `pnpm biome:fix` is the same with the unsafe fixes left out.
 
-`pnpm build:ci` does a full production frontend build with all extensions compiled in. If your extension has a TypeScript error, a bad import, or a missing dependency in its `package.json`, this is where you'll catch it. The exported `.c7s.zip` ships your source, not a build artifact, so users will hit the same error on their side if you skip this step.
+`pnpm build:ci` type-checks and does a full production frontend build with all extensions compiled in. If your extension has a TypeScript error, a bad import, or a missing dependency in its `package.json`, this is where you'll catch it. The exported `.c7s.zip` ships your source, not a build artifact, so users will hit the same error on their side if you skip this step. Unlike `pnpm build`, it does not regenerate the translation files first, so run `pnpm build:translations` before it if you changed `translations.ts`.
 
 ::: warning
 If `pnpm build:ci` fails because of an extension other than yours, that extension has problems of its own - but your extension still won't build cleanly alongside it. Fix what you own; for anything else, reach out to that extension's author or temporarily disable it while you iterate.

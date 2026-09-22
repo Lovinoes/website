@@ -46,7 +46,7 @@ export const itemSchema = z.object({
 - **`parsePaginationFromApi(schema, raw)`** - for paginated list responses. Pass it the raw paginated object (`{ total, per_page, page, data }`) and it returns a `Pagination<T>` with each entry run through `parseFromApi`.
 - **`serializeForApi(schema, data, extraSchemas?)`** - for outgoing request bodies. The reverse direction: camelCase keys in your typed object become snake_case on the wire. Fields that are `undefined` are skipped entirely. The optional third argument is an array of additional schemas whose serialized output is deep-merged into the result - this is how the core endpoints for extensible forms include extension-registered fields: they pass `formExtensionSchemas(formId)`, which returns the `zodShape`s extensions registered for that form (see [Forms](./forms.md)).
 
-Fields a backend extension added to a *core* response need no special helper: the core schemas are `z.looseObject`, so any key they don't declare is camelCased and kept on the parsed object alongside the core fields. Run your own Zod schema over that node to get typed values back - see [Extending Models](./extending-models.md#from-frontend-components) for the full pattern.
+Fields a backend extension added to a *core* response need no special helper: the top-level entity schemas are `z.looseObject`, so any key they don't declare is camelCased and kept on the parsed object alongside the core fields. Some nested sub-schemas are still plain `z.object` and drop undeclared keys, so check the schema of the node you extended under `@/lib/schemas/` before relying on this. Run your own Zod schema over that node to get typed values back - see [Extending Models](./extending-models.md#from-frontend-components) for the full pattern.
 
 Two properties of the transform worth knowing:
 
@@ -262,6 +262,8 @@ const { data } = useResource({
 });
 ```
 
+**`keepPrevious`** maps to TanStack Query's `placeholderData: keepPreviousData`, so `data` keeps showing the last result while a query with a changed key loads instead of dropping back to `undefined`.
+
 **`silent`** suppresses the automatic error toast. `error` is always returned regardless - `silent` only controls whether the hook itself reacts to it - so you can take over error handling yourself:
 
 ```ts
@@ -298,7 +300,7 @@ export default function JobStatus({ jobId }: { jobId: string }) {
 
 **`pollInBackground`** (default `false`) maps to `refetchIntervalInBackground`. By default TanStack Query pauses interval re-fetches while the browser tab is unfocused; pass `true` when the poll must keep running in the background - e.g. so a completion toast still fires if the user switches tabs mid-build.
 
-Polling also stops while the query is in an error state, so a persistently failing endpoint isn't hammered every interval. It resumes automatically on the next successful fetch - for example when the tab regains focus (TanStack Query re-fetches on window focus by default) or when you call `refetch` - so transient failures recover on their own.
+Polling also stops while the query is in an error state, so a persistently failing endpoint isn't hammered every interval. **`retryOnError`** (default `0`) keeps polling through that many consecutive failures before it stops. It resumes automatically on the next successful fetch - for example when the tab regains focus (TanStack Query re-fetches on window focus by default) or when you call `refetch` - so transient failures recover on their own.
 
 **`enabled`** and **`silent`** behave exactly as in `useResource`. Note there is no per-fetch success callback (TanStack Query v5 removed `onSuccess` from `useQuery`) - to run a side-effect when the polled value crosses into a terminal state, watch `data` in a `useEffect` and detect the transition yourself:
 
@@ -381,7 +383,7 @@ const items = useSearchableResource<Item>({
 
 ### `useSearchablePaginatedTable` - paginated tables
 
-Use this for full table pages with search and pagination. It manages page and search state, syncs both to URL search params, renders previous data while the next page loads via TanStack Query's `placeholderData: keepPreviousData`, and calls `setStoreData` when fresh data arrives. The actual paginated data lives in your store, not in the hook's return value - the hook drives the store, and the component reads from the store directly.
+Use this for full table pages with search and pagination. It manages page and search state, syncs both to URL search params, and renders previous data while the next page loads via TanStack Query's `placeholderData: keepPreviousData`. The hook returns the fetched `data`, along with `error` (already turned into a readable string), `refetch` and `debouncedSearch`. It also accepts an optional `setStoreData` callback that it calls when fresh data arrives, which is how the Panel's own pages feed a zustand store that the table then reads from:
 
 ```tsx
 import { useSearchablePaginatedTable } from '@/plugins/resource/useSearchablePaginatedTable.ts';
@@ -421,7 +423,7 @@ export default function MyItemsTable({ serverUuid }: { serverUuid: string }) {
 
 The fetcher signature is `(page: number, search: string) => Promise<T>`. The hook builds the final query key as `[...queryKey, ...deps, { page, search: debouncedSearch }]`, so each page/search combination has its own cache entry.
 
-**URL params:** On mount, the hook initialises `search` from `?search=` and `page` from `?page=` in the URL (the page param is parsed and ignored unless it's a finite integer `>= 1`). Whenever either changes, `setSearchParams` is called with both values, which replaces the entire search string - any other params in the URL will be dropped. The immediate `search` value (not debounced) is written to the URL on every keystroke; the debounced copy is what drives the query. Clearing the search field bypasses the debounce entirely and immediately resets both the debounced state and the query.
+**URL params:** On mount, the hook initialises `search` from `?search=` and `page` from `?page=` in the URL (the page param is parsed and ignored unless it's a finite integer `>= 1`). Whenever either changes, the hook rewrites just those two params and leaves any others in the URL alone; `page` is dropped from the URL while it equals `initialPage` and `search` while it is empty, so a table at rest has a clean address. The immediate `search` value (not debounced) is written to the URL on every keystroke; the debounced copy is what drives the query. Clearing the search field bypasses the debounce entirely and immediately resets both the debounced state and the query.
 
 **Pagination auto-correction:** When a fetch returns, the hook inspects `total`, `perPage`, and `page` on the response (or on `response[paginationKey]` if `paginationKey` is set) *before* calling `setStoreData`. If the current page exceeds the last valid page, it calls `setPage(totalPages)` and skips the store update for this fetch - the resulting re-fetch will populate the store. If the total is zero and the current page isn't 1, it resets to page 1 the same way. Only when the page is already valid does `setStoreData` get called with the response. This handles the common case of deleting the last item on a page.
 
@@ -437,7 +439,7 @@ useSearchablePaginatedTable({
 });
 ```
 
-**`modifyParams: false`** disables URL param reading and writing entirely. Use this when the table is inside a modal or a sub-panel where touching the URL would be wrong. **`initialPage`** sets the starting page when `modifyParams` is false or when the URL has no `?page=` param.
+**`modifyParams: false`** disables URL param reading and writing entirely. Use this when the table is inside a modal or a sub-panel where touching the URL would be wrong. **`initialPage`** sets the starting page when `modifyParams` is false or when the URL has no `?page=` param. **`refetchInterval`** re-runs the current page on a timer, for tables whose rows change on their own.
 
 **`deps`** behaves the same as in `useSearchableResource` - spread into the query key so each combination gets its own cache entry. Unlike `useSearchableResource`, there's no `deps.every(Boolean)` gate here, so use `canRequest` if you need to block the fetch on a precondition.
 
@@ -505,10 +507,10 @@ export default function ItemCreateOrUpdate({ existing }: { existing?: Item }) {
 
 **`createFn` and `updateFn`** are zero-argument closures (from the consumer's perspective - the public `doCreateOrUpdate` signature doesn't expose a way to pass arguments through). They capture form values from the surrounding scope via `form.getValues()` and run schema validation inside the closure.
 
-**`doCreateOrUpdate(stay, bustCacheKey)`:**
+**`doCreateOrUpdate(stay, ...bustCacheKeys)`:**
 
 - `stay: boolean` controls what happens after a successful create. When `false`, the hook navigates to `${basePath}/${result.uuid}`. This requires your `createFn` to return an object with a `uuid: string` field (the hook has a `HasUuid` constraint on the generic). When `true`, navigation is skipped and any fields listed in `toResetOnStay` are reset to their initial values, allowing the user to create another item without leaving the page. `stay` has no effect on updates - they never navigate or reset, regardless.
-- `bustCacheKey` is an optional query key to invalidate on success. `queryClient.invalidateQueries` is called with this key after both creates and updates. Pass your list key here so any mounted table re-fetches after a save.
+- `bustCacheKeys` are any number of query keys to invalidate on success. `queryClient.invalidateQueries` is called for each of them after both creates and updates. Pass your list key here so any mounted table re-fetches after a save.
 
 **`toResetOnStay`** is an array of field name strings to reset when `stay` is `true`. Only those specific fields are reset; the rest of the form retains its values. This is useful when some fields (a category, a server) should persist across repeated creates, but others (a name) should clear:
 

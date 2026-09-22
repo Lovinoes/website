@@ -29,13 +29,13 @@ Once your stack is on `:heavy` or `:nightly-heavy`, you have two options.
 
 ![Placeholder: extension upload UI](./admin-extensions-ui-empty.webp)
 
-**Option 2: Drop the file in directly and restart.** Copy the `.c7s.zip` into the Panel's `extensions/` data directory (with the default heavy compose stack, that's `./build/extensions` relative to your compose file), then restart the container:
+**Option 2: Drop the file in directly and restart.** Copy the `.c7s.zip` into the Panel's `extensions/` data directory (with the default heavy compose stack, that's `./build/extensions` relative to your compose file), named `<identifier>.c7s.zip` the way the upload stores it, then restart the container:
 
 ```bash
 docker compose restart web
 ```
 
-The Panel detects the new file on startup and installs it. Watch the progress in the admin UI from Option 1, or wait - it shouldn't take more than a minute or two, even for complex extensions.
+The Panel detects the new file on startup and installs it. Watch the progress in the admin UI from Option 1, or wait - it shouldn't take more than a minute or two, even for complex extensions. To update an extension this way, overwrite the existing archive; a second archive for the same package under another filename makes the build fail with "already installed".
 
 === With Development Environment
 
@@ -51,7 +51,7 @@ That gets the source in place but doesn't compile it yet. To compile and apply:
 panel-rs extensions apply --profile balanced
 ```
 
-The `balanced` profile compiles the backend with cargo's `heavy-release` profile - production-grade optimization but a lot faster to compile than `release`. If you're iterating locally and want faster compile times, use `--profile dev` instead, which compiles with cargo's `dev` profile. Don't ship `dev`-built binaries to production; the speed comes at a real performance cost.
+`balanced` is the default and compiles the backend with cargo's `heavy-release` profile: dependencies are optimized, the Panel's own crates are built unoptimized and incrementally, so rebuilds after an extension change are quick and the result runs acceptably. `--profile dev` uses cargo's `dev` profile for everything and is the fastest to compile; `--profile optimized` uses the full `release` profile, which is what the published binaries use and takes much longer. Don't ship `dev`-built binaries to production; the speed comes at a real performance cost.
 
 ::: details Manual frontend + backend builds
 If you'd rather drive the build steps yourself instead of going through `extensions apply`:

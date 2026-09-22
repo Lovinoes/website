@@ -85,9 +85,9 @@ builder
 
 **The Panel handles the pacing.** Unlike `add_task`, you do *not* need to sleep at the end of a cron task. When your function returns, the Panel automatically calculates the time until the next matching cron tick and sleeps for you before calling your function again.
 
-Everything else behaves exactly like `add_task`: errors are logged and retried at the next scheduled tick, panics permanently park the task until a restart, and registrations silently overwrite previous tasks with the same name.
+Everything else behaves exactly like `add_task`: errors are logged and retried at the next scheduled tick, and panics permanently park the task until a restart. The schedule is evaluated in UTC, and if one run overruns the next tick, the ticks it missed are skipped rather than run back to back.
 
-> Also, keep in mind, the cron syntax is "second minute hour day month weekday" - that extra seconds field is a common gotcha for folks used to the more traditional "minute hour day month weekday" format. If your task isn't running when you expect, double-check your cron expression.
+> The cron parser accepts both the traditional five-field "minute hour day month weekday" form and a six-field form with a leading seconds field. The core Panel always writes six fields, and `0 0 0 * * *` above is midnight in that form; `0 0 * * *` would mean the same thing with five. If your task isn't running when you expect, double-check which form you wrote.
 
 ### Primary Instance Only
 
@@ -101,7 +101,7 @@ If you need work to run *on every instance* rather than just the primary - for e
 
 ### Naming
 
-Task names are `&'static str` and must be unique within your extension. The name shows up in logs and in any task-status UI the Panel exposes, so pick something descriptive - `refresh-mcjars-cache` rather than `task1`. If you register two tasks with the same name, the second registration silently overwrites the first, which is almost never what you want.
+Task names are `&'static str` and must be unique across the whole Panel, not just your extension: every extension registers into the same builder, and the core Panel adds its own tasks (`collect_telemetry`, `delete_old_activity`, `run_restic_prune_jobs`, `run_system_backup_policies` and a few more) to it afterwards. The name shows up in logs, so pick something descriptive and prefixed - `mcjars-refresh-cache` rather than `task1`. Registering a second task under an existing name replaces the first: its loop is aborted at its next await point and a warning is logged. Panels before 1.2.3 left the first loop running alongside the second.
 
 ## Shutdown Handlers
 
@@ -133,7 +133,7 @@ impl Extension for ExtensionStruct {
 
 ```
 
-The handler gets called once during graceful shutdown, before the process exits. The Panel awaits it - if you take ten seconds to flush, the process waits ten seconds. This is the right place for:
+The handler gets called once during graceful shutdown, before the process exits. The Panel awaits it - if you take ten seconds to flush, the process waits ten seconds. Handlers run one after another, in no particular order across extensions. This is the right place for:
 
 * Flushing in-memory buffers to the database
 * Committing pending work that can't be safely restarted
@@ -161,10 +161,11 @@ builder
 
 ### Interaction with Background Tasks
 
-When shutdown starts, **background tasks are aborted abruptly.** Their `JoinHandle` is dropped and the loop is cancelled at its next `.await` point - whatever the task was mid-way through doing gets dropped. This means:
+When shutdown starts, **nothing tells a background task about it.** The Panel runs the shutdown handlers and then returns from `main`; the task loops keep running alongside the handlers the whole time, may even start a fresh iteration, and die wherever they happen to be when the runtime is torn down at process exit. This means:
 
-* Anything your background task writes needs to be atomic from the database's perspective. Don't use background tasks for "start a multi-step transaction, commit at the end" workflows where abrupt cancellation leaves data half-written.
-* If your background task has persistent state that needs flushing, **do the flushing in a shutdown handler, not in the task's own cleanup code**. A shutdown handler is the only hook that's guaranteed to run during shutdown; your background task's code after the work is already cancelled and won't execute.
+* Anything your background task writes needs to be atomic from the database's perspective. Don't use background tasks for "start a multi-step transaction, commit at the end" workflows where being cut off at exit leaves data half-written.
+* If your background task has persistent state that needs flushing, **do the flushing in a shutdown handler, not in the task's own cleanup code**. A shutdown handler is the only hook that's guaranteed to run during shutdown; a task has no cleanup phase of its own.
+* Expect the two to overlap. A handler that flushes a buffer the task is still appending to should take whatever lock the task takes, or accept that a few late samples are lost.
 
 The typical pairing is a background task that accumulates work in memory and a shutdown handler that flushes whatever's accumulated:
 
@@ -202,7 +203,7 @@ async fn initialize_shutdown_handlers(
 
 ```
 
-With this shape, the background task accumulates samples in-memory at a 10-second cadence, and on shutdown the handler flushes whatever's left regardless of whether the task was mid-iteration when shutdown hit.
+With this shape, the background task accumulates samples in-memory at a 10-second cadence, and on shutdown the handler flushes whatever's left regardless of whether the task was mid-iteration when shutdown hit. Shutdown handler names live in the same shared, Panel-wide namespace as task names, and there a duplicate really does replace the earlier handler.
 
 ### Shutdown Errors
 
@@ -212,4 +213,4 @@ That said, design your handlers to succeed. A handler that panics loses whatever
 
 ### Not Every Shutdown Runs Handlers
 
-Shutdown handlers only run on **graceful** shutdown - the Panel receiving a `SIGTERM` or equivalent and cleanly winding down. If the process is killed with `SIGKILL`, crashes from an unrecoverable error, or is terminated by the OS out-of-memory killer, handlers don't get a chance to run. Don't rely on shutdown handlers for correctness - they're a best-effort cleanup pass, not a durability guarantee. Anything that *must* be persisted should be persisted at the point of the state change, not deferred until shutdown.
+Shutdown handlers only run on **graceful** shutdown - the Panel receiving a `SIGTERM` or `Ctrl+C` and cleanly winding down. If the process is killed with `SIGKILL`, crashes from an unrecoverable error, is terminated by the OS out-of-memory killer, or exits because the HTTP server itself stopped, handlers don't get a chance to run. In-flight HTTP requests are not drained either; the process exits once the handlers return. Don't rely on shutdown handlers for correctness - they're a best-effort cleanup pass, not a durability guarantee. Anything that *must* be persisted should be persisted at the point of the state change, not deferred until shutdown.

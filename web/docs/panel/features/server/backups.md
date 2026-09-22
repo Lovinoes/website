@@ -70,6 +70,18 @@ The group header shows:
 
 The tooltip lists only the rules that are switched on, so it doubles as a summary of what the group keeps without opening the edit form.
 
+Each backup row inside a group has a **Retention** column: a badge for the rule that keeps that backup the longest, with that rule's value (for example "Daily: 7"), and under it the time the panel expects to delete it. Hover the badge to see every rule that currently applies, each with its value.
+
+The deletion time is a forecast. The panel takes the cron triggers of the enabled [schedules](./schedules.md) that create backups into the group and works out at which run the backup falls out of its last rule, so it assumes every run succeeds and that nobody changes the rules in between. **Keep all within days** is the exception: it expires on its own, so its date is exact. Without such a schedule the column reads "No deletion forecast" for every other rule, and it says the same on a server at its backup limit, where the limit decides what goes rather than the rules.
+
+| Badge | Meaning |
+| --- | --- |
+| **Latest**, **Recent**, **Daily**, **Weekly**, **Monthly**, **Yearly** | The rule keeping this backup the longest, with its configured value. |
+| **Locked** | Locked backups are never removed by retention. |
+| **Kept indefinitely** | The group has no rules. |
+| **Pending removal** | No rule keeps this backup any more; the hourly check removes it. |
+| **Cleanup** | A failed backup, with the time its 24 hour grace period ends. |
+
 ### Retention Rules
 
 A group has six rules, each off when you leave it empty or set it to 0.

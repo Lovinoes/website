@@ -24,7 +24,7 @@ volumes:
 
 The heavy image's entrypoint does three things:
 
-1. **Copies the Panel's base translation files** into `/app/translations/` - one flat JSON file per language (`en.json`, `de.json`, `es.json`, `fr.json`, …). This runs on every boot and after every rebuild, so these top-level files are *regenerated from the shipped Panel* each time. They are there for you to read, as the reference for what keys exist.
+1. **Copies the Panel's base translation files** into `/app/translations/` - one flat JSON file per language (`en.json`, `de.json`, `es.json`, `fr.json` and so on). This runs on every boot and after every rebuild, so these top-level files are *regenerated from the shipped Panel* each time. They are there for you to read, as the reference for what keys exist.
 2. **Stages your changes, before the frontend is built.** Any top-level `<lang>.json` that isn't one of the shipped filenames is staged as a new language, and every `*.json` in `/app/translations/overrides/` is deep-merged onto the base language with the **same filename**. So `overrides/en.json` merges into `en.json`, `overrides/de.json` into `de.json`, and so on.
 3. **Builds the frontend from that staged set.** The result is compiled into the Panel binary, which is where the Panel serves translations from - so your changes only take effect through a rebuild (see [Applying Your Changes](#applying-your-changes)).
 
@@ -118,7 +118,7 @@ You can patch any language the Panel already ships. To see what's available, loo
 
 ## Adding a Brand-New Language
 
-For a language the Panel doesn't ship yet, you don't use `overrides/` - those *merge into* an existing file, and there's nothing to merge into. Instead, drop a top-level file straight into the translations volume:
+For a language the Panel doesn't ship yet, drop a top-level file straight into the translations volume. (An `overrides/` file with no base is staged as a standalone language too, but the top-level file is the intended place and keeps the two directories meaning different things.)
 
 ```text
 ./build/translations/<lang>.json
@@ -133,7 +133,7 @@ cp ./build/translations/en.json ./build/translations/eo.json
 
 On the next rebuild this file is compiled into the Panel binary alongside the shipped languages, so the new language is **served** at `/translations/<lang>.json` *and* listed by `/api/languages`, which is what populates the language picker in account settings. The picker labels it using the browser's own locale data, so a valid language code shows up under its proper name with nothing further to register. (The boot-time copy of the shipped defaults only writes over their own filenames - it leaves your extra file alone.)
 
-Pick a filename the Panel doesn't already ship. A top-level file whose name matches a shipped language is treated as the regenerated base copy and ignored - to change a shipped language, use `overrides/` instead.
+Pick a filename the Panel doesn't already ship. A top-level file whose name matches a shipped language is treated as the regenerated base copy and ignored - to change a shipped language, use `overrides/` instead. The supervisor keeps the list of shipped names in `./build/translations/.shipped.json`, and the list only grows, so a language the Panel once shipped stays reserved even if a later release drops it.
 
 You don't have to translate everything up front. Any key you leave out falls back to its **English** value, so a partial file is perfectly usable - users on that language just see English for whatever you haven't translated yet, and you can fill more in over time. Where your language uses extra plural forms, fill in the CLDR categories that apply (`zero`, `one`, `two`, `few`, `many`, `other`); the [Unicode CLDR plural rules table](https://www.unicode.org/cldr/charts/latest/supplemental/language_plural_rules.html) is the reference.
 
@@ -145,7 +145,7 @@ A file in `overrides/` *patches* a language - merged on top, so it can be a tiny
 
 Translations are compiled into the binary, so they take effect **through a rebuild**. After you add or edit a language file or an override, trigger one:
 
-- **From the admin UI:** go to the extensions management page and click **Rebuild**. (Requires the `extensions.manage` admin permission.)
+- **From the admin UI:** go to the extensions management page and click **Rebuild extensions**. (Requires the `extensions.manage` admin permission.)
 - It also runs automatically as part of any extension install/uninstall rebuild.
 - A `docker compose restart` picks the change up too - the entrypoint notices the translations differ from whatever the cached binary was built with and rebuilds on boot.
 
@@ -156,7 +156,7 @@ A rebuild compiles the frontend and the binary. The Panel keeps serving on the p
 :::
 
 ::: warning Reverting a change also needs a rebuild
-Removing a language file or an override doesn't take effect until the next rebuild either. Because the cache key follows your translation files, deleting them usually returns you to a binary that was already built and cached, which makes that particular rebuild fast or instant.
+Removing a language file or an override doesn't take effect until the next rebuild either. Because the cache key follows your translation files, deleting them often returns you to a binary that was already built and cached, which makes that particular rebuild instant; the cache only keeps the three newest builds, though, so an older state may need a real rebuild.
 :::
 
 ## Caveats

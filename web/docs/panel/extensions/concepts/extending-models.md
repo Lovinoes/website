@@ -23,11 +23,11 @@ Before we get into the code, it's worth understanding the divide. Calagopus has 
 
 **Models** are the database-backed types - `Server`, `Node`, `User`, `NestEgg`, `ServerSchedule`, and so on. They're what the rest of the codebase deals with internally, and they're *your* extension's interface to the database. When you add a column to the `servers` table and want code that queries `Server` to know about it, you're extending the model.
 
-**API structs** are the over-the-wire types - `ApiServer`, `ApiAdminServer`, `ApiServerFeatureLimits`, etc. These are what get serialized into JSON for HTTP responses and deserialized from JSON in request bodies. They're documented in the OpenAPI spec, they're consumed by the frontend, and they're often a *projection* of a model rather than a 1:1 mirror (e.g. `ApiServer` hides internal columns like deletion timestamps, exposes derived fields, and so on). When you want your extra column to appear in the JSON, you're extending the API struct.
+**API structs** are the over-the-wire types - `ApiServer`, `AdminApiServer`, `ApiServerFeatureLimits`, etc. These are what get serialized into JSON for HTTP responses and deserialized from JSON in request bodies. They're documented in the OpenAPI spec, they're consumed by the frontend, and they're often a *projection* of a model rather than a 1:1 mirror (e.g. `ApiServer` hides internal columns like deletion timestamps, exposes derived fields, and so on). When you want your extra column to appear in the JSON, you're extending the API struct.
 
 The two extension surfaces are independent. You can extend a model without extending its API struct (your column exists in the database but doesn't appear in JSON). You can extend an API struct without extending the model (you compute and expose a derived value). Most extensions do both.
 
-The full list of extendable models and API structs is at [cratedocs - Extendible implementors](https://cratedocs.calagopus.com/shared/trait.Extendible#implementors). Anything that implements `Extendible` can be extended; anything that doesn't can't.
+The full list of extendable API structs is at [cratedocs - Extendible implementors](https://cratedocs.calagopus.com/shared/trait.Extendible#implementors); anything that implements `Extendible` can be extended, anything that doesn't can't. Models are a separate list: every model that implements [`BaseModel`](https://cratedocs.calagopus.com/shared/models/trait.BaseModel) accepts `register_model_extension`.
 
 ## Worked Example: Subdomain Limits
 
@@ -117,7 +117,7 @@ Three things to unpack here.
 
 **`map_extended`** is the row-to-struct mapper. Given a `PgRow` and the same prefix, pull your fields out and return them boxed up. Errors here become `DatabaseError`s and bubble up to whoever was loading the model.
 
-The `SafeModelExtension` impl is a small piece of name-keying boilerplate - it lets other code look up your extension's data via a typed handle (`Server::parse_model_extension::<ServerExtension>()`) rather than a stringly-typed lookup. You almost always want this.
+The `SafeModelExtension` impl is a small piece of name-keying boilerplate - it lets other code look up your extension's data via a typed handle (`server.parse_model_extension::<ServerExtension>()`) rather than a stringly-typed lookup. You almost always want this.
 
 ### The Extended API Struct
 
@@ -177,9 +177,7 @@ impl Extension for ExtensionStruct {
                         .parse_extended::<model::ExtendedApiServerFeatureLimits>()
                         && let Some(value) = extended.subdomains
                     {
-                        query_builder.set("subdomains", value.unwrap_or(0)); // the unwrap_or is due to the NOT NULL constraint on the column - if the client sent null, treat it as 0 on create
-                    } else {
-                        query_builder.set("subdomains", 0); // default value for new servers if not provided, since the API struct field is optional and the database column is NOT NULL
+                        query_builder.set("subdomains", value);
                     }
                     Ok(())
                 })
@@ -246,7 +244,7 @@ Server::register_create_handler(
 );
 ```
 
-The create handler runs as part of the INSERT flow. Your closure gets a `query_builder` you can mutate to add columns to the INSERT statement, and the core insert will execute the resulting SQL with all extensions' columns merged in.
+The create handler runs as part of the INSERT flow. Your closure gets a `query_builder` you can mutate to add columns to the INSERT statement, and the core insert will execute the resulting SQL with all extensions' columns merged in. When the client sent nothing, the column's own `DEFAULT 0` from the migration fills it in, which is why the handler does not need an `else` branch.
 
 Notice that on create, `options.feature_limits` is the struct directly (not an `Option`), since every server creation must include a feature_limits payload. On update, it's `Option<...>` - clients can omit the whole feature_limits block when updating other fields. Adjust your handler shape accordingly, or factor the shared logic into a helper function the way most extensions do once they have more than a couple of fields.
 
@@ -351,7 +349,7 @@ export default new SubdomainsExtension();
 
 Field `name`s are Mantine form paths, so the dotted `featureLimits.subdomains` binds into the nested `featureLimits` object in the form's values - the same shape the core fields use. `insertFieldsAfter` anchors your field right after the built-in schedules limit; if the anchor isn't present in a particular render of the form, the transform leaves the fields untouched, which keeps it safe on forms that render their fields in multiple sections.
 
-The `zodShape` and `initialValues` here are doing more than just validation and defaults. Both are **deep-merged** into the core form's schema and initial values, which is why the nested `featureLimits` object extends the built-in feature-limit validation instead of replacing it. And crucially, the core create/update API files pass the registered zod shapes to `serializeForApi` (via `formExtensionSchemas(formId)`), so declaring your field in `zodShape` is what gets its value serialized into the request body - as `feature_limits.subdomains`, right where your backend's `parse_extended` expects it. A field that only exists in `transform` renders and validates, but never leaves the browser.
+The `zodShape` and `initialValues` here are doing more than just validation and defaults. Both are **deep-merged** into the core form's schema and initial values, which is why the nested `featureLimits` object extends the built-in feature-limit validation instead of replacing it. And the core create/update API files pass the registered zod shapes to `serializeForApi` (via `formExtensionSchemas(formId)`), so declaring your field in `zodShape` is what gets its value serialized into the request body - as `feature_limits.subdomains`, right where your backend's `parse_extended` expects it. A field that only exists in `transform` renders and validates, but never leaves the browser.
 
 ## Reading Your Extension's Data
 
@@ -415,7 +413,7 @@ A couple of things worth pointing out:
 
 #### Writing via Direct Calls to `Server::update`
 
-If your extension wants to update a server from inside its own code - say, a CLI command that adjusts limits in bulk, a background task that recalculates them, or a route handler that wraps `update` with extra logic - you can call `Server::update` directly with a constructed `ApiServerFeatureLimits` instead of going through an HTTP endpoint. This works the same way it does for any other update path, with one wrinkle: when you build the API object yourself, you need to remember to include your extension's fields. Otherwise the update goes through with only the core fields set, and your `subdomains` column never gets touched.
+If your extension wants to update a server from inside its own code - say, a CLI command that adjusts limits in bulk, a background task that recalculates them, or a route handler that wraps `update` with extra logic - you can call `Server::update` directly with an `ApiServerFeatureLimits` instead of going through an HTTP endpoint. This works the same way it does for any other update path, with one wrinkle: when you build the API object yourself, you need to remember to include your extension's fields. Otherwise the update goes through with only the core fields set, and your `subdomains` column never gets touched.
 
 The `Extendible` trait gives you a method for exactly this:
 
@@ -423,33 +421,32 @@ The `Extendible` trait gives you a method for exactly this:
 fn insert_extension<E: Serialize>(&mut self, ext_value: E) -> Result<(), anyhow::Error>;
 ```
 
-Construct the core API object normally, then call `insert_extension` with your extended struct *before* passing the whole thing to `update`:
+You cannot write an extendible struct as a plain literal: the `#[extendible]` derive adds a hidden overlay field that holds every extension's slice, so `ApiServerFeatureLimits { backups: 5, .. }` does not compile. Start from the server's current limits instead, which the model hands you fully initialised, change the core fields you care about, then call `insert_extension` with your extended struct *before* passing the whole thing to `update`:
 
 ```rs
-use shared::{Extendible, models::server::{ApiServerFeatureLimits, Server}};
- 
-let mut feature_limits = ApiServerFeatureLimits {
-    backups: 5,
-    databases: 5,
-    allocations: 5,
-    schedules: 5,
-};
- 
+use shared::{Extendible, models::{UpdatableModel, server::UpdateServerOptions}};
+
+let mut feature_limits = server.feature_limits(&state).await?;
+feature_limits.backups = 5;
+
 feature_limits.insert_extension(model::ExtendedApiServerFeatureLimits {
     subdomains: Some(10),
 })?;
- 
+
 server
-    .update(shared::models::server::UpdateServerOptions {
-        feature_limits: Some(feature_limits),
-        ..Default::default()
-    })
+    .update(
+        &state,
+        UpdateServerOptions {
+            feature_limits: Some(feature_limits),
+            ..Default::default()
+        },
+    )
     .await?;
 ```
 
-What `insert_extension` is doing under the hood is serializing your extended struct into the same internal blob that `parse_extended` reads from - the bridge between your typed extension struct and the type-erased "extension data" inside the API object. Without it, the API object has no record of your extension's fields, and your update handler's `parse_extended::<ExtendedApiServerFeatureLimits>()` call will return an error or a struct with `None` everywhere, depending on the exact shape.
+What `insert_extension` is doing under the hood is serializing your extended struct into the same internal blob that `parse_extended` reads from - the bridge between your typed extension struct and the type-erased "extension data" inside the API object. The object returned by `server.feature_limits(...)` already went through every registered `extend_validated` resolver, so your own fields are present with their stored values; `insert_extension` replaces that slice with the values you want written.
 
-The same applies to any other API struct you've extended via `extend_validated` - construct the core object, call `insert_extension` with your extended view, then use the API object as normal. This is the only place the manual-construction path differs from the deserialized-from-JSON path; once `insert_extension` has been called, everything downstream behaves identically to a request that came in over the wire.
+The same applies to any other API struct you've extended via `extend_validated` - obtain or build the core object, call `insert_extension` with your extended view, then use the API object as normal. Once `insert_extension` has been called, everything downstream behaves identically to a request that came in over the wire.
 
 ### From Frontend Components
 
@@ -506,9 +503,9 @@ ServerVariable::register_rules_handler(ListenerPriority::Normal, |server, env_va
 });
 ```
 
-The rules do more than validate. They also decide **which input widget the panel renders**: `boolean` (or an `in:` of `1,0` / `true,false`) becomes a switch, any other `in:a,b,c` becomes a dropdown built from that list, `numeric` becomes a number input, and so on. Rewriting `in:` at request time is therefore how you build something like a version selector whose options come from an upstream API rather than being baked into the egg.
+The rules do more than validate. They also decide **which input widget the panel renders**: `boolean` (or an `in:` of `1,0` / `true,false`) becomes a switch, any other `in:a,b,c` becomes a dropdown built from that list, `numeric` or `integer` becomes a number input, and so on. Rewriting `in:` at request time is therefore how you build something like a version selector whose options come from an upstream API rather than being baked into the egg.
 
-Two caveats. The handler only runs on the client startup endpoints, meaning reading and updating a server's variables. It does not run on admin variable routes, server creation, or the remote endpoint Wings uses, so it shapes what the user sees rather than what ends up stored. You also cannot invent new rule *types*: the rule set is fixed, so your handler composes existing rules rather than adding a validator of its own. Unlike the other handler families, this one returns nothing, so a registered rules handler cannot be unregistered.
+Two caveats. The handler only runs on the client startup endpoints, meaning reading and updating a server's variables. It does not run on admin variable routes, server creation, or the remote endpoint Wings uses, so it shapes what the user sees rather than what ends up stored. You also cannot invent new rule *types*: the rule set is fixed, so your handler composes existing rules rather than adding a validator of its own. Like the other lifecycle registrations, this one returns nothing, so a registered rules handler cannot be unregistered.
 
 ## Where to Go From Here
 

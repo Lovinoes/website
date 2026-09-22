@@ -65,8 +65,8 @@ class MyExtension extends Extension {
 | `icon?` | `ReactNode` | Any node, so `<FontAwesomeIcon icon={faBroom} />` for a FontAwesome glyph or an `<img>` for something custom. |
 | `scopes?` | `('dashboard' \| 'server' \| 'admin')[]` | Where the action shows up. Omitted means all three. |
 | `permission?` | `string \| string[]` | Server permission node(s) required. An array passes if *any* of them match. |
-| `adminPermission?` | `string \| true` | `true` requires the user be an admin at all; a string requires that admin permission node. |
-| `danger?` | `boolean` | Renders the row in red and highlights it red when selected. For destructive things - the core "Kill" and "Log out" actions use it. |
+| `adminPermission?` | `string \| true` | `true` passes for an admin account or any role that holds at least one admin permission; a string requires that exact admin permission node, with no wildcard expansion. |
+| `danger?` | `boolean` | Renders the row in red and highlights it red when selected. For destructive things - the core "Kill" and "Logout" actions use it. |
 | `isVisible?` | `() => boolean` | Last-word visibility check, run on every palette render. Use it for state, not permissions. |
 | `perform` | `() => void` | Runs when the user picks the action. |
 
@@ -121,14 +121,14 @@ Every item belongs to a category, which is the labelled group it renders under. 
 
 | Id | Group heading | Order | Contains |
 | -- | ------------- | ----- | -------- |
-| `math` | Math | 10 | The `=` calculator result |
-| `page` | Page | 20 | Actions the current page registered |
+| `math` | Calculator | 10 | The `=` calculator result |
+| `page` | This Page | 20 | Actions the current page registered |
 | `pageNavigation` | Page Navigation | 25 | The tabs of the current page's sub-navigation, registered by the Panel. Stacked tab bars use `pageNavigation:<depth>`, ordered so the innermost leads |
 | `power` | Power | 30 | Start / stop / restart / kill |
 | `servers` | Servers | 40 | Server search results, from the `#` mode and the dashboard's no-prefix search |
 | `users` | Users | 45 | User search results from the admin-only `@` mode |
 | `navigation` | Navigation | 50 | Sidebar routes for the current scope |
-| `account` | Account | 60 | Log out |
+| `account` | Account | 60 | Logout |
 
 Reuse one of those ids when your action fits the group - a power-adjacent action belongs under Power, not under a category of its own. When it doesn't fit, register your own:
 
@@ -153,6 +153,10 @@ Groups render by `order`, lowest first, with ties broken alphabetically on the r
 Extension categories are merged last, so registering one with a core id such as `page` or `power` overrides that group's label, icon and order for the whole palette. That's occasionally useful and more often a mistake.
 
 An action pointing at a category nobody registered still renders: the raw category id becomes the group heading. If you see `dev.0x7d8.cleanup` as a heading, you forgot the `addCategory` call.
+
+<img src="./images/quick-actions/palette.webp" alt="The quick actions palette on a server page, with an extension's Cleanup category between This Page and Power, a red danger row, and a custom mode hint in the footer" width="310">
+
+The palette above is what the [worked example](#a-worked-example) at the end of this page produces on a server page: the Cleanup category sits between This Page and Power because of its `order: 25`, the second action is red because of `danger`, and the `%` mode's hint has joined the footer.
 
 ## Page-Scoped Actions
 
@@ -188,7 +192,7 @@ The hook takes the same `QuickActionDefinition[]` as `addAction`, plus an option
 useQuickActions(definitions, !loading);
 ```
 
-Actions registered this way disappear when the component unmounts, and they go through exactly the same scope, permission and visibility filtering as global ones. The `page` category exists for them, and it's what the Panel's own file manager uses for its file and selection actions.
+Actions registered this way disappear when the component unmounts, and they go through exactly the same scope, permission and visibility filtering as global ones. The `page` category exists for them, and it's what the Panel's own file manager uses for its file and selection actions. The hook registers nothing while its component renders inside a virtual window; only the main window feeds the palette.
 
 The array is re-read on every palette render rather than captured at mount, so closures over component state stay current: `selected` in the example above is always the live value, and you never have to re-register. The tradeoff is that `label`, `isVisible` and `perform` are called from the palette's render rather than yours, so they cannot contain hooks.
 
@@ -260,7 +264,7 @@ export default function PlayerMode() {
 }
 ```
 
-`useQuickActionTerm(prefix)` gives you the query with your prefix stripped and trimmed, or `null` while the query doesn't start with it - so `null` means "my mode isn't active" and `''` means "active, nothing typed yet". Gate your fetching on it, the way core's `@` mode only requests servers while `term !== null`.
+`useQuickActionTerm(prefix)` gives you the query with your prefix stripped and trimmed, or `null` while the query doesn't start with it - so `null` means "my mode isn't active" and `''` means "active, nothing typed yet". Gate your fetching on it, the way core's `#` mode only requests servers while `term !== null`.
 
 | Field | Type | What it does |
 | ----- | ---- | ------------ |
@@ -273,7 +277,7 @@ export default function PlayerMode() {
 
 A few behaviours shape how you write one:
 
-- The palette picks the first mode whose prefix the query starts with, and core modes are registered first, so `=`, `#` and `/` are unavailable to you - as is `@` in admin scope. Prefixes core does not use include `%`, `~`, `&`, `:` and `!`.
+- The palette picks the first mode whose prefix the query starts with. Core modes come first, then modes from `useQuickActionModes`, then static `addMode` registrations, so `=`, `#` and `/` are unavailable to you - as is `@` in admin scope - and a hook-registered mode shadows a static one with the same prefix. Prefixes core does not use include `%`, `~`, `&`, `:` and `!`.
 - While a mode is active the label and keyword matching is bypassed, and whatever `items` holds is shown as-is. Filtering on the term is your job, which is what makes modes useful for computed and fetched results that no substring match would find.
 - Actions and navigation entries survive only if your `map` returns them, so a mode with just `items` gives the user a single-purpose list. Implement `map` when you want to *narrow* the existing list instead of replacing it, the way core's `/` mode keeps only the two navigation categories and hangs each route's path off `description`.
 - Build `items` for the active term only. The array is read on every palette render, so keep it cheap - do the fetching in a hook and map its results, don't compute anything heavy inline.

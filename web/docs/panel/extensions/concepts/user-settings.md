@@ -53,7 +53,7 @@ import { getUserSetting, removeUserSetting, setUserSetting, subscribeUserSetting
 
 const mode = getUserSetting('dev.example.myextension::view_mode', z.enum(['list', 'grid']), 'list');
 setUserSetting('dev.example.myextension::view_mode', 'grid');
-removeUserSetting('dev.example.myextension::view_mode'); // deletes the key everywhere
+removeUserSetting('dev.example.myextension::view_mode'); // deletes the synced key, or only this device's value if there is one
 const unsubscribe = subscribeUserSetting('dev.example.myextension::view_mode', (value) => {
   // fires whenever the effective value changes, e.g. after a sync
 });
@@ -61,15 +61,19 @@ const unsubscribe = subscribeUserSetting('dev.example.myextension::view_mode', (
 
 ### Device-Local Values
 
-Some preferences shouldn't follow the user around - anything derived from the hardware in front of them (touch input, installed software, attached audio devices). For those, write with `setUserSettingLocal` instead: the value is stored per device and never sent to the server, but reads through `useUserSetting`/`getUserSetting` work exactly the same, with the local value taking precedence.
+Some preferences shouldn't follow the user around - anything derived from the hardware in front of them (touch input, installed software, attached audio devices). For those, write with `setUserSettingLocal` instead: the value is stored per device and never sent to the server, but reads through `useUserSetting`/`getUserSetting` work exactly the same, with the local value taking precedence. Once a key has a device-local value, plain `setUserSetting` and the `useUserSetting` setter keep writing to that device-local value rather than to the account, and `removeUserSetting` clears the device value first.
 
-Users can also pin any synced setting to one device themselves, through the scope menu the Panel renders next to a setting's label. Three functions back that menu:
+Users can also pin any synced setting to one device themselves, through the scope menu the Panel renders next to a setting's label:
+
+<img src="./images/user-settings/scope-menu.webp" alt="The Preferences card on the account page with the scope menu of the Toast Position setting open, offering Sync With Account and Only This Device" width="302">
+
+Three functions back that menu:
 
 | Function | What it does |
 | --- | --- |
 | `overrideUserSettingLocally(key, value)` | Pins a value to this device. No-op for keys in `DEVICE_ONLY_SETTING_KEYS`. |
 | `clearUserSettingOverride(key)` | Drops the device override, so the account value applies again. |
-| `pushUserSettingToAccount(key)` | Sends the current device value up as the new account value and clears the override. |
+| `pushUserSettingToAccount(key)` | Sends the current device value up as the new account value and clears the override. Async, and a no-op when there is no override or while impersonating. |
 
 ## Backend Access
 
@@ -91,6 +95,6 @@ Reads are cached for 60 seconds per user and invalidated on write, so this is ch
 ## Rules of the Road
 
 - **JSON `null` deletes.** Sending `null` for a key over the API removes it, so `null` is not a storable value. Model "unset" as key absence and let your zod fallback handle it.
-- **There are limits.** Operators control how many keys a user may have and how large one value may be (`Max Synced Settings` and `Max Synced Setting Size` in the admin user settings, 512 keys / 16 KiB by default). Store preferences, not documents.
+- **There are limits.** Operators control how many keys a user may have and how large one value may be (`Max Synced Settings` and `Max Synced Setting Size (bytes)` in the admin user settings, 512 keys / 16 KiB by default). Store preferences, not documents.
 - **Impersonation is read-only.** While an admin impersonates a user they see the user's settings, but writes are rejected by the server and skipped by the frontend - an admin browsing around can't silently rewrite someone's preferences.
 - **Unbounded collections need one key.** If you keep per-item flags (dismissals, expanded groups), store one map-valued key rather than one key per item, and prune stale entries when you write.

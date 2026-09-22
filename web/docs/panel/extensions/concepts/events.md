@@ -15,7 +15,7 @@ There are different kinds of events that structs can emit, usually, it's the fol
 | [`CreatableModel`](https://cratedocs.calagopus.com/shared/models/trait.CreatableModel) | This is a more common event emitter, it emits events when a model is created, this is useful for when you want to run some code when a model is created, for example, you may want to create a default configuration for an extension when a new server is created. |
 | [`UpdatableModel`](https://cratedocs.calagopus.com/shared/models/trait.UpdatableModel) | This is also a common event emitter, it emits events when a model is updated, this is useful for when you want to run some code when a model is updated, for example, you may want to update some configuration for an extension when a server is renamed. |
 | [`DeletableModel`](https://cratedocs.calagopus.com/shared/models/trait.DeletableModel) | This is also a common event emitter, it emits events when a model is deleted, this is useful for when you want to run some code when a model is deleted, for example, you may want to clean up some data for an extension when a server is deleted. |
-| [`DuplicableModel`](https://cratedocs.calagopus.com/shared/models/trait.DuplicableModel) | This emits events when a model is duplicated (such as duplicating a role, location, node, egg, egg configuration, mount, announcement, oauth provider, schedule or schedule step). It works just like the create/update/delete emitters, except the model handed to your handlers is the *source* model being duplicated. This is useful for when you want to copy along your own extension's data for the new copy, or cancel a duplication. |
+| [`DuplicableModel`](https://cratedocs.calagopus.com/shared/models/trait.DuplicableModel) | This emits events when a model is duplicated (such as duplicating a role, location, node, egg, egg variable, egg configuration, mount, announcement, oauth provider, backup configuration, database agent template, command snippet, schedule or schedule step). It works just like the create/update/delete emitters, except the model handed to your handlers is the *source* model being duplicated. This is useful for when you want to copy along your own extension's data for the new copy, or cancel a duplication. |
 
 Listening to these events is pretty straightforward, however it does change slightly between the `EventEmittingModel` trait and the other three, so we will go over them separately.
 
@@ -63,7 +63,7 @@ impl Extension for ExtensionStruct {
 }
 ```
 
-Relatively straightforward, you just call the `register_event_handler` function on the model you want to listen to events from, and then you match on the event that is emitted and run your code accordingly. Note that registering is a plain synchronous call - only the handler closure itself is async.
+Relatively straightforward, you just call the `register_event_handler` function on the model you want to listen to events from, and then you match on the event that is emitted and run your code accordingly. Note that registering is a plain synchronous call - only the handler closure itself is async. It returns an `EventHandlerHandle`, and calling `.disconnect()` on that handle removes the listener again; the lifecycle registrations in the next section return nothing and cannot be undone.
 
 To see all models that support this, you can check the implementors [in the cratedocs](https://cratedocs.calagopus.com/shared/models/trait.EventEmittingModel#implementors).
 

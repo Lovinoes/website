@@ -59,16 +59,9 @@ impl SettingsSerializeExt for ExtensionSettingsData {
         &self,
         serializer: SettingsSerializer,
     ) -> Result<SettingsSerializer, anyhow::Error> {
-        let database = serializer.database.clone();
-
         Ok(serializer
-            .write_raw_setting(
-                "api_key",
-                base32::encode(
-                    base32::Alphabet::Z,
-                    database.encrypt(self.api_key.clone()).await?.as_slice(),
-                ),
-            )
+            .write_raw_encrypted_setting("api_key", self.api_key.clone())
+            .await?
             .write_raw_setting(
                 "collect_secret_government_telemetry",
                 self.collect_secret_government_telemetry.to_compact_string(),
@@ -85,14 +78,10 @@ impl SettingsDeserializeExt for ExtensionSettingsDataDeserializer {
         mut deserializer: SettingsDeserializer<'_>,
     ) -> Result<ExtensionSettings, anyhow::Error> {
         Ok(Box::new(ExtensionSettingsData {
-            api_key: match deserializer.take_raw_setting("api_key") {
-                Some(encoded) => {
-                    let decoded = base32::decode(base32::Alphabet::Z, &encoded)
-                        .ok_or_else(|| anyhow::anyhow!("Failed to decode API key from base32"))?;
-                    deserializer.database.decrypt(decoded).await?
-                }
-                None => "".into(),
-            },
+            api_key: deserializer
+                .read_raw_encrypted_setting("api_key")
+                .await?
+                .unwrap_or_default(),
             collect_secret_government_telemetry: deserializer
                 .take_raw_setting("collect_secret_government_telemetry")
                 .and_then(|s| s.parse().ok())
@@ -102,11 +91,11 @@ impl SettingsDeserializeExt for ExtensionSettingsDataDeserializer {
 }
 ```
 
-There's a lot here but it's all the same two ideas. On the serialize side, `write_raw_setting(key, value)` tells the Panel to save that key as that value, chained once per field. On the deserialize side, `take_raw_setting(key)` pulls it back as an `Option<String>` - you decide what to do if it's missing (in the example above, fall back to empty string or `false`).
+There's a lot here but it's all the same two ideas. On the serialize side, `write_raw_setting(key, value)` tells the Panel to save that key as that value, chained once per field. On the deserialize side, `take_raw_setting(key)` pulls it back as an `Option<CompactString>` - you decide what to do if it's missing (in the example above, fall back to empty string or `false`). `read_raw_setting` is the non-consuming twin, for a value you need to look at twice.
 
 The example does a couple of extra things worth calling out:
 
-- **Encryption** - the `api_key` is encrypted before being written and decrypted on read, using `serializer.database.encrypt(...)` / `.decrypt(...)`. The Panel provides this helper specifically for settings that are secrets. Wrap it in `base32::encode` / `decode` because `write_raw_setting` takes a `String`, not bytes.
+- **Encryption** - the `api_key` goes through `write_raw_encrypted_setting` and comes back through `read_raw_encrypted_setting`. The Panel encrypts the value with its application key and stores it base64-encoded, so a secret never sits in the settings table in the clear. `write_serde_encrypted_setting` / `read_serde_encrypted_setting` do the same for the JSON pattern below, and `serializer.nest(prefix, &sub_settings)` / `deserializer.nest(prefix, &sub_deserializer)` split a large struct into prefixed sub-structs the way the core settings do.
 - **Graceful defaults** - every field falls back to a default value if the setting doesn't exist in the database. Missing keys happen on first startup before anyone's set anything, on fresh installs, and any time you add a new field to an existing extension without writing a migration. Never assume a key will be there.
 
 ### Pattern 2: One Key for the Whole Struct (`write_serde_setting`)
@@ -160,7 +149,7 @@ impl SettingsDeserializeExt for ExtensionSettingsDataDeserializer {
 }
 ```
 
-Much shorter. `write_serde_setting(key, &value)?` does the serde dance internally (the value ends up as JSON in the database) and `read_serde_setting(key)` reads it back into any `Deserialize` type. If the key is missing or the stored value fails to deserialize, you get an `Err`, which the example above handles by falling back to an empty `Vec`.
+Much shorter. `write_serde_setting(key, &value)?` does the serde dance internally (the value ends up as JSON in the database) and `read_serde_setting(key)` reads it back into any `Deserialize` type as a `Result<T, serde_json::Error>`. A stored value that fails to deserialize is an `Err`, which the example above handles by falling back to an empty `Vec`. A missing key is deserialized from JSON `null`, so it is an `Err` for a `Vec` but an `Ok(None)` for an `Option<T>`.
 
 ### Mixing Both
 
@@ -213,16 +202,16 @@ async fn load_api_key(state: &State) -> Result<String, anyhow::Error> {
 }
 ```
 
-Two calls. `state.settings.get().await?` gives you a snapshot of the current settings store. `.find_extension_settings::<T>()?` finds your extension's slice of that snapshot and downcasts it to your struct type. From there it's just a reference - read fields as normal.
+Two calls. `state.settings.get().await?` gives you a snapshot of the current settings store. `.find_extension_settings::<T>()?` walks every extension's settings and returns the first one that downcasts to your struct type. From there it's just a reference - read fields as normal. `get_extension_settings("dev.yourname.test")` is the by-identifier variant, which is what you want when reading *another* extension's settings. Both fail for a disabled extension, since its deserializer is never registered.
 
 The type parameter on `find_extension_settings` is usually inferred from the annotation on the left-hand side (`let ext_settings: &ExtensionSettingsData = ...`), but you can also call it as `.find_extension_settings::<ExtensionSettingsData>()?` if the surrounding code doesn't disambiguate.
 
 ::: info
-**How the settings store actually works.** Under the hood, `state.settings` is backed by two `RwLock`s holding the same data, with an "active" pointer that switches between them on every mutation. Reads always follow the active pointer; writes mutate the inactive one, then flip the pointer.
+**How the settings store actually works.** Under the hood, `state.settings` keeps two `RwLock` buffers and an "active" index. Reads follow the active buffer. `get_mut` loads a fresh copy from the database into the inactive buffer and hands you that, and `save()` writes it out and flips the index while the guard is still held.
 
-The upshot: **reads usually don't block on ongoing writes**. A long `get_mut` holding the write lock isn't stalling every request in your Panel - readers keep going against the active buffer the whole time. Writes themselves are serialized (one writer at a time), since writers need exclusive access to the inactive buffer.
+The upshot: **reads usually don't block on ongoing writes**. A long `get_mut` isn't stalling every request in your Panel - readers keep going against the active buffer the whole time. Writes themselves are serialized (one writer at a time).
 
-Don't rely on "reads never block" as an absolute, though. There's a brief window between pointer swap and lock acquisition on the newly-inactive buffer where a reader can be held up. It's usually microseconds, but if you're writing latency-sensitive code you should assume the worst case is "a read might block briefly."
+Don't rely on "reads never block" as an absolute, though. Each buffer expires after 60 seconds, and a reader that finds its buffer expired reloads it from the database behind the same lock a writer holds, so roughly once a minute a read can wait for an in-flight write. If you're writing latency-sensitive code, assume the worst case is "a read might block briefly."
 :::
 
 ## Writing Settings

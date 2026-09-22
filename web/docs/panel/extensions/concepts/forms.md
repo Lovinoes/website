@@ -27,19 +27,19 @@ public initialize(ctx: ExtensionContext): void {
       initialValues: {
         customIdentifier: '',
       },
-      transform: (fields) => [
-        ...fields,
-        {
+      transform: (fields) =>
+        insertFieldsAfter(fields, 'description', {
           type: 'text',
           name: 'customIdentifier',
           label: 'Custom Identifier',
           description: 'An internal label used by your provisioning system.',
-        } satisfies FieldDef,
-      ],
+        } satisfies FieldDef),
     }),
   );
 }
 ```
+
+<img src="./images/forms/create-server-field.webp" alt="The Basic Information card of the Create Server form with an extension's Custom Identifier field rendered under Description" width="398">
 
 `enterForms` gives you the `FormRegistry`. Calling `.extend(formId, slot)` registers a **slot**, a bundle of Zod schema additions, their initial values, and a field-list transform. Multiple extensions can each register a slot for the same form and they all compose cleanly; slots are applied in registration order, with each `transform` receiving the field list produced by the previous one.
 
@@ -91,7 +91,7 @@ Don't change the `name` of an existing field (it's the key the form values are b
 
 ### `zodShape`
 
-A record mapping field names to Zod types. The Panel **deep-merges** this into the form's Zod schema so that your new fields participate in validation. Because the merge is deep, you can extend nested objects without replacing the core validation for their existing keys:
+A record mapping field names to Zod types. The Panel **deep-merges** this into the form's Zod schema so that your new fields participate in validation. Because the merge is deep, you can extend nested objects without replacing the core validation for their existing keys. The merge is deep between your slot and the core schema only: the shapes of several slots on the same form are combined by a plain spread first, so two extensions that both declare `featureLimits: z.object({...})` overwrite each other's nested keys instead of combining them.
 
 ```ts
 zodShape: {
@@ -119,9 +119,9 @@ initialValues: {
 
 ## Field Types
 
-The fields inside a form (and the ones your `transform` produces) are `FieldDef` objects, a discriminated union keyed on `type`. Every type except `divider` and `custom` shares a set of base properties:
+The fields inside a form (and the ones your `transform` produces) are `FieldDef` objects, a discriminated union keyed on `type`. Every type except `divider`, `section` and `custom` shares a set of base properties:
 
-**Base properties (all field types except `divider` and `custom`):**
+**Base properties (all field types except `divider`, `section` and `custom`):**
 
 | Property | Type | Description |
 | -------- | ---- | ----------- |
@@ -129,7 +129,7 @@ The fields inside a form (and the ones your `transform` produces) are `FieldDef`
 | `label` | `LazyString` | Label shown above the input |
 | `description` | `LazyString?` | Helper text shown below the label |
 | `tooltip` | `ReactNode?` | Tooltip content shown on an info icon next to the label |
-| `required` | `boolean?` | Shows an asterisk and enforces the field is non-empty |
+| `required` | `boolean?` | Shows an asterisk on the label (not on `switch` and `checkbox`). It enforces nothing on its own, so pair it with a Zod rule such as `.min(1)` |
 | `advanced` | `boolean?` | Hidden unless the user has enabled Advanced Mode |
 | `colSpan` | `'full' \| 1` | `'full'` stretches across both columns; omit for the default half-width |
 | `when` | `(values) => boolean` | Receives the current form values; field is hidden when this returns `false` |
@@ -162,7 +162,7 @@ The fields inside a form (and the ones your `transform` produces) are `FieldDef`
 ```ts
 { type: 'select', name: '...', label: '...', options: { value: string; label: LazyString }[], props?: Partial<SelectProps> }
 { type: 'multiselect', name: '...', label: '...', options: { value: string; label: LazyString }[], props?: Partial<MultiSelectProps> }
-{ type: 'multiselectgroup', name: '...', label: '...', data: { group: LazyString; items: { value: string; label: LazyString }[] }[] }
+{ type: 'multiselectgroup', name: '...', label: '...', data: { group: LazyString; items: { value: string; label: LazyString }[] }[], props?: Partial<MultiSelectProps> }
 { type: 'autocomplete', name: '...', label: '...', options?: string[], props?: Partial<AutocompleteProps> }
 ```
 
@@ -186,6 +186,12 @@ The fields inside a form (and the ones your `transform` produces) are `FieldDef`
 ```
 
 Stores a `string[]` value. Users can type entries and press Enter to add them to the list.
+
+```ts
+{ type: 'numberTags', name: '...', label: '...', placeholder?: LazyString, allowReordering?: boolean, min?: number, max?: number }
+```
+
+The same input for a `number[]` value, with optional bounds on each entry.
 
 ### Size
 
@@ -233,6 +239,24 @@ Renders a text input paired with per-language override inputs. The main value li
 ```
 
 A section divider with an optional label and an optional inline switch (useful for "enable this whole section" toggles). It has no value of its own unless you use `switchName`.
+
+### Section
+
+```ts
+{
+  type: 'section',
+  name: '...',
+  icon: ReactNode,
+  title: LazyString,
+  nullableDefault?: Record<string, unknown> | (() => Record<string, unknown>),
+  advanced?: boolean,
+  colSpan?: ColSpan,
+  when?: (values) => boolean,
+  render: (form: UseFormReturnType<T>) => ReactNode,
+}
+```
+
+A titled, collapsible block that renders whatever `render` returns, the way the server create form groups its limits. `nullableDefault` is the object the section's value is reset to when the user turns the section off, for values that are an object or `null`.
 
 ### Custom
 

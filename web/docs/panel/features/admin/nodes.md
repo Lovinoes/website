@@ -63,7 +63,7 @@ Click **Create** in the top right (requires `nodes.create`). If no location exis
 | **Disk** | Required, default 10 GiB. "The total disk available for servers on this node." `0` means no limit. |
 | **Backup Configuration** | Optional. Defaults to **Inherit from Location**. See [Backup Configurations](../../../wings/advanced/backup-configurations.md). |
 
-**Options** section: **Deployment Enabled** (on by default) controls whether new servers can be deployed to this node, and **Maintenance Enabled** (off by default) marks it as under maintenance.
+**Options** section: **Deployment Enabled** (on by default) controls whether new servers can be deployed to this node. **Maintenance Enabled** (off by default) marks the node as under maintenance. New servers are not deployed to it while that is on, and users cannot interact with the servers it already hosts.
 
 Hit **Save**, or **Save & Stay** to create another. These limits are what deployment checks, not the physical machine capacity, so setting them above the real hardware over-allocates the node.
 
