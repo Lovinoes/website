@@ -56,7 +56,7 @@ Each shortcut has three buttons next to it. The pencil rebinds: click it and pre
 
 The toolbar at the top shows which layout was detected ("Windows/Linux detected" or "macOS detected") next to three actions and a scope button:
 
-<img src="./images/keyboard-shortcuts/toolbar.webp" width="289" alt="" />
+![](./images/keyboard-shortcuts/toolbar.webp)
 
 - **Copy All** copies every current binding as text, in a format you can edit directly and paste back in to apply changes. It's also the easiest way to carry your keybinds over to another Calagopus panel: copy from one, paste into the other.
 - **Paste** applies a previously copied (and optionally edited) set of bindings.

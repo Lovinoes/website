@@ -170,18 +170,9 @@ The provided template is configured as **login only** - customers use it to auth
 
 ## Troubleshooting
 
-### "Calagopus API Error (HTTP 401)" on Test Connection
-
-The API key is missing, malformed, or lacks admin access. Generate a fresh **admin** API key in your panel and re-enter it.
-
-### "No available allocations on the selected node"
-
-The chosen node has no free allocations. Add allocations to the node, or switch the product to auto-deploy across locations.
-
-### "Server already exists on the panel"
-
-A server is already linked to this service's ID (`external_id`). Remove or re-link the existing panel server before re-provisioning.
-
-### Customers get a duplicate panel account
-
-The module matches existing users by email and username. If a customer signed up to the panel separately with a different email than the one in Paymenter, link the accounts by setting that panel user's `external_id` to the Paymenter user ID.
+| Symptom | Fix |
+| --- | --- |
+| "Calagopus API Error (HTTP 401)" on Test Connection | The API key is missing, malformed, or lacks admin access. Generate a fresh **admin** API key in your panel and re-enter it. |
+| "No available allocations on the selected node" | The chosen node has no free allocations. Add allocations to the node, or switch the product to auto-deploy across locations. |
+| "Server already exists on the panel" | A server is already linked to this service's ID (`external_id`). Remove or re-link the existing panel server before re-provisioning. |
+| Customers get a duplicate panel account | The module matches existing users by email and username. If a customer signed up to the panel separately with a different email than the one in Paymenter, link the accounts by setting that panel user's `external_id` to the Paymenter user ID. |

@@ -38,7 +38,9 @@ The **Application** tab has an **Advanced mode** toggle in the top right. It rev
 
 Enabling registration also asks for confirmation and points out that doing it without a [captcha](#captcha) configured may be a mistake.
 
-Turning **Enable Password Login** off asks for confirmation too, because it reaches further than the login page. With it off, local registration, the forgot-password flow and SFTP password authentication all stop working as well, and everyone needs an [OAuth provider](/docs/panel/features/admin/oauth-providers) or a [security key](/docs/panel/features/dashboard/account#security-keys) to get in. Public key authentication over SFTP keeps working. The per-account **Password Login** switch disappears while the panel-wide one is off, since there is nothing left for it to decide.
+Turning **Enable Password Login** off asks for confirmation too, because it reaches further than the login page. With it off, local registration, the forgot-password flow and SFTP password authentication all stop working as well, and everyone needs an [OAuth provider](/docs/panel/features/admin/oauth-providers) or a [security key](/docs/panel/features/dashboard/account#security-keys) to get in.
+
+Public key authentication over SFTP keeps working. The per-account **Password Login** switch disappears while the panel-wide one is off, since there's nothing left for it to decide.
 
 Four combinations are rejected when you save, with an error rather than a silent fix:
 

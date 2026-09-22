@@ -29,6 +29,7 @@ If you're not sure which setup you're using, run `docker compose ps` in your Pel
 
 The importer shares its code with the Pterodactyl one, so connection and data errors are covered under [Troubleshooting the Import](./pterodactyl.md#troubleshooting-the-import) on that page. Two things are specific to Pelican.
 
-**Wings logs a JSON parse error naming a missing field such as `oom_disabled`, and the panel can't connect.** The `remote:` URL in the Wings config still points at the Pelican panel. Set it to the Calagopus panel's address and restart Wings.
-
-**Config file replacements such as `{{server.environment.SERVER_NAME}}` are written literally, and the Wings log says `unknown server variable: server.environment.SERVER_NAME`.** Calagopus Wings exposes the environment as `server.env`. Wings from 1.1.4 on accepts `server.environment` as an alias. On older versions, edit the egg's config file replacements to use `{{server.env.SERVER_NAME}}`.
+| Symptom | Fix |
+| --- | --- |
+| Wings logs a JSON parse error naming a missing field such as `oom_disabled`, and the panel can't connect | The `remote:` URL in the Wings config still points at the Pelican panel. Set it to the Calagopus panel's address and restart Wings. |
+| Config file replacements such as `{{server.environment.SERVER_NAME}}` are written literally, and the Wings log says `unknown server variable: server.environment.SERVER_NAME` | Calagopus Wings exposes the environment as `server.env`. Wings from 1.1.4 on accepts `server.environment` as an alias. On older versions, edit the egg's config file replacements to use `{{server.env.SERVER_NAME}}`. |

@@ -333,7 +333,15 @@ export default withMermaid({
                 items: [
                   { text: 'Console', link: '/docs/panel/features/server/console' },
                   { text: 'Files', link: '/docs/panel/features/server/files' },
-                  { text: 'Databases', link: '/docs/panel/features/server/databases' },
+                  {
+                    text: 'Databases',
+                    link: '/docs/panel/features/server/databases/',
+                    collapsed: true,
+                    items: [
+                      { text: 'Classic', link: '/docs/panel/features/server/databases/classic' },
+                      { text: 'Managed', link: '/docs/panel/features/server/databases/managed' },
+                    ],
+                  },
                   { text: 'Schedules', link: '/docs/panel/features/server/schedules' },
                   { text: 'Subusers', link: '/docs/panel/features/server/subusers' },
                   { text: 'Backups', link: '/docs/panel/features/server/backups' },
@@ -603,7 +611,15 @@ export default withMermaid({
             ],
           },
           { text: 'SSL Certificates', link: '/docs/additional/ssl-certificates' },
-          { text: 'Reverse Proxies', link: '/docs/additional/reverse-proxies' },
+          {
+            text: 'Reverse Proxies',
+            link: '/docs/additional/reverse-proxies/',
+            collapsed: true,
+            items: [
+              { text: 'Panel', link: '/docs/additional/reverse-proxies/panel' },
+              { text: 'Wings', link: '/docs/additional/reverse-proxies/wings' },
+            ],
+          },
           {
             text: 'Setting up OAuth',
             link: '/docs/additional/setting-up-oauth/',

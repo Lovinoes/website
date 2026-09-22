@@ -7,10 +7,23 @@ description: Create and manage Calagopus nodes, from the connection settings and
 
 A node is a machine running wings that hosts servers. This page covers the admin UI surface; for the step-by-step setup of a new node, follow [Configuring a New Node](../../../wings/next-steps/configure-node.md).
 
-The list shows a health indicator, ID, Name, Location, and Created timestamp for each node. The heart is green when the panel can reach wings, yellow and pulsing when a wings update is available, and broken red when the node is unreachable. Next to the name, a badge shows whether the node can still take new servers: **Deployment Enabled** (green), **Nearly Full** (yellow), **No Capacity** (orange), or **Deployment Disabled** (red). Hovering it shows allocated memory and disk against the node's limits, or "no node limit" where a limit is `0`. A red **Under Maintenance** badge sits alongside it while the node is in maintenance, and an All-in-One node (wings built into the panel container) gets a purple heart after its badges, separate from the health heart in the first column.
+The list shows a health indicator, ID, Name, Location, and Created timestamp for each node. The heart is green when the panel can reach wings, yellow and pulsing when a wings update is available, and broken red when the node is unreachable.
+
+Next to the name, a badge shows whether the node can still take new servers:
+
+| Badge | Meaning |
+| --- | --- |
+| **Deployment Enabled** (green) | The node can take new servers. |
+| **Nearly Full** (yellow) | Allocated memory or disk is close to the node's limit. |
+| **No Capacity** (orange) | Allocated memory or disk has hit the node's limit. |
+| **Deployment Disabled** (red) | Deployment is turned off for this node. |
+
+Hovering the badge shows allocated memory and disk against the node's limits, or "no node limit" where a limit is `0`. A red **Under Maintenance** badge sits alongside it while the node is in maintenance, and an All-in-One node (wings built into the panel container) gets a purple heart after its badges, separate from the health heart in the first column.
 
 ::: info
-The capacity states compare allocated memory (including reserved container overhead) and allocated disk against the node's configured limits, whichever of the two is worse: **Nearly Full** from 90%, **No Capacity** at 100% or over. A limit of `0` is unlimited and never counts toward either. **Deployment Disabled** takes precedence over any capacity state, and the allocation figures are cached for 30 seconds. These are the same numbers the [Allocated Resources](#overview) card breaks down per node.
+The capacity states compare allocated memory (including reserved container overhead) and allocated disk against the node's configured limits, whichever of the two is worse: **Nearly Full** from 90%, **No Capacity** at 100% or over. A limit of `0` is unlimited and never counts toward either.
+
+**Deployment Disabled** takes precedence over any capacity state, and the allocation figures are cached for 30 seconds. These are the same numbers the [Allocated Resources](#overview) card breaks down per node.
 
 The badge falls back to **Deployment Enabled** when the allocation figures cannot be loaded, so green on its own is not proof that the node has room.
 :::
@@ -40,7 +53,7 @@ Click **Create** in the top right (requires `nodes.create`). If no location exis
 | **SFTP Host** | Optional. Custom SFTP hostname shown to users; defaults to the URL's hostname. |
 | **SFTP Port** | Required, default `2022`. |
 
-<img src="./images/nodes/no-port-specified.webp" width="398" alt="" />
+![](./images/nodes/no-port-specified.webp)
 
 **Resources** section:
 
@@ -106,19 +119,19 @@ Reads log files straight off the node. Pick a **Log File** (sizes shown in the d
 
 ## Allocations
 
-The node's IP:port pool that servers draw from (requires `nodes.allocations`). Columns: ID, Server (which server holds the allocation, if any), IP, IP Alias, Port, and Created. Filter by IP or port with the dropdowns next to the search box.
+The node's IP:port pool that servers draw from (requires `nodes.allocations`). Columns: **ID**, **Server** (which server holds the allocation, if any), **IP**, **IP Alias**, **Port**, and **Created**. Filter by IP or port with the dropdowns next to the search box.
 
 ![](./images/nodes/allocations.webp)
 
 Click **Create** to bulk-create allocations: an **IP**, an optional **IP Alias**, and **Port Ranges** (single ports or ranges like `3000-4000`). The button shows how many allocations will be created.
 
-<img src="./images/nodes/allocations-create.webp" width="220" alt="" />
+![](./images/nodes/allocations-create.webp)
 
 Select allocations (drag, checkboxes, or `Ctrl+A`) for the action bar: **Update** rewrites the IP or IP Alias of all selected at once, **Delete** removes them (also on the `Delete` key). See [Setting up Allocations](../../../wings/next-steps/setting-up-allocations.md) for guidance on choosing IPs.
 
 ![](./images/nodes/allocations-selection.webp)
 
-<img src="./images/nodes/allocations-update.webp" width="220" alt="" />
+![](./images/nodes/allocations-update.webp)
 
 ## Mounts
 
@@ -140,7 +153,15 @@ Same attach/detach pattern for [database agent](../../../db-agent/index.md) host
 
 ## Backups
 
-Every backup stored on this node, regardless of which server it belongs to (requires `nodes.backups`). Columns: Name, **Kind**, **Source**, Server, Checksum, Size, Files, and Created. Kind separates file archives from database dumps, and Source names either the server files or the instance a dump came from. Restore, export to files, detach and reattach apply to file backups only; dumps get **Reassign** instead, which moves them to another database instance of the same type, optionally on a different server. The **Only show detached backups** switch filters to backups no longer linked to any server, and also decides which failed backups the button below clears. A warning icon marks backups whose server now lives on a different node; those aren't viewable from the client area.
+Every backup stored on this node, regardless of which server it belongs to (requires `nodes.backups`).
+
+| Column | Shows |
+| --- | --- |
+| **Kind** | Separates file archives from database dumps. |
+| **Source** | Names either the server files or the instance a dump came from. |
+| Name, Server, Checksum, Size, Files, Created | As on the server-level backups list. |
+
+Restore, export to files, detach and reattach apply to file backups only; dumps get **Reassign** instead, which moves them to another database instance of the same type, optionally on a different server. The **Only show detached backups** switch filters to backups no longer linked to any server, and also decides which failed backups the button below clears. A warning icon marks backups whose server now lives on a different node; those aren't viewable from the client area.
 
 When there are failed backups, a **Delete Failed** button appears above the table (requires `nodes.backups`), showing how many it would remove. It asks for confirmation, keeps locked backups and any whose configuration is in maintenance, and runs in the background. A **Force** switch removes them even when the configuration is missing or the remote storage is unreachable, at the risk of leaving orphaned files behind.
 
@@ -185,7 +206,7 @@ The six **Allocation Mode** options, with the caveats their dropdown entries sta
 - **Assign allocations based on Egg deployment configuration**: only works if the egg has a [deployment configuration](./egg-configurations.md#allocation-configuration) and the destination node has compatible allocations.
 - **Self-assign new allocations based on Egg port range**: only works if the egg has a port range and the destination node has compatible allocations.
 
-<img src="./images/nodes/transfer-modal.webp" width="220" alt="" />
+![](./images/nodes/transfer-modal.webp)
 
 After confirming, you're taken to the **Outgoing Transfers** tab. Transfers cannot be undone.
 
@@ -224,7 +245,9 @@ The tunnel daemon has to be turned on for the node first, and it is off by defau
 
 ### Live Peer Links
 
-While the node is reachable, the page streams the daemon's own metrics over a websocket. Five tiles across the top give **Peers Connected**, **Daemon Uptime**, **Control Link**, **Bound Frontends** and **Same-Node Drops**. Below them there is a row per peer node, with its **Role** (**Dialled Out** if this node opened the connection, **Accepted** if the peer did), its **Address**, and then **Path** (RTT and MTU), **Loss**, **Transferred**, **Streams**, **Flows**, **Drops**, and how long it has been **Connected**.
+While the node is reachable, the page streams the daemon's own metrics over a websocket. Five tiles across the top give **Peers Connected**, **Daemon Uptime**, **Control Link**, **Bound Frontends** and **Same-Node Drops**.
+
+Below them there's a row per peer node, with its **Role** (**Dialled Out** if this node opened the connection, **Accepted** if the peer did), its **Address**, and then: **Path** (RTT and MTU), **Loss**, **Transferred**, **Streams**, **Flows**, **Drops**, and how long it's been **Connected**.
 
 ::: info
 All `nodes.*` admin permission keys are listed in the [Permissions Reference](../dashboard/permissions.md).

@@ -80,26 +80,7 @@ If everything works correctly, you should now be able to see your Discord accoun
 
 ### Troubleshooting
 
-#### Error: "Invalid OAuth2 redirect_uri"
-The redirect URL in Discord doesn't match the one provided by Calagopus Panel.
-
-**Solution:**
-
-1. Go back to your Calagopus Panel OAuth provider configuration page
-2. Copy the exact Redirect URL shown
-3. Go to [Discord Developer Portal](https://discord.com/developers/applications) and select your application
-4. Navigate to OAuth2, then Redirects
-5. Ensure the redirect URL matches exactly (including `https://`, trailing slashes, etc.)
-6. Click `Save Changes`
-
-#### Error: "Unknown application"
-The Client ID or Client Secret set on the panel is invalid.
-
-**Solution:**
-
-1. Go to [Discord Developer Portal](https://discord.com/developers/applications) and select your application
-2. Navigate to OAuth2
-3. Copy your Client ID
-4. Click `Reset Secret` to generate a new Client Secret and copy it
-5. Update both values in your Calagopus Panel OAuth provider configuration
-6. Save the changes
+| Symptom | Fix |
+| --- | --- |
+| Error: "Invalid OAuth2 redirect_uri" | The redirect URL in Discord doesn't match the one provided by Calagopus Panel. Go back to your Calagopus Panel OAuth provider configuration page and copy the exact Redirect URL shown, then go to the [Discord Developer Portal](https://discord.com/developers/applications), select your application, navigate to OAuth2 then Redirects, and make sure the redirect URL matches exactly (including `https://`, trailing slashes, etc.) before clicking **Save Changes**. |
+| Error: "Unknown application" | The Client ID or Client Secret set on the panel is invalid. Go to the [Discord Developer Portal](https://discord.com/developers/applications), select your application, navigate to OAuth2, copy your Client ID, click **Reset Secret** to generate a new Client Secret and copy it, then update both values in your Calagopus Panel OAuth provider configuration and save. |

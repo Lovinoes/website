@@ -5,7 +5,9 @@ description: The instance-wide audit log covering every admin-side action taken 
 
 # Activity
 
-**Activity** under **Users & Access** is the panel-wide audit log: every admin-side action, who performed it, from which IP, and when. It works exactly like the [server activity](../server/activity.md) page, searchable and paginated, with an **Actor** column (including "Impersonated by ..." markers and **System** rows for actions without a user), Event, IP, and When, plus an info button on rows carrying extra JSON metadata. Click an actor to filter the log to that user; **Clear User Filter** undoes it.
+**Activity** under **Users & Access** is the panel-wide audit log: every admin-side action, who performed it, from which IP, and when. It works exactly like the [server activity](../server/activity.md) page, searchable and paginated, with an **Actor** column (including "Impersonated by ..." markers and **System** rows for actions without a user), Event, IP, and When, plus an info button on rows carrying extra JSON metadata.
+
+Click an actor to filter the log to that user; **Clear User Filter** undoes it.
 
 ![Admin activity log](./images/activity/list.webp)
 

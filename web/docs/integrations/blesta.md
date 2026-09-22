@@ -144,18 +144,9 @@ Editing a service or changing its package, with **Use module** enabled, re-reads
 
 ## Troubleshooting
 
-### Saving the server fails with a connection error
-
-The API key is missing, malformed, or lacks admin access, or the Panel URL is incorrect. Confirm the Panel URL points at your panel (HTTPS is assumed if you omit the protocol) and re-enter a valid **admin** API key.
-
-### "No available allocations on the selected node"
-
-The chosen node has no free allocations. Add allocations to the node, or switch the package to auto-deploy across locations.
-
-### The package will not save
-
-Either the Nest or Egg is unset, or neither a node nor any locations were selected. All selections must come from the same panel the server is configured against.
-
-### Clients get a duplicate panel account
-
-The module matches existing users by email and username. If a client registered on the panel separately with a different email than the one in Blesta, link the accounts by setting that panel user's `external_id` to the Blesta client ID.
+| Symptom | Fix |
+| --- | --- |
+| Saving the server fails with a connection error | The API key is missing, malformed, or lacks admin access, or the Panel URL is incorrect. Confirm the Panel URL points at your panel (HTTPS is assumed if you omit the protocol) and re-enter a valid **admin** API key. |
+| "No available allocations on the selected node" | The chosen node has no free allocations. Add allocations to the node, or switch the package to auto-deploy across locations. |
+| The package will not save | Either the Nest or Egg is unset, or neither a node nor any locations were selected. All selections must come from the same panel the server is configured against. |
+| Clients get a duplicate panel account | The module matches existing users by email and username. If a client registered on the panel separately with a different email than the one in Blesta, link the accounts by setting that panel user's `external_id` to the Blesta client ID. |

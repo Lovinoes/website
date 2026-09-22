@@ -5,7 +5,7 @@ description: Register and manage Calagopus DB Agent hosts, the machines that run
 
 # Database Agent Hosts
 
-A database agent host is a machine running the [Calagopus DB Agent](../../../db-agent/index.md), which provisions managed databases: dedicated PostgreSQL, MariaDB, MongoDB, or Redis instances users create from their server's [Databases page](../server/databases.md#creating-a-managed-database).
+A database agent host is a machine running the [Calagopus DB Agent](../../../db-agent/index.md), which provisions managed databases: dedicated PostgreSQL, MariaDB, MongoDB, or Redis instances users create from their server's [Databases page](../server/databases/managed.md#creating-a-managed-database).
 
 ::: info
 Install the agent on the machine first; the [DB Agent docs](../../../db-agent/index.md) cover installation and the [configuration reference](../../../db-agent/configuration.md). The panel side below hands you the exact config file to drop in.
@@ -84,7 +84,11 @@ Every [database backup](../server/backups.md) taken from an instance on this hos
 
 Right-click a row to **Download**, **Reassign** or **Delete** it. Restore, export to files and the detach and reattach actions are file-backup concepts and are not offered for dumps.
 
-**Reassign** moves a dump to a different database instance. The dialog has two fields: pick a **Server**, then one of that server's **Database Instances**. Only instances of the same database type are listed, and the instance the dump already belongs to is left out. The target server can be a different one, in which case the dump moves onto that server's backup list and quota; a dump that is not on shared storage can only move to a server on the same node. Moving a dump to another server also takes it out of any [backup group](../server/backups.md#backup-groups) it was in, because groups belong to a single server. When the host has failed dumps, a **Delete Failed Backups** button appears above the table, with the usual **Force** switch.
+**Reassign** moves a dump to a different database instance. The dialog has two fields: pick a **Server**, then one of that server's **Database Instances**. Only instances of the same database type are listed, and the instance the dump already belongs to is left out.
+
+The target server can be a different one, in which case the dump moves onto that server's backup list and quota; a dump that's not on shared storage can only move to a server on the same node. Moving a dump to another server also takes it out of any [backup group](../server/backups.md#backup-groups) it was in, because groups belong to a single server.
+
+When the host has failed dumps, a **Delete Failed Backups** button appears above the table, with the usual **Force** switch.
 
 The Node column is the node whose storage holds the dump, not the host that produced it. Deletion goes through that node, so a dump cannot be removed while its storage node is unreachable unless you force it.
 

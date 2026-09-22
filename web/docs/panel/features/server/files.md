@@ -32,7 +32,7 @@ The **Connect** menu offers two ways to work on your files outside the browser:
 - **via SFTP** opens the **SFTP Details** modal with the connection info: **Protocol**, **Host**, **Port**, **Username** (your panel username plus the server's short ID, like `user.1a2b3c4d`), and a **Password** field that just reads "Your Control Panel Password". If your password cannot open that connection, a warning replaces the field and you need an [SSH Key](../dashboard/ssh-keys.md). That applies when the account has no password, when you have turned [Password Login](../dashboard/account.md#password-login) off, and when an admin has turned it off for the whole panel. Every field except the password copies on click, and **Launch** opens an `sftp://` link for clients registered to handle it. Holding Shift while clicking **via SFTP** skips the modal and launches directly. Requires the `files.sftp` permission.
 - **via VS Code** mounts the server as a workspace folder in your editor. See the [VS Code integration](../../../integrations/vscode.md) for setup and everything it can do.
 
-<img src="./images/files/sftp-details.webp" width="220" alt="SFTP details modal" />
+![](./images/files/sftp-details.webp)
 
 ### New
 
@@ -63,7 +63,7 @@ Below the toolbar, a **Disk Usage** bar shows how much of the server's disk limi
 
 Results replace the listing, with a banner summarizing the query and active filters; close the banner to return to normal browsing. The content-search size cap is limited by a panel-wide maximum under [Settings > Server](../admin/settings.md#server), and the **File Content** section only appears on filesystems where the daemon supports fast content scanning.
 
-<img src="./images/files/search-modal.webp" width="310" alt="Search modal with advanced filters" />
+![](./images/files/search-modal.webp)
 
 #### Result Previews
 
@@ -112,7 +112,9 @@ Right-clicking a selected row opens the mass action menu:
 | **Move** | Marks the selection for moving. |
 | **Delete** | Deletes the selection after confirmation. |
 
-**Copy** and **Move** work like cut and paste: the marked files stay highlighted while you navigate to the target directory, then the action bar offers **Copy ... here** or **Move ... here** (or `Ctrl+V`), with a cancel button to back out. If names collide while copying, a **Resolve Copy Conflicts** modal lists each clash with the source and destination details and lets you **Skip**, **Overwrite**, or **Rename** each file individually, or **Skip all** / **Overwrite all** at once.
+**Copy** and **Move** work like cut and paste: the marked files stay highlighted while you navigate to the target directory, then the action bar offers **Copy ... here** or **Move ... here** (or `Ctrl+V`), with a cancel button to back out.
+
+If names collide while copying, a **Resolve Copy Conflicts** modal lists each clash with the source and destination details and lets you **Skip**, **Overwrite**, or **Rename** each file individually, or **Skip all** / **Overwrite all** at once.
 
 Drag rows onto a directory row or a breadcrumb segment to move them; dragging any selected row drags the whole selection.
 
@@ -137,13 +139,27 @@ Right-click a row (or use its menu button) for the single-file context menu:
 
 ### Permissions (chmod)
 
-**File Permissions** shows the current mode as both **Symbolic** (`-rw-r--r--`) and **Octal** (`644`), with Read/Write/Execute checkboxes for **Owner**, **Group**, and **Other** and a breakdown of what each bit means. For directories, a switch applies the change recursively to everything inside. Changes can be undone straight from the confirmation toast.
+**File Permissions** shows the current mode as both **Symbolic** (`-rw-r--r--`) and **Octal** (`644`), with Read/Write/Execute checkboxes for **Owner**, **Group**, and **Other** and a breakdown of what each bit means.
 
-<img src="./images/files/permissions.webp" width="310" alt="File permissions modal" />
+For directories, a switch applies the change recursively to everything inside. Changes can be undone straight from the confirmation toast.
+
+![](./images/files/permissions.webp)
 
 ### Renaming
 
-A single **Rename** is a simple name prompt (also `F2`), undoable from the toast. Renaming a selection opens **Rename Files**, a batch tool with **Find** / **Replace with** (optionally as a regular expression with `$1` group references, with **Case sensitive** and **Replace all occurrences** toggles), an **Apply to** scope (**Name**, **Extension**, **Full name**), prefix/suffix, case conversion, and automatic numbering via a `{n}` token with **Start at**, **Step**, and **Minimum digits** controls. A live preview shows every resulting name and flags conflicts before anything is renamed.
+A single **Rename** is a simple name prompt (also `F2`), undoable from the toast.
+
+Renaming a selection opens **Rename Files**, a batch tool:
+
+| Field | What it does |
+| --- | --- |
+| **Find** / **Replace with** | Text or, with **Case sensitive** on, a regular expression with `$1` group references. **Replace all occurrences** controls whether every match or just the first is replaced. |
+| **Apply to** | Which part of the name the find/replace runs against: **Name**, **Extension**, or **Full name**. |
+| Prefix / Suffix | Text added before or after the result. |
+| Case conversion | Forces the result to a case. |
+| Automatic numbering | A `{n}` token in the name, with **Start at**, **Step**, and **Minimum digits** controls. |
+
+A live preview shows every resulting name and flags conflicts before anything is renamed.
 
 ### Remote Copy
 
@@ -151,11 +167,17 @@ A single **Rename** is a simple name prompt (also `F2`), undoable from the toast
 
 ### Archives
 
-**Archive** opens **Create Archive** with an optional **Archive Name** (a timestamped name is generated if you leave it empty) and a **Format**: `.tar`, `.tar.gz`, `.tar.xz`, `.tar.lz`, `.tar.bz2`, `.tar.lz4`, `.tar.zst`, `.zip`, or `.7z`. **Extract** unpacks an archive into any directory you pick in the browser. `.zip`, `.7z`, and `.ddup` archives can also be browsed in place, double-click one to navigate into it like a directory (where the filesystem supports it). Both run in the background; progress appears next to the toolbar, where operations (compressing, extracting, pulling, copying) can be cancelled individually or all at once via **Cancel all operations**.
+**Archive** opens **Create Archive** with an optional **Archive Name** (a timestamped name is generated if you leave it empty) and a **Format**: `.tar`, `.tar.gz`, `.tar.xz`, `.tar.lz`, `.tar.bz2`, `.tar.lz4`, `.tar.zst`, `.zip`, or `.7z`.
+
+**Extract** unpacks an archive into any directory you pick in the browser. `.zip`, `.7z`, and `.ddup` archives can also be browsed in place, double-click one to navigate into it like a directory (where the filesystem supports it).
+
+Both run in the background; progress appears next to the toolbar, where operations (compressing, extracting, pulling, copying) can be cancelled individually or all at once via **Cancel all operations**.
 
 ## Uploading
 
-Drag files from your device anywhere onto the page and a **Drop files here to upload** overlay appears; drop to start. Alternatively use **New** > **File from Upload** or **Directory from Upload**. Upload progress lives in a popover next to the toolbar, where uploads can be paused, resumed, and cancelled. Uploads keep going when you leave the page, and a progress toast follows you around the panel until they finish, one per destination, reading "Uploading 3 files to `server`...". Its **Show files** button takes you back to the directory being uploaded into, and its close button cancels every upload still heading there.
+Drag files from your device anywhere onto the page and a **Drop files here to upload** overlay appears; drop to start. Alternatively use **New** > **File from Upload** or **Directory from Upload**. Upload progress lives in a popover next to the toolbar, where uploads can be paused, resumed, and cancelled.
+
+Uploads keep going when you leave the page, and a progress toast follows you around the panel until they finish, one per destination, reading "Uploading 3 files to `server`...". Its **Show files** button takes you back to the directory being uploaded into, and its close button cancels every upload still heading there.
 
 ::: info
 The maximum size per uploaded file is set by the Wings option [`api.upload_limit`](../../../wings/configuration.md#api-upload-limit) (default 100 MiB). For anything bigger, use SFTP.
@@ -185,7 +207,7 @@ An upload that goes 30 seconds without progress is treated as incomplete. Its ba
 
 **Review Uploads** on the banner, or the **Review Incomplete Uploads** entry in the [quick actions](../dashboard/index.md#quick-actions) palette (`Ctrl+Space`), opens a modal listing every partial file and how far it got. Dismissing the banner hides it for that server until you open the panel in a new tab; the quick action stays available as long as something is unfinished.
 
-<img src="./images/files/incomplete-uploads-modal.webp" width="220" alt="Incomplete Uploads modal" />
+![](./images/files/incomplete-uploads-modal.webp)
 
 How to clear one depends on where it came from:
 
@@ -229,7 +251,7 @@ Files above the panel-wide view-size limit ([Settings > Server](../admin/setting
 
 ## SQLite Databases
 
-SQLite files (`.db`, `.db3`, `.sqlite`, `.sqlite3`) don't open in the editor: they open the same [data explorer](./databases.md#data-explorer) the panel uses for managed databases, at `/files/sqlite` - browsing rows, inspecting and editing the schema, and a raw query console. This requires the `files.query-raw` permission, which grants full read and write access to the file's contents; changing rows or structure additionally needs `files.update`.
+SQLite files (`.db`, `.db3`, `.sqlite`, `.sqlite3`) don't open in the editor: they open the same [data explorer](./databases/index.md#data-explorer) the panel uses for managed databases, at `/files/sqlite` - browsing rows, inspecting and editing the schema, and a raw query console. This requires the `files.query-raw` permission, which grants full read and write access to the file's contents; changing rows or structure additionally needs `files.update`.
 
 ## File History
 
@@ -239,7 +261,7 @@ The clock icon ("File History") in the editor header opens a drawer listing the 
 - **Compare to previous revision**, a read-only `Revision #N vs #M` diff.
 - **Restore this revision into the editor**, which loads the old content into the editor as an unsaved change so you can review before saving.
 
-<img src="./images/files/history-drawer.webp" width="311" alt="File history drawer" />
+![](./images/files/history-drawer.webp)
 
 ![Revision diff view](./images/files/revision-diff.webp)
 

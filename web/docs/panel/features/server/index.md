@@ -7,7 +7,13 @@ description: A tour of the Calagopus server view, the tabs you use to run, confi
 
 Clicking a server on the [Servers](../dashboard/servers.md) page opens the server view, where everything about that one server lives. Each tab only appears if you have the matching [permission](../dashboard/permissions.md) on that server, and admins can reshape the tab set per egg via [route configurations](../admin/egg-configurations.md#route-configuration): hiding pages, grouping them under dividers, or adding external links.
 
-Above every tab, the panel surfaces server-wide state: dismissible per-server announcements, status banners while the server is transferring (with progress, ETA, and an admin-only **Cancel**), suspended, restoring a backup, installing (cancellable with the `settings.cancel-install` permission), under node maintenance, or pending a restart, plus a websocket banner with a reconnect countdown if the live connection drops. Eggs whose install script reports its progress show a progress bar and a label in the installing banner instead of a plain "installing" message. While a transfer, restore, or installation is running, the same progress also sits in a toast in the corner, so it stays in view on every tab of the server.
+Above every tab, the panel surfaces server-wide state:
+
+- Dismissible per-server announcements.
+- Status banners while the server is transferring (with progress, ETA, and an admin-only **Cancel**), suspended, restoring a backup, installing (cancellable with the `settings.cancel-install` permission), under node maintenance, or pending a restart.
+- A websocket banner with a reconnect countdown if the live connection drops.
+
+Eggs whose install script reports its progress show a progress bar and a label in the installing banner instead of a plain "installing" message. While a transfer, restore, or installation is running, the same progress also sits in a toast in the corner, so it stays in view on every tab of the server.
 
 ## When the Server Is Blocked
 
@@ -15,15 +21,15 @@ Some states replace the whole server view rather than sitting above it, and two 
 
 **Installation failed.** If the administrator has enabled **Allow Acknowledging Installation Failure**, an **Acknowledge Failure** button appears, needing the `settings.cancel-install` permission: "By acknowledging this installation failure, you are confirming that you are aware of the failed installation and have taken any necessary steps to resolve the issue. This will allow you to regain control over the server." With the setting off, only an admin can clear it. Where you can read installation logs, a **View Installation Logs** link sits next to the button.
 
-**Backup restore failed.** "This server failed to restore a backup and cannot be accessed until acknowledged. Its files may be incomplete." Acknowledging needs the `backups.restore` permission and unlocks the server again - check the files before trusting them, since a half-restored backup leaves the server in an unknown state.
+**Backup restore failed.** "This server failed to restore a backup and cannot be accessed until acknowledged. Its files may be incomplete." Acknowledging needs the `backups.restore` permission and unlocks the server again: check the files before trusting them, since a half-restored backup leaves the server in an unknown state.
 
-Suspension, node maintenance and an in-progress transfer block the view in the same way, but those clear on their own; there is nothing to acknowledge.
+Suspension, node maintenance and an in-progress transfer block the view the same way, but those clear on their own; there's nothing to acknowledge.
 
 | Page | Description |
 | --- | --- |
 | [Console](./console.md) | Live terminal, power controls, resource stats, and graphs |
 | [Files](./files.md) | Browse, edit, and manage the server's files, plus SFTP access |
-| [Databases](./databases.md) | Classic and managed databases for the server |
+| [Databases](./databases/) | Classic and managed databases for the server |
 | [Schedules](./schedules.md) | Automated action steps with triggers and conditions |
 | [Subusers](./subusers.md) | Give other users scoped access to the server |
 | [Backups](./backups.md) | Server backups, with groups and automatic retention |
@@ -39,7 +45,7 @@ The sidebar stays the same on every tab. Above it, the [Quick actions](../dashbo
 
 Below that sit quick power buttons: **Start** while the server is offline, **Stop** while it runs, and a restart button. While the server is stopping, the button becomes **Kill**, with the same force-stop confirmation as on the [Console](./console.md).
 
-<img src="./images/index/status-card.webp" width="200" alt="" />
+![](./images/index/status-card.webp)
 
 Above the tabs, **Servers** takes you back to the dashboard.
 

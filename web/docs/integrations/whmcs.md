@@ -159,18 +159,9 @@ Change Package re-resolves the limits, feature limits, hugepages and KVM passthr
 
 ## Troubleshooting
 
-### Test Connection fails
-
-Confirm the **Hostname** has no scheme or trailing path (just the domain), the **Secure** checkbox matches your panel's protocol, and the **Password** field contains a valid **admin** API key.
-
-### "No available allocations on the selected node"
-
-The chosen node has no free allocations. Add allocations to the node, or switch the product to auto-deploy by clearing the Node UUID and supplying Location UUIDs.
-
-### Provisioning fails with a validation error on save
-
-Either Nest UUID or Egg UUID is missing, or neither a Node UUID nor Location UUIDs were provided. All UUIDs must come from the same panel the server is configured against.
-
-### Clients get a duplicate panel account
-
-The module matches existing users by email and username. If a client registered on the panel separately with a different email than the one in WHMCS, link the accounts by setting that panel user's `external_id` to the WHMCS user ID.
+| Symptom | Fix |
+| --- | --- |
+| Test Connection fails | Confirm the **Hostname** has no scheme or trailing path (just the domain), the **Secure** checkbox matches your panel's protocol, and the **Password** field contains a valid **admin** API key. |
+| "No available allocations on the selected node" | The chosen node has no free allocations. Add allocations to the node, or switch the product to auto-deploy by clearing the Node UUID and supplying Location UUIDs. |
+| Provisioning fails with a validation error on save | Either Nest UUID or Egg UUID is missing, or neither a Node UUID nor Location UUIDs were provided. All UUIDs must come from the same panel the server is configured against. |
+| Clients get a duplicate panel account | The module matches existing users by email and username. If a client registered on the panel separately with a different email than the one in WHMCS, link the accounts by setting that panel user's `external_id` to the WHMCS user ID. |

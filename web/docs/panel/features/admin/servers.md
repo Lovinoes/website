@@ -79,7 +79,7 @@ Size fields take a value plus a unit (B through PiB).
 
 ### Feature Limits
 
-How many **Allocations**, **Databases**, **Backups**, and **Schedules** the server may have; each defaults to 5. The backup cap counts server and [database backups](../server/backups.md#database-backups) together. These are the caps the owner runs into on the client-side [Network](../server/network/index.md), [Databases](../server/databases.md), [Backups](../server/backups.md), and [Schedules](../server/schedules.md) pages.
+How many **Allocations**, **Databases**, **Backups**, and **Schedules** the server may have; each defaults to 5. The backup cap counts server and [database backups](../server/backups.md#database-backups) together. These are the caps the owner runs into on the client-side [Network](../server/network/index.md), [Databases](../server/databases/), [Backups](../server/backups.md), and [Schedules](../server/schedules.md) pages.
 
 ### Allocations
 
@@ -150,7 +150,13 @@ Mounts attached to this server: ID, Name, Source, Target, and Added. **Add** att
 
 ### Backups
 
-All backups of this server: Name, **Kind**, **Source**, Node, Checksum, Size, Files, and Created, with failed backups flagged. Kind separates the server's file archives from dumps of its [database instances](./database-agent-hosts.md), and Source names either the server files or the instance a dump came from. Restore and export to files are offered for file backups only. A warning icon appears when a backup lives on a different node than the server; those are not viewable from the client API. The **Only show partially detached backups** switch filters to exactly those, and also decides which failed backups the button below clears.
+All backups of this server: Name, **Kind**, **Source**, Node, Checksum, Size, Files, and Created, with failed backups flagged.
+
+- **Kind** separates the server's file archives from dumps of its [database instances](./database-agent-hosts.md).
+- **Source** names either the server files or the instance a dump came from.
+- Restore and export to files are offered for file backups only.
+- A warning icon appears when a backup lives on a different node than the server; those aren't viewable from the client API.
+- The **Only show partially detached backups** switch filters to exactly those, and also decides which failed backups the button below clears.
 
 Right-click a completed backup for **Download** (with a format submenu for streaming backups), **Restore**, **Export to Files**, **View Metadata** (raw JSON), and **Delete**. The owner-facing side is the [Backups](../server/backups.md) page.
 
@@ -160,7 +166,7 @@ When there are failed backups, a **Delete Failed** button appears above the tabl
 
 ### Databases
 
-Two tables. **Classic Databases** lists databases on [database hosts](../../../additional/database-hosts/index.md) (name, host, type, address, username, size, created; right-click to **Delete**). **Managed Databases** lists instances provisioned through the [Database Agent](../../../db-agent/index.md), shown when you have `database-agent-hosts.read`. The client view is the [Databases](../server/databases.md) page.
+Two tables. **Classic Databases** lists databases on [database hosts](../../../additional/database-hosts/index.md) (name, host, type, address, username, size, created; right-click to **Delete**). **Managed Databases** lists instances provisioned through the [Database Agent](../../../db-agent/index.md), shown when you have `database-agent-hosts.read`. The client view is the [Databases](../server/databases/) page.
 
 ![](./images/servers/databases.webp)
 

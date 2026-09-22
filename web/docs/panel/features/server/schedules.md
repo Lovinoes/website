@@ -13,7 +13,7 @@ The list shows each schedule's name, **Last Run**, **Last Failure**, **Status** 
 
 **View Calendar** opens the **Upcoming Runs Calendar**, which plots upcoming cron runs in a day, week, or month view. Click an entry to jump to its schedule.
 
-<img src="./images/schedules/calendar.webp" width="390" alt="" />
+![](./images/schedules/calendar.webp)
 
 ::: info
 What a subuser can do here is controlled by the `schedules` permission group. See the [Permissions Reference](../dashboard/permissions.md#schedules).
@@ -23,7 +23,7 @@ What a subuser can do here is controlled by the `schedules` permission group. Se
 
 Click **Create**. A schedule starts with a **Schedule Name**, an **Enabled** toggle, and any number of triggers added via **Add Trigger**. Saving takes you straight to the schedule's page, where you add actions. The same form opens later via **Edit** on the schedule's page.
 
-<img src="./images/schedules/create-form.webp" width="310" alt="" />
+![](./images/schedules/create-form.webp)
 
 A disabled schedule ignores its triggers and can't be run manually until re-enabled.
 
@@ -69,7 +69,7 @@ Each step's menu offers **Edit**, **Duplicate**, and **Delete**. While the sched
 
 Steps are picked from a searchable **Action Type** list, organized into five groups.
 
-<img src="./images/schedules/step-picker.webp" width="310" alt="" />
+![](./images/schedules/step-picker.webp)
 
 Most steps have an **Ignore Failure** switch to let the schedule carry on if that step fails. Long-running operations (backups, file copies, archives) additionally have **Run in Foreground**, which makes the schedule wait for the operation to finish before moving on.
 
@@ -96,7 +96,9 @@ Most steps have an **Ignore Failure** switch to let the schedule carry on if tha
 
 The backup selector picks the **Latest Backup**, the **Oldest Backup**, a **Specific Backup (UUID)**, or one **By Name** (optionally matching the oldest instead of the newest), and can be narrowed to a [backup group](./backups.md#backup-groups).
 
-The four database steps use the same selector, restricted to [database backups](./backups.md#database-backups). Each has an **Only Consider Backups From** picker that narrows the selector to dumps taken from one managed database; leave it at **Any managed database** to consider every dump on the server. **Restore Database Backup** also has **Restore Into**, which defaults to "The database the backup was taken from" - set it when that database no longer exists, or to copy data into a different managed database running the same engine.
+The four database steps use the same selector, restricted to [database backups](./backups.md#database-backups). Each has an **Only Consider Backups From** picker that narrows the selector to dumps taken from one managed database; leave it at **Any managed database** to consider every dump on the server.
+
+**Restore Database Backup** also has **Restore Into**, which defaults to "The database the backup was taken from": set it when that database no longer exists, or to copy data into a different managed database running the same engine.
 
 ::: warning
 Restoring stops the server and overwrites its files; avoid combining **Restore Backup** with power or server state triggers that could re-trigger the schedule. **Restore Database Backup** overwrites the contents of the target database and does not wait for the import to finish, so later steps can run while it is still in progress. **Delete Backup** and **Delete Database Backup** permanently delete the backup and its files on the node, and fail if the selected backup is locked.
@@ -144,7 +146,17 @@ Many step fields accept either plain text or a variable; the icon at the field's
 
 #### HTTP Request
 
-The most configurable step: **Method** (GET, POST, PUT, PATCH, DELETE, HEAD), **URL**, **Headers** (name/value pairs via **Add Header**, up to 32), an optional **Body**, and a **Timeout (milliseconds)** of up to 60 seconds. **Ignore Error Status Codes** keeps an error response from failing the step, and **Output Status Code Into** / **Output Response Body Into** store the response into variables for later steps.
+The most configurable step:
+
+| Field | Notes |
+| --- | --- |
+| **Method** | GET, POST, PUT, PATCH, DELETE, or HEAD. |
+| **URL** | The request URL. |
+| **Headers** | Name/value pairs via **Add Header**, up to 32. |
+| **Body** | Optional. |
+| **Timeout (milliseconds)** | Up to 60 seconds. |
+| **Ignore Error Status Codes** | Keeps an error response from failing the step. |
+| **Output Status Code Into** / **Output Response Body Into** | Store the response into variables for later steps. |
 
 ::: info
 For admins: HTTP Request steps are sent from the node, and Wings enforces node-level limits, by default 5 requests per 60-second window per server, a 16 KiB captured-response cap, private CIDR ranges blocked, and an option to disable the step entirely. See the [Wings configuration reference](../../../wings/configuration.md#schedule-steps).

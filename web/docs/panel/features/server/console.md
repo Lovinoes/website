@@ -52,7 +52,9 @@ Typing `!` suggests your [Command Snippets](../dashboard/command-snippets.md); p
 
 ### SSH Details
 
-**SSH Details** shows everything needed to open a shell on the server over SSH: protocol, host, port, the username (your panel username followed by the server's short ID, like `<username>.<server-id>`), and a ready-made **SSH Command**. The password is your panel password, or add an [SSH Key](../dashboard/ssh-keys.md) to skip it. If your password cannot open the connection, the key is required and a warning replaces the password field. Every field except the password copies on click, and **Launch** opens the connection in your system's SSH client. Both this and **Command History** are disabled while the server is suspended or busy installing, restoring, or transferring.
+**SSH Details** shows everything needed to open a shell on the server over SSH: protocol, host, port, the username (your panel username followed by the server's short ID, like `<username>.<server-id>`), and a ready-made **SSH Command**. The password is your panel password, or add an [SSH Key](../dashboard/ssh-keys.md) to skip it. If your password cannot open the connection, the key is required and a warning replaces the password field.
+
+Every field except the password copies on click, and **Launch** opens the connection in your system's SSH client. Both this and **Command History** are disabled while the server is suspended or busy installing, restoring, or transferring.
 
 <img src="./images/console/ssh-details.webp" width="220" alt="" />
 
