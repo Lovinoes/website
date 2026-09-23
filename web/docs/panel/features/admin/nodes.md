@@ -125,6 +125,8 @@ The node's IP:port pool that servers draw from (requires `nodes.allocations`). C
 
 Click **Create** to bulk-create allocations: an **IP**, an optional **IP Alias**, and **Port Ranges** (single ports or ranges like `3000-4000`). The button shows how many allocations will be created.
 
+The **IP** field suggests addresses as you type, in three groups: **All Addresses** (`0.0.0.0` and `::`), **Node Interfaces** (the addresses Wings finds on the host's network interfaces, leaving out loopback, link-local and Docker's own bridges), and **In Use** (IPs the node already has allocations on). The same field is used by **Update** and by the first-time setup's node step. Node interfaces need `nodes.read` and only appear when Wings runs directly on the host; a Wings running in a container reports none, even with host networking. You can still type any address.
+
 ![](./images/nodes/allocations-create.webp)
 
 Select allocations (drag, checkboxes, or `Ctrl+A`) for the action bar: **Update** rewrites the IP or IP Alias of all selected at once, **Delete** removes them (also on the `Delete` key). See [Setting up Allocations](../../../wings/next-steps/setting-up-allocations.md) for guidance on choosing IPs.

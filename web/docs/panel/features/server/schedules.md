@@ -53,6 +53,18 @@ Flip **Edit as cron expression** to write the expression yourself; clicking the 
 Calagopus cron expressions put **seconds** first: `second minute hour day month weekday`. So `0 0 0 * * *` is daily at midnight. Classic five-field crontab lines work as-is (5 to 7 fields are accepted); the seconds field only applies when present.
 :::
 
+## Bulk Actions
+
+Select rows with their checkboxes, by dragging across them, or with `Ctrl+A` (`Esc` clears); only rows on the current page are selected. The action bar then offers:
+
+| Action | Notes |
+| --- | --- |
+| **Run Now** | Triggers the selected schedules, either **Run now (check conditions first)** or **Run now (ignore conditions)**. Disabled schedules are skipped. |
+| **Enable** / **Disable** | Each only touches the schedules not already in that state; the buttons show how many that is. |
+| **Delete** | Deletes them after a confirmation. |
+
+Selecting needs `schedules.update` or `schedules.delete`. Each action reports how many items it changed, skipped or failed in a toast.
+
 ## The Schedule Page
 
 Opening a schedule shows its name with an **Active**/**Inactive** badge, a **Run Now** button, and **Edit**. Two cards show **Last Run** and **Last Failure** ("Never" until they happen). Below that are three tabs: **Actions**, **Conditions**, and **Triggers**.

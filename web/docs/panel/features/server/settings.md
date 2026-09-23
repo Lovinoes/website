@@ -43,7 +43,7 @@ Runs the egg's install script again, as if the server were being set up fresh.
 "Reinstalling your server will stop it, and then re-run the installation script that initially set it up. **Some files may be deleted or modified during this process, please back up your data before continuing.**"
 :::
 
-Clicking **Reinstall Server** opens a confirmation with one switch: "Do you want to delete all files of this server before performing this action? This cannot be undone." Leave it off to keep your files (the install script may still touch some of them), or turn it on to wipe the server first. Confirm with **Reinstall**; the server switches into an installing state and you're returned to the console.
+Clicking **Reinstall Server** opens a confirmation. Its first switch reads "Do you want to delete all files of this server before performing this action? This cannot be undone." Leave it off to keep your files (the install script may still touch some of them), or turn it on to wipe the server first. The second, **Start the server after the reinstall has finished**, boots the server once the install script completes successfully; it is off by default and only shown to users with the `control.start` permission. Confirm with **Reinstall**; the server switches into an installing state and you're returned to the console.
 
 <img src="./images/settings/reinstall-modal.webp" width="220" alt="" />
 

@@ -28,6 +28,10 @@ Right-clicking any sidebar link offers two more ways to open it: **Open in Virtu
 
 ![](./images/index/nav-search.webp)
 
+## Searching Lists
+
+The search box above a list, in the admin area and on your own pages alike, matches names and other text anywhere in the field, and also takes an ID: paste a full UUID, or at least its first 8 characters (the short ID in a server's URL), and the matching row comes up.
+
 ## Quick Actions
 
 **Quick actions...** at the top of the sidebar, or `Ctrl+Space` anywhere (rebindable under [Keyboard Shortcuts](./keyboard-shortcuts.md), and it works even while typing in an input), opens a command palette: type to filter actions and pages by any part of their name, use the arrow keys to navigate, **Enter** to select, **Esc** to close.
@@ -57,7 +61,7 @@ Typing one of four characters first switches the palette into a different mode. 
 | `@` | Search users. Admin area only, and only with user permissions. |
 | `/` | Filter to pages only, showing each one's path. |
 
-The three dots next to your name open a small menu to jump to your **Account** page, switch to the **Admin** area (admins only), pick a **Theme**, reset your device overrides (see [Settings Sync](#settings-sync); the entry only appears when you have some), or log out. **Auto** follows your browser's theme, **Dark** and **Light** force one; the panel starts on **Dark** until you pick.
+The three dots next to your name open a small menu to jump to your **Account** page, switch to the **Admin** area (admins only), pick a **Theme**, toggle **Hide Addresses** (see [Preferences](./account.md#preferences)), reset your device overrides (see [Settings Sync](#settings-sync); the entry only appears when you have some), or log out. **Auto** follows your browser's theme, **Dark** and **Light** force one; the panel starts on **Dark** until you pick.
 
 ![](./images/index/nav-menu.webp)
 

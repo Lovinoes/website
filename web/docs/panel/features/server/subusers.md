@@ -39,14 +39,35 @@ See the [Permissions Reference](../dashboard/permissions.md#server-permissions) 
 
 ![](./images/subusers/ignored-files.webp)
 
+The patterns follow `.gitignore` rules, which the panel and Wings both apply the same way:
+
+| Pattern | Hides |
+| --- | --- |
+| `secrets` | Anything named `secrets` at any depth, and everything inside it if it's a directory. Not `secrets.txt`. |
+| `/config.yml` | Only `config.yml` at the server root. A leading `/`, or a `/` anywhere but the end, anchors a pattern to the root. |
+| `logs/` | Directories named `logs`, with their contents, but not a file of that name. |
+| `*.env` | Everything ending in `.env`, at any depth. |
+| `!pattern` | Nothing: it un-hides whatever matches, even below a directory an earlier line hid. |
+
+Lines starting with `#` are comments. Later lines win over earlier ones, so an exception has to come after the pattern it carves into. That makes an allowlist possible:
+
+```
+*
+!game/csgo/cfg
+```
+
+hides everything except `game/csgo/cfg` and its contents. The directories on the way there (`game`, `game/csgo`) stay listed so the subuser can reach the exception, but the directories themselves are still denied, so they cannot be renamed, deleted or archived as a whole. A list that fails to compile, for example with an unclosed `[`, denies the whole server rather than nothing.
+
 As you type, the gutter next to each line shows how many files currently match ("12 matched" or "No matches"); `!` lines are marked "Exception". Past 20 patterns, counting is no longer automatic and a **Count Matches** button appears instead.
 
 A partially uploaded file is matched against the name it will end up with, not the `.upload-part` name it carries while in flight, so a pattern cannot be side-stepped by grabbing the partial file over SFTP mid-upload.
 
-Toggle **Preview ignored files** for a small file browser where everything the patterns hide is struck through and tagged **Ignored**. Both the counts and the preview need the `files.read` permission.
+Toggle **Preview ignored files** for a small file browser where everything the patterns hide is struck through and tagged **Ignored**, and directories that are only reachable because of an exception below them are tagged **Partially ignored**. Both the counts and the preview need the `files.read` permission.
 
 ## Editing and Removing
 
 Right-click a subuser (or open the row menu) for **Edit** and **Remove**. **Edit** opens the same permissions and ignored files editor; the email can't be changed. **Remove** asks for confirmation and only revokes access to this server, it doesn't touch their account.
+
+With `subusers.delete`, select several subusers (checkboxes, drag, or `Ctrl+A`) and **Remove** them together after one confirmation.
 
 Viewing the page requires `subusers.read`; creating, editing, and removing require `subusers.create`, `subusers.update`, and `subusers.delete` respectively.

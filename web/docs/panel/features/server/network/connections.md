@@ -85,7 +85,14 @@ Both switches can be flipped at once, which grants two separate connections. Eit
 | Quota reached | "This server is limited to *N* outgoing connections." |
 | Missing permission | "You are not allowed to grant this from *server*." |
 
-The port collision needs some explaining. A peer's offered ports are reached on a loopback address inside your server's own network namespace, so if your server has an allocation on port `25565`, it already owns that port there and can never use it to reach a peer offering `25565`. Two servers that both bind the same port cannot be connected in that direction at all. The same check runs the other way when you add an offered port: a port already bound by a server that reaches you is refused.
+The port collision needs some explaining. A peer's offered ports are reached on a loopback address inside your server's own network namespace. Game servers almost always listen on all addresses (`0.0.0.0` or `[::]`), which covers that loopback address too, so a server listening on `25565` cannot also reach a peer offering `25565` over the same protocol. Two servers that both use the same port cannot be connected in that direction. The same check runs the other way when you add an offered port: a port that is an allocation of a server that reaches you is refused.
+
+The check is deliberately cautious and not complete:
+
+- It compares port numbers only. The actual clash is per protocol, so a UDP-only allocation would not really block a peer's TCP port, but it is refused anyway.
+- It only knows about allocations. A port the server listens on without an allocation, such as RCON or a query port, is not checked, and the clash shows up at runtime instead: either the game server fails to start with "address already in use", or the peer's port is missing inside your server.
+
+Removing this restriction is possible and may be done in the future. Until then, giving servers you intend to connect distinct ports avoids it.
 
 If the server you picked offers no ports at all, the dialog says so and offers to add one for you, which needs `connections.update` on that server. Without it you get an alert instead:
 

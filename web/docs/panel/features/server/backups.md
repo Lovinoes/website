@@ -39,7 +39,9 @@ The form has four fields:
 | **Backup Group** | Only shown when the server has groups. Defaults to **No group**. |
 | **Ignored Files** | Patterns for files to exclude, one pattern per line. Server backups only. |
 
-The **Ignored Files** field shows a live match count next to each pattern, supports `!` exceptions, and has a **Preview ignored files** toggle that opens a file browser showing exactly what would be skipped.
+The **Ignored Files** field uses the same `.gitignore` rules as [subuser ignored files](./subusers.md#ignored-files), `!` exceptions below an ignored directory included. It shows a live match count next to each pattern, and has a **Preview ignored files** toggle that opens a file browser showing exactly what would be skipped.
+
+Wings adds two more sources to that list: a `.pteroignore` file in the server's root directory, read with the same rules (up to 1 MiB), and the egg's **File Deny List**. Their lines come after yours, so an exception in the field cannot re-include something they exclude.
 
 ## Database Backups
 
@@ -138,6 +140,20 @@ When the panel has taken automatic backups of this server through a [system back
 The rows are read-only in the sense that you cannot rename, lock or delete them, but they're still fully usable backups: browsing, downloading, restoring, exporting to files and viewing metadata all work exactly as they do on your own backups, with the same permissions. The table carries **Kind** and **Source** columns, because a policy can back up either the server files or one of the server's database instances.
 
 ![System backups tab](./images/backups/system-backups.webp)
+
+## Bulk Actions
+
+Select rows with their checkboxes, by dragging across them, or with `Ctrl+A` (`Esc` clears); only rows on the current page are selected. The action bar then offers:
+
+![Two backups selected, with the action bar showing Move to Group, Lock, Unlock and Delete](./images/backups/bulk-actions.webp)
+
+| Action | Notes |
+| --- | --- |
+| **Move to Group** | Pick a group from the menu, or **Remove from Group** to make them ungrouped. Needs `backups.update` and `backup-groups.read`, and is disabled while the server has no groups. |
+| **Lock** / **Unlock** | Each only touches the backups not already in that state. |
+| **Delete** | Asks for confirmation. Locked backups, backups that have not finished, and backups already being deleted are skipped, and the dialog says how many. |
+
+Selecting needs `backups.update` or `backups.delete`. Each action reports how many items it changed, skipped or failed in a toast.
 
 ## Backup Actions
 

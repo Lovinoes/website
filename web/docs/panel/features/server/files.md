@@ -120,11 +120,11 @@ Drag rows onto a directory row or a breadcrumb segment to move them; dragging an
 
 ## Per-File Actions
 
-Right-click a row (or use its menu button) for the single-file context menu:
+Right-click a row (or use its menu button) for the single-file context menu below. Middle-clicking a row opens it in a new browser tab straight away, and that includes the parent-directory row and the entries of the tree view:
 
 | Item | What it does |
 |---|---|
-| **Open in new Window** | Opens the file in a floating window inside the panel, so you can keep browsing next to it. |
+| **Open** | Opens the file or directory, the same as clicking it. Its submenu offers **Open in Virtual Window** (a floating window inside the panel, so you can keep browsing next to it), **Open in Popup** (a separate 1280x800 browser window), and **Open in New Tab**. On touch devices the menu shows **Open in New Tab** alone. |
 | **Rename** | Renames the file. |
 | **Copy** | Copies it; in read-only directories you pick a destination instead. |
 | **Remote Copy** | Copies it to another server. |
@@ -182,6 +182,20 @@ Uploads keep going when you leave the page, and a progress toast follows you aro
 ::: info
 The maximum size per uploaded file is set by the Wings option [`api.upload_limit`](../../../wings/configuration.md#api-upload-limit) (default 100 MiB). For anything bigger, use SFTP.
 :::
+
+### Upload Conflicts
+
+Before anything is sent, the panel checks whether the names you are uploading already exist in the target directory. If some do, a **Resolve Upload Conflicts** modal lists them next to the existing entries, and you pick one of three actions per item:
+
+![](./images/files/upload-conflicts-modal.webp)
+
+| Action | Effect |
+| --- | --- |
+| **Skip** | Leaves the existing entry alone and drops that item from the upload. The default for every row. |
+| **Overwrite** | Replaces the existing file. For a folder the option is called **Merge**: its files are written into the existing directory, overwriting any with the same name, and everything else in it stays. |
+| **Rename** | Uploads under a different name, prefilled as `name copy.ext`. The name cannot be empty or contain `/`. |
+
+**Skip all** and **Overwrite all** set every row at once. Files without a conflict are uploaded either way, and the modal says how many. The upload button stays disabled while every row is on **Skip**, so **Close** is how you back out, and it skips every conflicting item. Folders are compared by their top-level name only, and an upload of more than 1000 loose files skips the check for those files. If the check itself fails, the panel warns "Could not check for existing files; uploading anyway." and uploads everything as before.
 
 ### Shared Upload State
 

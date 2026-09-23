@@ -35,3 +35,5 @@ The rest of the right-click menu:
 | **Edit** | Toggle **Locked**. A locked database can't be recreated or deleted, and its password can't be rotated. |
 | **Recreate** | Wipes all data and creates a fresh, empty database with the same connection details. Type the database name to confirm. |
 | **Delete** | Permanently deletes the database and all data. Type the database name to confirm. |
+
+With `databases.delete`, you can also select several databases (checkboxes, drag, or `Ctrl+A`) and **Delete** them together after one confirmation. Locked databases are skipped. Each action reports how many items it changed, skipped or failed in a toast.

@@ -36,7 +36,7 @@ Otherwise (or after **Use Password**) you land on **Enter Password** ("Please en
 
 ## Sign in with a Passkey
 
-**Sign in with a Passkey** on the first step skips the username entirely: the browser lists the passkeys stored on your device and you pick one. This only works for keys registered with the usernameless option; for any other key the panel tells you to enter your username first, after which it works through the normal flow. Passkeys require HTTPS and a valid domain. See [Security Keys](../dashboard/security-keys.md) for registering them.
+**Sign in with a Passkey** on the first step skips the username entirely: the browser lists the passkeys stored on your device and you pick one. This only works for keys registered with the usernameless option; for any other key the panel tells you to enter your username first, after which it works through the normal flow. Passkeys require HTTPS and a valid domain; on a plain `http://` address (other than `localhost`) the browser offers no WebAuthn at all, so the button is not shown, the security key step after the username is skipped in favour of the password, and with password login also disabled only the OAuth buttons remain. Keep that in mind for `http://` addresses added under [Additional URLs](../admin/settings.md#additional-urls). See [Security Keys](../dashboard/security-keys.md) for registering them.
 
 ## OAuth Login
 

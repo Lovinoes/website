@@ -45,6 +45,8 @@ The panel detects whether you're on Windows/Linux or macOS and shows the matchin
 | Next page | `→` |
 | First page | `Shift+←` |
 | Last page | `Shift+→` |
+| Select all rows | `Ctrl+A` |
+| Deselect all rows | `Esc` |
 
 (`Ctrl` shows as `Cmd` on macOS.)
 
@@ -122,4 +124,8 @@ table.nextPage          = ArrowRight
 table.firstPage         = Shift+ArrowLeft
 # Last page
 table.lastPage          = Shift+ArrowRight
+# Select all rows
+table.selectAll         = Mod+A
+# Deselect all rows
+table.deselectAll       = Escape
 ```

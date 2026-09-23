@@ -129,14 +129,6 @@ Default value:
 disable_remote_download: false
 ```
 
-### api.server_remote_download_limit
-The maximum number of concurrent remote file pulls (downloads via URL) allowed for a single server.
-
-Default value:
-```yaml
-server_remote_download_limit: 3
-```
-
 ### api.remote_download_blocked_cidrs
 A security list of CIDR ranges blocked for remote downloads to prevent SSRF (Server-Side Request Forgery) attacks.
 
@@ -242,6 +234,14 @@ Default value:
 file_compression_threads: 2
 ```
 
+### api.file_fingerprint_threads
+The number of files Wings fingerprints in parallel for one request, for checksums from the file manager and the CurseForge hashes mod tooling asks for. Set to `0` to use every available core.
+
+Default value:
+```yaml
+file_fingerprint_threads: 4
+```
+
 ### api.upload_limit
 The maximum file size in `MiB` that can be uploaded through the web-based file manager.
 
@@ -338,7 +338,7 @@ blocked_cidrs:
 ## System Configuration
 
 ::: info Path placeholders
-`data`, `diffs_directory`, `vmount_directory`, `log_directory`, `archive_directory`, `backup_directory` and `tmp_directory` accept the `{root_directory}` placeholder in their value. It's substituted with the configured `system.root_directory` every time the path is used, so these default to living under `root_directory` and move together if you repoint it. This is also how a freshly generated `config.yml` writes these values: literally as `{root_directory}/...`, not pre-resolved, so editing `root_directory` alone is enough to relocate everything else that still uses the placeholder. `log_directory` and `tmp_directory` default to fixed, independent paths on Unix - see their entries below.
+`data`, `diffs_directory`, `vmount_directory`, `log_directory`, `archive_directory`, `backup_directory` and `tmp_directory` accept the `{root_directory}` placeholder in their value. It's substituted with the configured `system.root_directory` every time the path is used, so these default to living under `root_directory` and move together if you repoint it. This is also how a freshly generated `config.yml` writes these values: literally as `{root_directory}/...`, not pre-resolved, so editing `root_directory` alone is enough to relocate everything else that still uses the placeholder. `log_directory` defaults to a fixed, independent path on Unix - see its entry below.
 :::
 
 ### system.root_directory
@@ -402,12 +402,16 @@ backup_directory: '{root_directory}/backups'
 ```
 
 ### system.tmp_directory
-This is the directory where Wings stores temporary files. This is used for various temporary files that Wings needs to create during its operation.
+This is the directory where Wings stores temporary files, such as the staging directories of installation scripts and binaries it extracts for its own use. Wings empties it on every start, except for the staging directories of installations it is about to resume.
 
 Default value:
 ```yaml
-tmp_directory: /tmp/calagopus-wings
+tmp_directory: '{root_directory}/tmp'
 ```
+
+::: info Moved from /tmp
+Older versions defaulted to `/tmp/calagopus-wings`. When Wings runs in a container that path is a bind mount, and a host cleaner deleting it left the mount stale, which broke every installation until the container was recreated. A config that still holds `/tmp/calagopus-wings` or `/tmp/pterodactyl` is rewritten to `{root_directory}/tmp` on start, with a warning that the old directory can be removed. If you run Wings with Docker Compose, the separate `/tmp/calagopus-wings` volume is no longer needed.
+:::
 
 ### system.username
 The operating system user account that the Wings process runs under on the host.
@@ -1666,6 +1670,30 @@ Default value:
 mode: non-blocking
 ```
 
+## Limits
+
+Per-server caps on long-running file operations. An operation over a limit is refused straight away with `417 Expectation Failed` rather than queued, so the user sees the error and can retry once something finishes.
+
+### limits.server_concurrent_pulls
+The maximum number of remote file pulls (downloads from a URL) one server can run at once. Set to `0` for no limit.
+
+Default value:
+```yaml
+server_concurrent_pulls: 3
+```
+
+::: info
+This replaces `api.server_remote_download_limit`. A config that still sets the old key is migrated on start and whenever the panel pushes a config, with a warning in the log: its value moves here, except `0`, which used to block remote pulls entirely and now turns on `api.disable_remote_download` instead, since `0` means unlimited here.
+:::
+
+### limits.server_concurrent_operations
+The maximum number of file operations one server can run at once: archiving, extracting, copies (including to other servers), remote pulls and backup exports, whether started from the file manager or a schedule. Pulls count toward this limit as well as their own. Set to `0` for no limit.
+
+Default value:
+```yaml
+server_concurrent_operations: 0
+```
+
 ## Throttles
 
 ### throttles.enabled
@@ -1898,7 +1926,6 @@ api:
   redirects: {}
   disable_openapi_docs: false
   disable_remote_download: false
-  server_remote_download_limit: 3
   remote_download_blocked_cidrs:
   - 0.0.0.0/8
   - 127.0.0.0/8
@@ -1928,6 +1955,7 @@ api:
   file_delete_threads: 2
   file_decompression_threads: 4
   file_compression_threads: 2
+  file_fingerprint_threads: 4
   upload_limit: 100
   max_jwt_uses: 5
   request_log_limit: 250
@@ -1965,7 +1993,7 @@ system:
   vmount_directory: '{root_directory}/vmounts'
   archive_directory: '{root_directory}/archives'
   backup_directory: '{root_directory}/backups'
-  tmp_directory: /tmp/calagopus-wings
+  tmp_directory: '{root_directory}/tmp'
   username: calagopus
   timezone: +00:00
   user:
@@ -2157,6 +2185,9 @@ docker:
       max-file: '1'
       max-size: 5m
       mode: non-blocking
+limits:
+  server_concurrent_pulls: 3
+  server_concurrent_operations: 0
 throttles:
   enabled: true
   lines: 2000
@@ -2200,7 +2231,6 @@ api:
   redirects: {}
   disable_openapi_docs: false
   disable_remote_download: false
-  server_remote_download_limit: 3
   remote_download_blocked_cidrs:
   - 0.0.0.0/8
   - 127.0.0.0/8
@@ -2230,6 +2260,7 @@ api:
   file_delete_threads: 2
   file_decompression_threads: 4
   file_compression_threads: 2
+  file_fingerprint_threads: 4
   upload_limit: 100
   max_jwt_uses: 5
   request_log_limit: 250
@@ -2454,6 +2485,9 @@ docker:
       max-file: '1'
       max-size: 5m
       mode: non-blocking
+limits:
+  server_concurrent_pulls: 3
+  server_concurrent_operations: 0
 throttles:
   enabled: true
   lines: 2000

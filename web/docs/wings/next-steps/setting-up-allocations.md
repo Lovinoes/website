@@ -15,7 +15,7 @@ Click **Create** and a popup will appear:
 
 ![](./images/setting-up-allocations/allocation-popup.webp)
 
-**IP address**: Use an IP assigned to an interface on the Wings host, or `0.0.0.0` to bind all its IPv4 interfaces. Run `ip addr` to inspect the host's addresses. `hostname -I` can include private and Docker addresses; its first result is not necessarily your public IP. If your provider routes a public IP to a private address on the VPS, bind the private address or `0.0.0.0` and enter the public address as the alias below.
+**IP address**: Use an IP assigned to an interface on the Wings host, or `0.0.0.0` to bind all its IPv4 interfaces. The panel's **IP** field suggests the host's interface addresses when Wings runs directly on the host (not in a container); otherwise run `ip addr` to inspect them. `hostname -I` can include private and Docker addresses; its first result is not necessarily your public IP. If your provider routes a public IP to a private address on the VPS, bind the private address or `0.0.0.0` and enter the public address as the alias below.
 
 ::: info
 `127.0.0.1` has special handling in Wings: it normally maps to [`docker.network.interface`](../configuration.md#docker-network-interface), and an internal network can leave it unpublished. It does not guarantee a host-loopback-only port. [`docker.network.disable_interface_binding`](../configuration.md#docker-network-disable-interface-binding) can also make ports bind to all interfaces. Check the game container's actual port bindings before relying on an allocation for isolation.

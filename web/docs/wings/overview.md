@@ -43,7 +43,7 @@ Most of these live under `root_directory` by default (see [path placeholders](co
 | `vmount_directory` | Virtual mounts used for hardware UUID spoofing in containers | **Unix:** `/var/lib/calagopus-wings/vmounts`<br>**Win:** `C:\ProgramData\Calagopus-Wings\vmounts` |
 | `archive_directory` | Server archives (currently unused, kept for Pterodactyl compatibility) | **Unix:** `/var/lib/calagopus-wings/archives`<br>**Win:** `C:\ProgramData\Calagopus-Wings\archives` |
 | `backup_directory` | Local backups (Wings driver, Btrfs, and ZFS snapshots) | **Unix:** `/var/lib/calagopus-wings/backups`<br>**Win:** `C:\ProgramData\Calagopus-Wings\backups` |
-| `tmp_directory` | Temporary files | **Unix:** `/tmp/calagopus-wings`<br>**Win:** `C:\ProgramData\Calagopus-Wings\tmp` |
+| `tmp_directory` | Temporary files | **Unix:** `/var/lib/calagopus-wings/tmp`<br>**Win:** `C:\ProgramData\Calagopus-Wings\tmp` |
 
 ::: info
 The default paths intentionally match Pterodactyl's defaults, so migrating from Pterodactyl to Calagopus doesn't require moving any server data, Wings will find everything where it already is. These defaults are not planned to change.

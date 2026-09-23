@@ -30,3 +30,5 @@ The maximum number of SSH keys per account is set by the instance administrator 
 Right-click a key (or open the menu at the end of its row) to edit or delete it. Editing only changes the key's name, not the key material itself; add a new key instead if the underlying key pair changed.
 
 <img src="./images/ssh-keys/edit-form.webp" width="220" alt="" />
+
+To remove several keys at once, select them (checkboxes, drag, or `Ctrl+A`) and use **Delete** in the action bar, which asks for confirmation. Each action reports how many items it changed, skipped or failed in a toast.

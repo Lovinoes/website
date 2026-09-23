@@ -24,6 +24,8 @@ Selecting servers in the list turns the header into an action bar that applies o
 
 Each action asks for confirmation first, and **Delete** spells out that it cannot be undone. Only the actions your role permits appear.
 
+The **Delete** confirmation carries the same two switches as a single [server deletion](#delete), both off by default: **Force**, which removes the servers from the panel even when their nodes cannot be reached (with a warning that their files and databases may be left behind), and "Do you want to delete backups of these servers?". Whatever you pick applies to every selected server.
+
 Servers the action would not change are skipped rather than pushed through, so suspending a selection that already contains suspended servers only touches the rest, and the toast reports both counts ("Successfully suspended 3 servers. 2 servers skipped."). If nothing in the selection would change, the panel says so and does nothing.
 
 Servers are processed independently, so a bulk action can partly succeed; the toast then reports how many succeeded and how many failed.
@@ -74,8 +76,11 @@ Size fields take a value plus a unit (B through PiB).
 | **Startup Command** | Required. What actually runs in the container. |
 | **Start on Completion** | "Start server after installation completes." On by default. |
 | **Skip Installer** | "Skip running the install script." Useful when restoring files by other means. |
+| **Container Labels** (*advanced*) | Docker labels put on the server's container, as key/value pairs. See below. |
 | **Enable Hugepages Passthrough** (*advanced*) | Mounts `/dev/hugepages` into the container. |
 | **Enable KVM Passthrough** (*advanced*) | Allows access to `/dev/kvm` inside the container. |
+
+Container labels are for tooling outside the panel that reads Docker labels, such as a monitoring agent or a reverse proxy that routes by label (`com.example.tier` = `gold`). They are applied the next time the container is created, which is the next start; changing them does not mark the server as needing a restart, so restart it yourself. An egg's [configuration file replacements](./nests.md#general) can read one as `{{server.labels.<key>}}` (a missing key resolves to an empty string). The startup command cannot: its `{{...}}` placeholders only see the server's environment variables. A server takes at most 64 labels, keys and values are capped at 255 characters and cannot contain control characters, and `Service` and `ContainerType` are refused because Wings sets those itself. The server's **Overview** tab lists the labels as `key=value` badges.
 
 ### Feature Limits
 

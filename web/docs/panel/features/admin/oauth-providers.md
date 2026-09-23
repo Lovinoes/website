@@ -22,7 +22,7 @@ The last two control what users see on their own [OAuth Links](../dashboard/oaut
 
 ## Creating a Provider
 
-**Create** (requires `oauth-providers.create`) opens the form. Name and an optional description come first, followed by a **Redirect URL** card: it reads "Available after creation" until the provider exists, then shows `<panel URL>/api/auth/oauth/<uuid>`, the callback URL you register with the external provider.
+**Create** (requires `oauth-providers.create`) opens the form. Name and an optional description come first, followed by a **Redirect URL** card: it reads "Available after creation" until the provider exists, then shows `<panel URL>/api/auth/oauth/<uuid>`, the callback URL you register with the external provider. With [Additional URLs](./settings.md#additional-urls) configured, the card lists one redirect URL per address, and each address you want OAuth logins on needs its own registered with the provider.
 
 ![Provider form](./images/oauth-providers/create-form.webp)
 

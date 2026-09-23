@@ -24,6 +24,7 @@ The **Application** tab has an **Advanced mode** toggle in the top right. It rev
 | **Banner** | Optional banner image URL, also suggested from Assets |
 | **Banner (Light Mode)** | Optional separate banner for light mode (*advanced*) |
 | **URL** | The public URL of the panel |
+| **Additional URLs** | Other addresses the panel is also reachable at, up to 32 (*advanced*). See [Additional URLs](#additional-urls) |
 | **Session Cookie** | Name of the session cookie (*advanced*) |
 | **Session Duration (seconds)** | How long login sessions last (*advanced*) |
 | **Two-Factor Authentication Requirement** | Who must enable 2FA: **Admins**, **All Users**, or **None**. Affected users without 2FA are blocked from everything except setting it up and logging out |
@@ -48,6 +49,19 @@ Four combinations are rejected when you save, with an error rather than a silent
 - *"email two-factor and email verification require a mail transport to be configured"* - one of the two email options is on while [Mail](#mail) is set to no transport.
 - *"an enabled oauth provider is required before password login can be disabled"* - there is nothing left to sign in with, so turning off **Enable Password Login** would lock out the whole panel.
 - *"a link to an enabled oauth provider or a security key is required before password login can be disabled"* - the panel has a way in, but **you** do not. Link your own account first, or register a security key.
+
+### Additional URLs
+
+A panel served under more than one address, say a public domain and a LAN address, lists the extra ones here. **URL** stays the main address. For each request the panel looks at the host it came in on, and if it matches one of the configured URLs (host and port), it uses that URL instead of the main one for:
+
+- the session cookie's `Secure` flag, so an `http://` LAN address can log in next to an `https://` main URL,
+- OAuth redirects, so a login started on one address comes back to it,
+- links in the emails users trigger themselves: verification, password reset and email change,
+- console WebSocket, download and upload links for a node that runs through the panel's `/wings-proxy`.
+
+Everything else keeps using the main **URL**, including links in emails the panel sends on its own, the addresses of avatars and other files kept in [filesystem storage](#storage), and the panel address handed to nodes. Browsers on an additional address must be able to reach the main one for those. A host that matches nothing falls back to the main URL too, so a spoofed `Host` header cannot inject an address that is not configured. Behind a reverse proxy the panel reads `X-Forwarded-Host`, but only from addresses listed in [`APP_TRUSTED_PROXIES`](../../environment.md#app-trusted-proxies).
+
+Trailing slashes are stripped and duplicates of the main URL are dropped on save. Two more things need setting up per address: every URL needs its own redirect URL registered with each [OAuth provider](./oauth-providers.md) (the provider page lists one per configured URL), and [security keys](#webauthn) only work on addresses under the **RP Id**.
 
 ## Metadata
 
@@ -219,6 +233,9 @@ Retention for the three activity logs and what gets logged.
 | --- | --- |
 | **Log Server Admin Activity** | Log admin activity on servers where the admin isn't an owner or subuser |
 | **Log Server Schedule Activity** | Log activity done by server schedules |
+| **Hide Server Activity IPs** | Hide IP addresses in server activity logs, even from users who hold `activity.read-ip`. **None** (the default), **Admins**, or **All Users** |
+
+**Admins** hides the address on entries made by an admin account or by someone impersonating a user, which keeps staff addresses out of a customer's log. **All Users** hides every address. Either way, a user with `activity.read-ip` still sees the IP on entries they made themselves (not ones made while someone impersonated them). The setting applies to the per-server [Activity](../server/activity.md) page for everyone, admins included; the admin and account activity logs are unaffected.
 
 ## Ratelimits
 

@@ -19,6 +19,10 @@ Click **Create** on the **Managed Databases** tab. Choose a **Database Name** an
 Templates and the resource limits they carry are configured by administrators under [Database Agent Templates](../../admin/database-agent-templates.md); the per-instance database and user caps live in [Settings > Server](../../admin/settings.md#server). See the [DB Agent docs](../../../../db-agent/index.md) for how instances are provisioned.
 :::
 
+## Bulk Actions
+
+Select rows with their checkboxes, by dragging across them, or with `Ctrl+A` (`Esc` clears); only rows on the current page are selected. The action bar has **Start**, **Restart**, **Stop** and **Kill** for every selected instance (`database-instances.power`; **Kill** asks first, since it can corrupt data), and **Delete** (`database-instances.delete`), which permanently removes the instances and their data after a confirmation. Locked instances are skipped by **Delete**. Each action reports how many items it changed, skipped or failed in a toast.
+
 ## The Instance Page
 
 Each instance has its own page at `/server/<id>/databases/instances/<id>` with the instance name, its type badge, and badges for **Locked**, **Update Available**, and **Restoring backup** where relevant.

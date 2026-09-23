@@ -94,12 +94,6 @@ export const wingsConfigDoc: ConfigDoc = {
           default: false,
         },
         {
-          key: 'api.server_remote_download_limit',
-          description:
-            'The maximum number of concurrent remote file pulls (downloads via URL) allowed for a single server.',
-          default: 3,
-        },
-        {
           key: 'api.remote_download_blocked_cidrs',
           description:
             'A security list of CIDR ranges blocked for remote downloads to prevent SSRF (Server-Side Request Forgery) attacks.',
@@ -183,6 +177,12 @@ export const wingsConfigDoc: ConfigDoc = {
           default: 2,
         },
         {
+          key: 'api.file_fingerprint_threads',
+          description:
+            'The number of files Wings fingerprints in parallel for one request, for checksums from the file manager and the CurseForge hashes mod tooling asks for. Set to `0` to use every available core.',
+          default: 4,
+        },
+        {
           key: 'api.upload_limit',
           description: 'The maximum file size in `MiB` that can be uploaded through the web-based file manager.',
           default: 100,
@@ -263,7 +263,7 @@ export const wingsConfigDoc: ConfigDoc = {
     },
     {
       title: 'System Configuration',
-      body: "::: info Path placeholders\n`data`, `diffs_directory`, `vmount_directory`, `log_directory`, `archive_directory`, `backup_directory` and `tmp_directory` accept the `{root_directory}` placeholder in their value. It's substituted with the configured `system.root_directory` every time the path is used, so these default to living under `root_directory` and move together if you repoint it. This is also how a freshly generated `config.yml` writes these values: literally as `{root_directory}/...`, not pre-resolved, so editing `root_directory` alone is enough to relocate everything else that still uses the placeholder. `log_directory` and `tmp_directory` default to fixed, independent paths on Unix - see their entries below.\n:::",
+      body: "::: info Path placeholders\n`data`, `diffs_directory`, `vmount_directory`, `log_directory`, `archive_directory`, `backup_directory` and `tmp_directory` accept the `{root_directory}` placeholder in their value. It's substituted with the configured `system.root_directory` every time the path is used, so these default to living under `root_directory` and move together if you repoint it. This is also how a freshly generated `config.yml` writes these values: literally as `{root_directory}/...`, not pre-resolved, so editing `root_directory` alone is enough to relocate everything else that still uses the placeholder. `log_directory` defaults to a fixed, independent path on Unix - see its entry below.\n:::",
       options: [
         {
           key: 'system.root_directory',
@@ -322,9 +322,16 @@ export const wingsConfigDoc: ConfigDoc = {
         {
           key: 'system.tmp_directory',
           description:
-            'This is the directory where Wings stores temporary files. This is used for various temporary files that Wings needs to create during its operation.',
-          default: '/tmp/calagopus-wings',
+            'This is the directory where Wings stores temporary files, such as the staging directories of installation scripts and binaries it extracts for its own use. Wings empties it on every start, except for the staging directories of installations it is about to resume.',
+          default: '{root_directory}/tmp',
           platformDefaults: { windows: '{root_directory}\\tmp' },
+          notesAfter: [
+            {
+              type: 'info',
+              title: 'Moved from /tmp',
+              body: 'Older versions defaulted to `/tmp/calagopus-wings`. When Wings runs in a container that path is a bind mount, and a host cleaner deleting it left the mount stale, which broke every installation until the container was recreated. A config that still holds `/tmp/calagopus-wings` or `/tmp/pterodactyl` is rewritten to `{root_directory}/tmp` on start, with a warning that the old directory can be removed. If you run Wings with Docker Compose, the separate `/tmp/calagopus-wings` volume is no longer needed.',
+            },
+          ],
         },
         {
           key: 'system.username',
@@ -1252,6 +1259,30 @@ export const wingsConfigDoc: ConfigDoc = {
           description:
             'The delivery mode for logs (e.g. `non-blocking`), determining how Docker handles log data when the buffer is full.',
           default: 'non-blocking',
+        },
+      ],
+    },
+    {
+      title: 'Limits',
+      body: 'Per-server caps on long-running file operations. An operation over a limit is refused straight away with `417 Expectation Failed` rather than queued, so the user sees the error and can retry once something finishes.',
+      options: [
+        {
+          key: 'limits.server_concurrent_pulls',
+          description:
+            'The maximum number of remote file pulls (downloads from a URL) one server can run at once. Set to `0` for no limit.',
+          default: 3,
+          notesAfter: [
+            {
+              type: 'info',
+              body: 'This replaces `api.server_remote_download_limit`. A config that still sets the old key is migrated on start and whenever the panel pushes a config, with a warning in the log: its value moves here, except `0`, which used to block remote pulls entirely and now turns on `api.disable_remote_download` instead, since `0` means unlimited here.',
+            },
+          ],
+        },
+        {
+          key: 'limits.server_concurrent_operations',
+          description:
+            'The maximum number of file operations one server can run at once: archiving, extracting, copies (including to other servers), remote pulls and backup exports, whether started from the file manager or a schedule. Pulls count toward this limit as well as their own. Set to `0` for no limit.',
+          default: 0,
         },
       ],
     },

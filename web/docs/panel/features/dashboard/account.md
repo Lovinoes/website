@@ -71,6 +71,8 @@ Your first name, last name, username, and panel language. First and last name ar
 
 A separate card holding **Toast Position** (where notifications pop up on screen) and a toggle for whether the panel should open to the **Grouped Servers** view instead of **All Servers**, off by default. See [Servers](./servers.md) for the difference.
 
+**Hide server addresses** masks IP addresses with `*` across the panel, for streaming or screen sharing. It covers server and allocation addresses, SFTP and SSH details, database hosts, session and activity IPs, and IPs printed in the server console; loopback and wildcard addresses such as `127.0.0.1` and `0.0.0.0` stay visible, and ports are kept. Toggling it redraws the console with the masking applied. The switch is labelled "best effort": in the console only IP addresses are masked, so hostnames printed there stay visible, and an address can still show up in files or anywhere else the panel does not treat as an address. The same toggle sits in the profile menu at the bottom of the sidebar as **Hide Addresses**.
+
 ## Avatar
 
 Click the empty **Avatar** field to upload an image. If it doesn't crop the way you want, drag the position handles on the preview grid to adjust it before saving.

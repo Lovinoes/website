@@ -37,8 +37,9 @@ The extension pictured across this page is [Custom Footer](https://www.sourcexch
 
 ## Installing and Building
 
-- **Install extension** uploads an extension `.zip`; you can also drag and drop files onto the page. If the extension ships a license, you have to **Accept** it before it's added.
+- **Install extension** uploads an extension `.zip`; you can also drag and drop files onto the page. If the extension ships a license, you have to **Accept** it before it's added. The upload is checked before anything is written: an extension whose supported panel versions don't include the version the next build targets is refused, and a refused or unaccepted upload leaves no file behind.
 - Newly added extensions land under **Pending extensions** until you hit **Rebuild extensions**, which compiles everything and restarts the panel. Progress phases are shown live, and a running build can be stopped with **Cancel build**.
+- The version the next build targets is the one the extension supervisor reports, which is not always the version currently running, for example while the panel has not yet restarted into a newer build. When the two differ, the page shows "The panel is serving a build for a different version" with both versions, and new extensions have to support the target one.
 - **View build logs** opens the log of the current or last build. If a build fails, an alert shows the reason and the **Rebuild** button becomes **Retry build**.
 
 <img src="./images/extensions/build-logs.webp" width="311" alt="" />

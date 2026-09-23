@@ -20,3 +20,5 @@ You're sent to that provider to authorize the connection; accepting links it to 
 
 Right-click a linked account (or open the menu at the end of its row) and select **Remove**. It's disabled when the provider isn't set as user-manageable by the administrator.
 
+Several links can be removed at once: select them (checkboxes, drag, or `Ctrl+A`) and use **Remove** in the action bar, which asks for confirmation. Each action reports how many items it changed, skipped or failed in a toast.
+
