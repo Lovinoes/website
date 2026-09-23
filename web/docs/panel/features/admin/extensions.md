@@ -21,7 +21,9 @@ Each installed extension gets a card with its name, package name, **Version**, *
 
 **Configure** on a card opens the extension's own settings page at `/admin/extensions/<packageName>`. It's disabled, with a tooltip saying why, when the extension has no backend, ships no configuration page, or is currently disabled.
 
-The switch next to it turns an extension **off without uninstalling it**: its entrypoints are skipped at boot, so its routes and background tasks stop existing, while its files, database tables and permission grants all stay put. Toggling shows a **Pending restart** badge until the panel restarts, and a **Disabled** badge afterwards. Flipping it back on restores the extension as it was. See [Disabling Extensions](../../extensions/disabling-extensions.md) for exactly what a disabled extension stops doing.
+The switch next to it turns an extension **off without uninstalling it**: its entrypoints are skipped at boot, so its routes and background tasks stop existing, while its files, database tables and permission grants all stay put. Toggling shows a **Pending restart** badge until the panel restarts, and a **Disabled** badge afterwards.
+
+Flipping it back on restores the extension as it was. See [Disabling Extensions](../../extensions/disabling-extensions.md) for exactly what a disabled extension stops doing.
 
 The trash icon removes an extension entirely, with a switch to also remove and roll back its database migrations. The code stops being included on the next rebuild, but the migration rollback happens immediately.
 

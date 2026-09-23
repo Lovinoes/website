@@ -20,7 +20,9 @@ Below the **OR** separator are the alternate ways in:
 
 If registration is enabled, a "Not registered? **Create account**" link points to [Register](./register.md).
 
-When an admin has turned off **Enable Password Login** in [Settings](../admin/settings.md#application), the **Forgot Password** and **Create account** links are gone, and so is the password step. What is left is whatever the panel still accepts: the OAuth buttons, plus the passkey options if security keys are on. If security keys are off too, the identifier field disappears entirely and the OAuth buttons are the whole page. Typing a name that has no passkey then gets you "Password sign-in is turned off on this panel, use one of the options below instead" rather than a password prompt.
+When an admin has turned off **Enable Password Login** in [Settings](../admin/settings.md#application), the **Forgot Password** and **Create account** links are gone, and so is the password step. What is left is whatever the panel still accepts: the OAuth buttons, plus the passkey options if security keys are on.
+
+If security keys are off too, the identifier field disappears entirely and the OAuth buttons are the whole page. Typing a name that has no passkey then gets you "Password sign-in is turned off on this panel, use one of the options below instead" rather than a password prompt.
 
 ## Step 2: Passkey or Password
 

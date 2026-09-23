@@ -5,7 +5,7 @@ description: Register MySQL, PostgreSQL, or MongoDB servers as Calagopus databas
 
 # Database Hosts
 
-A database host is an external MySQL, PostgreSQL, or MongoDB server the panel connects to with a privileged account. Once a host is registered and attached to a node or location, users can create classic databases on it themselves from their server's [Databases page](../server/databases.md), each with isolated credentials.
+A database host is an external MySQL, PostgreSQL, or MongoDB server the panel connects to with a privileged account. Once a host is registered and attached to a node or location, users can create classic databases on it themselves from their server's [Databases page](../server/databases/classic.md), each with isolated credentials.
 
 ::: info
 This page covers the panel side. Preparing the database server itself, creating the privileged account, and allowing remote access is covered in [Setting up Database Hosts](../../../additional/database-hosts/index.md), with dedicated guides for MySQL (MariaDB), PostgreSQL, and MongoDB. Do that first.

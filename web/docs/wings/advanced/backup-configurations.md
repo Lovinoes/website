@@ -31,7 +31,9 @@ When you create a backup configuration, you pick a **backup disk** - the backend
 | **Proxmox Backup Server** | A [Proxmox Backup Server](https://www.proxmox.com/en/products/proxmox-backup-server) datastore | PBS server URL, datastore, API token, and optionally a server fingerprint |
 | **Kopia** | A [Kopia](https://kopia.io) repository, via a running Kopia repository server | Kopia server URL, username, repository password, and optionally a server fingerprint |
 
-The four node-local options (**Local**, **DdupBak**, **Btrfs**, **Zfs**) don't require credentials on the Panel side. [`system.backup_directory`](../configuration.md#system-backup-directory) controls the backup storage directory, with a default of `{root_directory}/backups`: `/var/lib/calagopus-wings/backups` on a fresh Linux installation. Migrated or custom configurations may use another path. ZFS snapshots remain attached to the server's dataset, with backup metadata stored in the backup directory. The four remote options (**S3**, **Restic**, **Proxmox Backup Server**, and **Kopia**) need credentials, which you enter when creating the configuration. All secrets are encrypted at rest using the Panel's encryption key.
+The four node-local options (**Local**, **DdupBak**, **Btrfs**, **Zfs**) don't require credentials on the Panel side. [`system.backup_directory`](../configuration.md#system-backup-directory) controls the backup storage directory, with a default of `{root_directory}/backups`: `/var/lib/calagopus-wings/backups` on a fresh Linux installation (migrated or custom configurations may use another path). ZFS snapshots remain attached to the server's dataset, with backup metadata stored in the backup directory.
+
+The four remote options (**S3**, **Restic**, **Proxmox Backup Server**, and **Kopia**) need credentials, which you enter when creating the configuration. All secrets are encrypted at rest using the Panel's encryption key.
 
 Like **Restic** and **DdupBak**, both **Proxmox Backup Server** and **Kopia** deduplicate at the chunk level. What sets them apart is that they deduplicate *incrementally against the previous snapshot of the same server*, so a backup only uploads the chunks that changed since last time. Proxmox Backup Server stores each backup as a `pxar` archive in a PBS datastore; Kopia stores a snapshot in a Kopia repository, reached through a [Kopia repository server](https://kopia.io/docs/repository-server/). Kopia requires the `kopia` binary to be installed on the Wings node; PBS talks to the server over its HTTP API and needs no extra binary.
 
@@ -59,12 +61,17 @@ Like **Restic** and **DdupBak**, both **Proxmox Backup Server** and **Kopia** de
 | **Maintenance Enabled** | Leave off unless you want to temporarily prevent this configuration from being used (useful when rotating credentials or doing repository maintenance) |
 | **Backup Disk** | One of the options from the table above |
 
-3. Fill in the disk-specific fields (see [S3](#s3-settings), [Restic](#restic-settings), [Proxmox Backup Server](#proxmox-backup-server-settings), or [Kopia](#kopia-settings) below; the node-local disks have no extra fields).
+3. Fill in the disk-specific fields (see [Disk-specific Settings](#disk-specific-settings) below for S3, Restic, Proxmox Backup Server and Kopia; the node-local disks have no extra fields).
 4. Click **Save**.
 
 There is no "test connection" button. To verify a new configuration works, create a small test backup of a real server that's assigned to it.
 
-## S3 Settings
+## Disk-specific Settings
+
+Pick the disk you configured above:
+
+::::tabs
+=== S3
 
 Use the **S3** disk for AWS S3, MinIO, Backblaze B2's S3-compatible endpoint, Cloudflare R2, Wasabi, Hetzner Object Storage, or any other S3-compatible provider.
 
@@ -82,7 +89,7 @@ Use the **S3** disk for AWS S3, MinIO, Backblaze B2's S3-compatible endpoint, Cl
 If you're unsure whether your provider needs **Path Style**, try it off first. If uploads fail with DNS or certificate errors, turn it on.
 :::
 
-## Restic Settings
+=== Restic
 
 Use the **Restic** disk when you want deduplicated, encrypted backups to any of restic's supported backends (S3, B2, Azure Blob Storage, Google Cloud Storage, SFTP, a REST server, local disk, etc.). See the [restic backend documentation](https://restic.readthedocs.io/en/stable/030_preparing_a_new_repo.html) for the full list and the repository URL format for each.
 
@@ -117,7 +124,7 @@ Example of a restic configuration pointing at an S3-compatible endpoint:
 >   - `AWS_SECRET_ACCESS_KEY`: your secret key
 :::
 
-## Proxmox Backup Server Settings
+=== Proxmox Backup Server
 
 Use the **Proxmox Backup Server** disk to store backups in a [Proxmox Backup Server](https://pbs.proxmox.com/docs/) datastore. Each Calagopus backup becomes a PBS snapshot (backup type `host`, backup ID `<prefix>-<server-uuid>`), uploaded as a deduplicated `pxar` archive. Wings authenticates with a PBS [API token](https://pbs.proxmox.com/docs/user-management.html#api-tokens) - create one in the PBS web UI under **Configuration → Access Control → API Token** and grant it permission on the target datastore (e.g. `DatastoreBackup`, plus `DatastoreReader` if you want restores and browsing).
 
@@ -135,7 +142,7 @@ Use the **Proxmox Backup Server** disk to store backups in a [Proxmox Backup Ser
 You can read the fingerprint from the PBS web UI dashboard (**Show Fingerprint**) or with `proxmox-backup-manager cert info` on the PBS host. Either the colon-separated form (`AB:CD:...`) or the plain 64-character hex string works. PBS generates a self-signed certificate by default, so unless you replaced it with one from a trusted CA, you need the fingerprint.
 :::
 
-## Kopia Settings
+=== Kopia
 
 Use the **Kopia** disk to store backups in a [Kopia](https://kopia.io) repository. Wings does not connect to the underlying storage directly - instead it talks to a running [Kopia repository server](https://kopia.io/docs/repository-server/) (`kopia server start`), which fronts the actual repository (S3, B2, filesystem, etc.). This means the `kopia` binary must be installed on each Wings node that uses this configuration; Wings shells out to it and keeps its per-repository state (config and cache) under the `.kopia` subdirectory of [`system.backup_directory`](../configuration.md#system-backup-directory).
 
@@ -152,6 +159,7 @@ Backups are created as Kopia snapshots tagged with the backup UUID, deduplicated
 ::: info
 The username and password must correspond to a user that the Kopia repository server has been configured to accept (see [Kopia server access control](https://kopia.io/docs/repository-server/#server-access-control)). The fingerprint is the server's certificate fingerprint, which `kopia server start` prints on startup (and which you pass to clients as `--server-cert-fingerprint`). It is generated self-signed by default, so unless you started the server with a certificate from a trusted CA, you need the fingerprint.
 :::
+::::
 
 ## Assigning a Backup Configuration
 
@@ -190,30 +198,38 @@ While maintenance is enabled, any backup that would have used this configuration
 
 ## Supported Backup Drivers FAQ
 
+| Driver | Off-node storage | Deduplicates | Incremental (changed chunks only) | Browse support | Extra node software |
+| --- | --- | --- | --- | --- | --- |
+| **Local** | No | No | N/A | Only with `zip` or `seven_zip` format | None |
+| **DdupBak** (experimental) | No | Yes | No | Yes | None |
+| **Btrfs** | No | No (filesystem snapshot) | N/A | Yes | Btrfs [disk limiter](../disk-limiters/index.md) |
+| **Zfs** | No | No (filesystem snapshot) | N/A | Yes | ZFS [disk limiter](../disk-limiters/index.md) |
+| **S3** | Yes | No | N/A | No, full download only | None |
+| **Restic** | Yes | Yes | No | Yes | `restic` binary |
+| **Proxmox Backup Server** | Yes | Yes | Yes | Yes | None (reached over HTTP) |
+| **Kopia** | Yes | Yes | Yes | Yes | `kopia` binary, plus a reachable [Kopia repository server](https://kopia.io/docs/repository-server/) |
+
+The rest of this section adds detail the table above doesn't cover.
+
 ### Which backup drivers does Calagopus support?
 
-Eight: **Local**, **DdupBak**, **Btrfs**, **Zfs**, **S3**, **Restic**, **Proxmox Backup Server**, and **Kopia**. See the [Backup Disks](#backup-disks) table for what each one stores to.
+Eight, listed in the table above. See the [Backup Disks](#backup-disks) table for what each one stores to.
 
 ### Which drivers store backups off the node?
 
-**S3**, **Restic**, **Proxmox Backup Server**, and **Kopia** write to remote storage and need credentials. The other four (**Local**, **DdupBak**, **Btrfs**, **Zfs**) write to the Wings node's own disk and need no Panel-side credentials. A node-local backup is only as safe as the node - if you need off-host durability, pick one of the remote drivers.
+The remote drivers need credentials, entered when creating the configuration; the node-local ones need none on the Panel side. A node-local backup is only as safe as the node, so pick a remote driver if you need off-host durability.
 
 ### Which drivers deduplicate?
 
-**DdupBak**, **Restic**, **Proxmox Backup Server**, and **Kopia**. **Restic** and **DdupBak** deduplicate within their repository, while **Proxmox Backup Server** and **Kopia** additionally upload incrementally against the previous snapshot of the same server, so a backup only transfers the chunks that changed. **Local**, **Btrfs**, **Zfs**, and **S3** do not deduplicate (Btrfs/Zfs snapshots are space-efficient on the host, but that's a property of the filesystem, not the backup driver).
+**Restic** and **DdupBak** deduplicate within their repository. **Proxmox Backup Server** and **Kopia** go further and deduplicate incrementally against the previous snapshot of the same server, so a backup only transfers the chunks that changed. Btrfs and ZFS snapshots are space-efficient on the host, but that's a property of the filesystem, not the backup driver, so they aren't counted as deduplicating here.
 
 ### Which drivers let users browse a backup and restore individual files?
 
-**DdupBak**, **Btrfs**, **Zfs**, **Restic**, **Proxmox Backup Server**, and **Kopia** all support [browse](#browsing-backups-from-the-client-ui). **Local** supports it only with the `zip` or `seven_zip` archive format. **S3** does not support browse - those backups must be downloaded in full.
+Everything in the table except **S3** supports [browse](#browsing-backups-from-the-client-ui); **Local** needs the `zip` or `seven_zip` archive format for it to work.
 
 ### Do any drivers need extra software or setup on the Wings node?
 
-Yes:
-
-- **Restic** requires the `restic` binary on the node.
-- **Kopia** requires the `kopia` binary on the node, plus a reachable [Kopia repository server](https://kopia.io/docs/repository-server/).
-- **Btrfs** and **Zfs** require the host filesystem to be Btrfs/ZFS and the matching [disk limiter](../disk-limiters/index.md) to be configured.
-- **Proxmox Backup Server**, **S3**, **Local**, and **DdupBak** need no extra binaries on the node (PBS and S3 are reached over HTTP).
+Yes, as listed in the **Extra node software** column above. **Proxmox Backup Server**, **S3**, **Local**, and **DdupBak** need nothing extra.
 
 ### Can I use different drivers for different servers?
 
@@ -221,24 +237,18 @@ Yes. A backup configuration is assigned at the **location**, **node**, or **serv
 
 ### How do I verify a new configuration works?
 
-There is no "test connection" button. Create a small test backup of a real server that the configuration is assigned to - if it succeeds, the credentials and connectivity are good.
+There is no "test connection" button. Create a small test backup of a real server that the configuration is assigned to; if it succeeds, the credentials and connectivity are good.
 
 ## Troubleshooting
 
-**S3 backups fail with `failed to initiate multipart upload`, `417 Expectation Failed`, or `SignatureDoesNotMatch`.** Three causes account for nearly all reports. The bucket name is in the **Endpoint** field as well as the **Bucket** field, which doubles it in the request path, so the endpoint should be the bare service URL. The clock on the Wings host or the panel host is off, which breaks request signing at a skew of a few seconds, so check `timedatectl` on both. Or the key doesn't have permission on the bucket. Endpoints with a path in them, such as `https://minio.example.com/s3`, aren't supported. Cloudflare R2 works through its S3 endpoint, not through a custom domain on the bucket.
-
-**Restic backups fail with `repository is already locked exclusively`, then succeed on retry.** Restic allows one writer per repository, so two servers backing up at the same time collide. Raise **Retry Lock Seconds** on the configuration so the second backup waits instead of failing, and stagger scheduled backups across the hour.
-
-**Restic storage keeps growing even though old backups are deleted.** Deleting a backup only forgets the snapshot. The data stays until `restic prune` runs, which Calagopus doesn't do for you. Turn on **Maintenance Enabled** for the configuration, run `restic prune` against the repository (and `restic unlock` first if a stale lock is reported), then turn maintenance off.
-
-**Restic says the repository doesn't exist.** The repository setting points at a directory inside the repository, or at a parent of it. It must be the repository root, the directory that contains `config` and `keys`.
-
-**A backup is stuck at "creating" or "deleting" with no way to remove it.** Restart Wings. Anything still in progress is marked failed, and failed backups can be deleted. Proxmox Backup Server deletions that got stuck because of missing permissions clear themselves after a while.
-
-**Backups disappeared after a server transfer or after deleting an old node.** Backups belong to the node that made them. When transferring a server, select the backups in the transfer dialog, or they stay behind and are lost when that node is deleted. For remote drivers, S3, restic and Kopia, turn on **Shared** on the configuration so every node can see the same backups and a transferred server keeps them without copying anything. It is off by default, so an existing configuration almost certainly needs the change.
-
-**ZFS or Btrfs backups fail with `failed to parse dataset name`, `server volume ... is not its own ZFS dataset`, or `Failed to get ZFS dataset name ...` followed by whatever `zfs list` printed.** Snapshot backups need the server to live on its own dataset or subvolume, which means `system.disk_limiter_mode` set to `zfs_dataset` or `btrfs_subvolume` and existing servers converted with `wings migrate-disk-limiter`. See [Disk Limiters](../disk-limiters/index.md). When Wings runs in a container, it also needs to see the pool. Bind-mount the dataset at its real mountpoint and pass `/dev/zfs` through to the container, otherwise `zfs list` fails inside the container and its complaint is what ends up in the error.
-
-**Backups drag the server's TPS down.** The first snapshot of a server is expensive whatever the driver, later ones are incremental. `system.backups.read_limit` and `system.backups.write_limit` throttle the local, S3, restic and Proxmox Backup Server drivers. Kopia, ddup-bak and the ZFS and Btrfs snapshot drivers ignore them.
-
-**Large backup downloads fail with a `524` from Cloudflare or a `504` from the proxy.** Cloudflare's proxy caps request time and upload size. Serve the node's hostname with the orange cloud off, or download through a hostname that bypasses Cloudflare. See [Cloudflare](../../additional/reverse-proxies.md#cloudflare).
+| Symptom | Fix |
+| --- | --- |
+| S3 backups fail with `failed to initiate multipart upload`, `417 Expectation Failed`, or `SignatureDoesNotMatch` | Three causes account for nearly all reports. The bucket name is in the **Endpoint** field as well as the **Bucket** field, which doubles it in the request path, so the endpoint should be the bare service URL. The clock on the Wings host or the panel host is off, which breaks request signing at a skew of a few seconds, so check `timedatectl` on both. Or the key doesn't have permission on the bucket. Endpoints with a path in them, such as `https://minio.example.com/s3`, aren't supported. Cloudflare R2 works through its S3 endpoint, not through a custom domain on the bucket. |
+| Restic backups fail with `repository is already locked exclusively`, then succeed on retry | Restic allows one writer per repository, so two servers backing up at the same time collide. Raise **Retry Lock Seconds** on the configuration so the second backup waits instead of failing, and stagger scheduled backups across the hour. |
+| Restic storage keeps growing even though old backups are deleted | Deleting a backup only forgets the snapshot. The data stays until `restic prune` runs, which Calagopus doesn't do for you. Turn on **Maintenance Enabled** for the configuration, run `restic prune` against the repository (and `restic unlock` first if a stale lock is reported), then turn maintenance off. |
+| Restic says the repository doesn't exist | The repository setting points at a directory inside the repository, or at a parent of it. It must be the repository root, the directory that contains `config` and `keys`. |
+| A backup is stuck at "creating" or "deleting" with no way to remove it | Restart Wings. Anything still in progress is marked failed, and failed backups can be deleted. Proxmox Backup Server deletions that got stuck because of missing permissions clear themselves after a while. |
+| Backups disappeared after a server transfer or after deleting an old node | Backups belong to the node that made them. When transferring a server, select the backups in the transfer dialog, or they stay behind and are lost when that node is deleted. For remote drivers (S3, restic and Kopia), turn on **Shared** on the configuration so every node can see the same backups and a transferred server keeps them without copying anything. It's off by default, so an existing configuration almost certainly needs the change. |
+| ZFS or Btrfs backups fail with `failed to parse dataset name`, `server volume ... is not its own ZFS dataset`, or `Failed to get ZFS dataset name ...` followed by whatever `zfs list` printed | Snapshot backups need the server to live on its own dataset or subvolume, which means `system.disk_limiter_mode` set to `zfs_dataset` or `btrfs_subvolume` and existing servers converted with `wings migrate-disk-limiter`. See [Disk Limiters](../disk-limiters/index.md). When Wings runs in a container, it also needs to see the pool: bind-mount the dataset at its real mountpoint and pass `/dev/zfs` through to the container, otherwise `zfs list` fails inside the container and its complaint is what ends up in the error. |
+| Backups drag the server's TPS down | The first snapshot of a server is expensive whatever the driver, later ones are incremental. `system.backups.read_limit` and `system.backups.write_limit` throttle the local, S3, restic and Proxmox Backup Server drivers. Kopia, ddup-bak and the ZFS and Btrfs snapshot drivers ignore them. |
+| Large backup downloads fail with a `524` from Cloudflare or a `504` from the proxy | Cloudflare's proxy caps request time and upload size. Serve the node's hostname with the orange cloud off, or download through a hostname that bypasses Cloudflare. See [Cloudflare](../../additional/reverse-proxies/panel.md#cloudflare). |

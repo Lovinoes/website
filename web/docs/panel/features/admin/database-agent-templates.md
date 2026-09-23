@@ -5,7 +5,7 @@ description: Define the Docker images, environment, and resource limits that Cal
 
 # Database Agent Templates
 
-Templates are the blueprints for managed databases: each one defines the Docker images an instance can run, its environment, volumes, and resource limits. When a user [creates a managed database](../server/databases.md#creating-a-managed-database), they pick from your templates, grouped by database type.
+Templates are the blueprints for managed databases: each one defines the Docker images an instance can run, its environment, volumes, and resource limits. When a user [creates a managed database](../server/databases/managed.md#creating-a-managed-database), they pick from your templates, grouped by database type.
 
 ::: info
 [Setting up Templates](../../../db-agent/templates.md) has ready-to-import example files for PostgreSQL, MariaDB/MySQL, MongoDB, and Redis, plus a full field reference. Importing a preset and adapting it beats writing one from scratch.

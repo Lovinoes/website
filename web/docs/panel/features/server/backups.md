@@ -5,17 +5,30 @@ description: Create, browse, restore, and download server and database backups, 
 
 # Backups
 
-The Backups page lists every backup of your server, with a counter like "2 of 15 maximum backups created." at the top. There are two kinds of backup. A **Server** backup is an archive of the server's files. A **Database** backup is a dump of one of the server's [managed databases](./databases.md#managed-databases). Both kinds count toward the same limit, which is part of the server's [feature limits](../admin/servers.md#feature-limits); as soon as a database backup exists the counter splits, as in "11 of 15 maximum backups created (9 server, 2 database)." Once you hit the limit, the create option is disabled with the tooltip "This server is limited to 15 backups."
+The Backups page lists every backup of your server, with a counter like "2 of 15 maximum backups created." at the top.
+
+There are two kinds of backup: a **Server** backup is an archive of the server's files, and a **Database** backup is a dump of one of the server's [managed databases](./databases/managed.md). Both count toward the same limit, which is part of the server's [feature limits](../admin/servers.md#feature-limits). As soon as a database backup exists the counter splits, as in "11 of 15 maximum backups created (9 server, 2 database)." Once you hit the limit, the create option is disabled with the tooltip "This server is limited to 15 backups."
 
 ![](./images/backups/list.webp)
 
-Each row shows the backup's **Name**, **Kind** (**Server** or **Database**), **Source** (**Server Files**, or the managed database the dump was taken from, with its engine next to it), **Checksum** (e.g. `sha256:...`), **Size**, **Files** (file count, always 0 for a database backup), **Created**, and **Locked?** (a green closed lock when locked, a red open one when not). If the managed database a dump came from has since been deleted, the source reads "Example (deleted)". A backup that is still running shows a progress bar instead; a failed one shows a **Failed** badge. Deletion is asynchronous: the row dims under a **Deleting...** badge, which turns into **Deletion failed** if it goes wrong.
+| Column | Shows |
+| --- | --- |
+| **Name** | The backup's name. |
+| **Kind** | **Server** or **Database**. |
+| **Source** | **Server Files**, or the managed database the dump was taken from, with its engine next to it. If that database has since been deleted, this reads "Example (deleted)". |
+| **Checksum** | e.g. `sha256:...`. |
+| **Size** | The backup's size. |
+| **Files** | File count. Always 0 for a database backup. |
+| **Created** | When the backup was taken. |
+| **Locked?** | A green closed lock when locked, a red open one when not. |
+
+A backup that's still running shows a progress bar instead of these columns; a failed one shows a **Failed** badge. Deletion is asynchronous: the row dims under a **Deleting...** badge, which turns into **Deletion failed** if it goes wrong.
 
 ## Creating a Backup
 
 Click **Create** in the top right. If backup groups are available, the button opens a menu instead, with **Create Backup** and **Create Backup Group**.
 
-<img src="./images/backups/create-modal.webp" width="220" alt="" />
+![](./images/backups/create-modal.webp)
 
 The form has four fields:
 
@@ -30,7 +43,7 @@ The **Ignored Files** field shows a live match count next to each pattern, suppo
 
 ## Database Backups
 
-A database backup is a dump of a managed database, written by the database's own tooling: a SQL dump for PostgreSQL and MariaDB, a `mongodump` archive for MongoDB, and an RDB snapshot for Redis. It goes through the same backup configuration as your server backups and sits in the same list and the same groups. The managed database it came from lists it too, on its own [Backups tab](./databases.md#backups-tab), where you can take one without leaving the database's page.
+A database backup is a dump of a managed database, written by the database's own tooling: a SQL dump for PostgreSQL and MariaDB, a `mongodump` archive for MongoDB, and an RDB snapshot for Redis. It goes through the same backup configuration as your server backups and sits in the same list and the same groups. The managed database it came from lists it too, on its own [Backups tab](./databases/managed.md#backups-tab), where you can take one without leaving the database's page.
 
 A few things have to be true before the panel takes one:
 
@@ -82,11 +95,14 @@ A group has six rules, each off when you leave it empty or set it to 0.
 | **Keep monthly** | The newest backup from each of the last N months that has one. |
 | **Keep yearly** | The newest backup from each of the last N years that has one. |
 
-A backup is kept when any one rule selects it, so the rules stack: **Keep latest** 5 alongside **Keep monthly** 12 gives you the five most recent backups plus one per month going back a year. Anything no rule selects is deleted. Periods follow UTC and weeks start on Monday.
+A backup is kept when any one rule selects it, so the rules stack, and how they interact is worth spelling out:
 
-Empty periods don't use up a slot. **Keep daily** 7 holds the newest backup from each of the seven most recent days that actually have one, so a quiet week doesn't push your older dailies out.
-
-Every source has its own history: the server's files are one, and each managed database is another. **Keep latest** 3 in a group holding server backups and two database backups therefore keeps three of each. A locked backup fills a slot but is never deleted. Failed backups sit outside retention entirely, and the panel removes unlocked failed ones 24 hours after they finish, whether they are in a group or not.
+- **Keep latest** 5 alongside **Keep monthly** 12 gives you the five most recent backups plus one per month going back a year. Anything no rule selects is deleted.
+- Periods follow UTC and weeks start on Monday.
+- Empty periods don't use up a slot. **Keep daily** 7 holds the newest backup from each of the seven most recent days that actually have one, so a quiet week doesn't push your older dailies out.
+- Every source has its own history: the server's files are one, and each managed database is another. **Keep latest** 3 in a group holding server backups and two database backups therefore keeps three of each.
+- A locked backup fills a slot but is never deleted.
+- Failed backups sit outside retention entirely, and the panel removes unlocked failed ones 24 hours after they finish, whether they're in a group or not.
 
 Retention is evaluated when a backup finishes, when you move one between groups, and once an hour for every group.
 
@@ -94,7 +110,7 @@ Retention is evaluated when a backup finishes, when you move one between groups,
 
 Pick **Create Backup Group** from the **Create** menu. Give it a name and fill in whichever rules you want; **Retention** has a helper popover describing them.
 
-<img src="./images/backups/group-edit-modal.webp" width="220" alt="" />
+![](./images/backups/group-edit-modal.webp)
 
 Leave them all empty and the modal tells you what that means: "With no retention set, this group is just a label and never deletes successful backups automatically." Use the pencil icon in a group's header to edit it later. There is also a panel-wide limit on groups per server, set under [Settings > Server](../admin/settings.md#server); the **Create Backup Group** option disappears once you reach it.
 
@@ -102,7 +118,14 @@ Once you have more than one group, each header grows a grip handle: drag it to r
 
 ### Reaching the Backup Limit
 
-The server's backup limit is a hard cap that groups don't raise; retention only decides which backup goes when room is needed. At the limit, an automatic backup makes room for itself by deleting whatever your rules no longer keep. If there is nothing expendable it takes one more, preferring a failed backup, then an ungrouped one, and only then a backup a group still keeps. A manual backup is refused rather than delete something a rule still keeps, and locked backups are never touched. Every automatic deletion shows up in the server's [Activity](./activity.md) log with the rule and the group that caused it.
+The server's backup limit is a hard cap that groups don't raise; retention only decides which backup goes when room is needed.
+
+- At the limit, an automatic backup makes room for itself by deleting whatever your rules no longer keep.
+- If there's nothing expendable, it takes one more anyway, preferring a failed backup, then an ungrouped one, and only then a backup a group still keeps.
+- A manual backup is refused rather than delete something a rule still keeps.
+- Locked backups are never touched.
+
+Every automatic deletion shows up in the server's [Activity](./activity.md) log with the rule and the group that caused it.
 
 ### Deleting a Group
 
@@ -110,7 +133,9 @@ Click the trash icon in the group header and type the group's name to confirm. T
 
 ## System Backups
 
-When the panel has taken automatic backups of this server through a [system backup policy](../admin/system-backup-policies.md), a sub-navigation appears with a **System Backups** tab at `/backups/system`: "Backups taken automatically by the panel. They cannot be modified or deleted." The rows are read-only in the sense that you cannot rename, lock or delete them - but they are still fully usable backups: browsing, downloading, restoring, exporting to files and viewing metadata all work exactly as they do on your own backups, with the same permissions. The table carries **Kind** and **Source** columns, because a policy can back up either the server files or one of the server's database instances, and a **Retention** column with the same badge and deletion forecast as [group rows](#backup-groups), worked out from the policy's own cron schedule.
+When the panel has taken automatic backups of this server through a [system backup policy](../admin/system-backup-policies.md), a sub-navigation appears with a **System Backups** tab at `/backups/system`: "Backups taken automatically by the panel. They cannot be modified or deleted."
+
+The rows are read-only in the sense that you cannot rename, lock or delete them, but they're still fully usable backups: browsing, downloading, restoring, exporting to files and viewing metadata all work exactly as they do on your own backups, with the same permissions. The table carries **Kind** and **Source** columns, because a policy can back up either the server files or one of the server's database instances.
 
 ![System backups tab](./images/backups/system-backups.webp)
 
@@ -118,13 +143,13 @@ When the panel has taken automatic backups of this server through a [system back
 
 Right-click a backup (or use the menu at the end of the row) for its actions.
 
-<img src="./images/backups/context-menu.webp" width="200" alt="" />
+![](./images/backups/context-menu.webp)
 
 ### Edit
 
 Rename the backup, move it to another group, or toggle **Locked**. A locked backup cannot be deleted, and retention never removes it or evicts it to make room at the backup limit.
 
-<img src="./images/backups/edit-modal.webp" width="220" alt="" />
+![](./images/backups/edit-modal.webp)
 
 ### Browse
 
@@ -143,25 +168,27 @@ Restores the backup onto the server. Two switches control how:
 
 The server switches into a restoring state and you're taken back to the console while it runs. A progress toast showing the bytes and files restored so far stays in the corner on every page of the server until the restore finishes.
 
-<img src="./images/backups/restore-modal.webp" width="220" alt="" />
+![](./images/backups/restore-modal.webp)
 
-For a database backup, **Restore** opens **Restore Database Backup** instead. Pick the **Target Managed Database**; the list only offers managed databases running the same engine as the dump, with the one the backup was taken from preselected, so a dump from a deleted database can be restored into a new one. The modal spells out what happens: "Existing tables and collections carried by the dump are replaced, and power actions are blocked until the restore finishes." The target has to be running, and only one restore can run into a given database at a time.
+For a database backup, **Restore** opens **Restore Database Backup** instead. Pick the **Target Managed Database**; the list only offers managed databases running the same engine as the dump, with the one the backup was taken from preselected, so a dump from a deleted database can be restored into a new one.
 
-<img src="./images/databases/instance-restore-backup-modal.webp" width="220" alt="" />
+The modal spells out what happens: "Existing tables and collections carried by the dump are replaced, and power actions are blocked until the restore finishes." The target has to be running, and only one restore can run into a given database at a time.
 
-The restore itself runs in the background. While it runs, the database's page shows a **Restoring backup** badge and a progress banner, and its power buttons are disabled. A toast tells you when it completes or fails. See [The Instance Page](./databases.md#the-instance-page).
+![](./images/databases/instance-restore-backup-modal.webp)
+
+The restore itself runs in the background. While it runs, the database's page shows a **Restoring backup** badge and a progress banner, and its power buttons are disabled. A toast tells you when it completes or fails. See [The Instance Page](./databases/managed.md#the-instance-page).
 
 ### Export to Files
 
 Server backups only. Writes the backup as an archive file into the server's own file area. Pick a destination directory, file name, and archive format (fixed for backups whose stored format can't be converted); the modal shows the resulting path under `/home/container/` before you hit **Export**.
 
-<img src="./images/backups/export-modal.webp" width="310" alt="" />
+![](./images/backups/export-modal.webp)
 
 ### Backup Metadata
 
 Shown only for server backups that captured metadata (startup command, image, variables); opens a JSON view of it.
 
-<img src="./images/backups/metadata-modal.webp" width="310" alt="" />
+![](./images/backups/metadata-modal.webp)
 
 ### Delete
 

@@ -89,4 +89,4 @@ After applying the configuration, return to your [Docker](../installation/docker
 
 ## Next step: secure the browser connection
 
-SSL is disabled by default on a fresh Wings install. For browsers to reach Wings from an HTTPS Panel, serve Wings over HTTPS using [its own certificate](../configuration.md#ssl-configuration) or a [reverse proxy](../../additional/reverse-proxies.md#putting-wings-behind-a-reverse-proxy). If you use Wings Proxy Mode through an HTTPS Panel, Wings does not need a separate public certificate; follow the [proxy-mode guide](../advanced/exposing-wings-in-a-homelab.md) instead.
+SSL is disabled by default on a fresh Wings install. For browsers to reach Wings from an HTTPS Panel, serve Wings over HTTPS using [its own certificate](../configuration.md#ssl-configuration) or a [reverse proxy](../../additional/reverse-proxies/wings.md). If you use Wings Proxy Mode through an HTTPS Panel, Wings does not need a separate public certificate; follow the [proxy-mode guide](../advanced/exposing-wings-in-a-homelab.md) instead.

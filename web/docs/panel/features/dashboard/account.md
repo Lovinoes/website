@@ -39,7 +39,9 @@ Standard TOTP-based 2FA, the same kind used by most apps. Scan the QR code (or e
 
 <img src="./images/account/2fa-setup.webp" width="220" alt="" />
 
-Right after enabling, a **Recovery Codes** dialog appears: "Below are your recovery codes. Store these in a safe place. If you lose access to your authentication device, you can use these codes to regain access to your account." You get ten codes; click the code block to copy them all. Each code works exactly once at the [login checkpoint](../auth/login.md#two-factor-checkpoint), so store them somewhere safe before closing the dialog. The panel keeps the same set as long as you have any code left, so enabling a second email-based factor later shows you the same codes again rather than new ones.
+Right after enabling, a **Recovery Codes** dialog appears: "Below are your recovery codes. Store these in a safe place. If you lose access to your authentication device, you can use these codes to regain access to your account." You get ten codes; click the code block to copy them all.
+
+Each code works exactly once at the [login checkpoint](../auth/login.md#two-factor-checkpoint), so store them somewhere safe before closing the dialog. The panel keeps the same set as long as you have any code left, so enabling a second email-based factor later shows you the same codes again rather than new ones.
 
 <img src="./images/account/2fa-recovery-codes.webp" width="220" alt="" />
 

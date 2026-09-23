@@ -9,7 +9,7 @@ Passkeys, secure session cookies and several browser features only work over HTT
 
 You need this before you:
 
-- Put a [reverse proxy](reverse-proxies.md) in front of the Panel or a node, unless the proxy is Caddy, which fetches its own certificate.
+- Put a [reverse proxy](reverse-proxies/) in front of the Panel or a node, unless the proxy is Caddy, which fetches its own certificate.
 - [Enable SSL directly in Wings](../wings/configuration.md#ssl-configuration) on a node without a proxy.
 
 ## What You End Up With
@@ -106,23 +106,10 @@ systemctl list-timers certbot.timer
 
 ### Troubleshooting
 
-An `Insecure Connection` or SSL/TLS error in the browser almost always means the certificate has expired. If `certbot renew` fails with something like:
-
-`Error: Attempting to renew cert (domain) from /etc/letsencrypt/renew/domain.conf produced an unexpected error`
-
-…it's usually because port 80 is already in use. Using the `--nginx` / `--apache` plugin flags (as above) avoids this. Otherwise, stop the webserver, renew, then start it again:
-
-```bash
-sudo systemctl stop nginx
-sudo certbot renew
-sudo systemctl start nginx
-```
-
-If Wings doesn't pick up the renewed certificate within a day, restart it manually:
-
-```bash
-sudo systemctl restart wings
-```
+| Symptom | Fix |
+| --- | --- |
+| Browser shows "Insecure Connection" or another SSL/TLS error | Almost always means the certificate has expired. If `certbot renew` fails with something like `Error: Attempting to renew cert (domain) from /etc/letsencrypt/renew/domain.conf produced an unexpected error`, it's usually because port 80 is already in use; using the `--nginx` / `--apache` plugin flags (as above) avoids this. Otherwise, stop the webserver, renew, then start it again: `sudo systemctl stop nginx`, `sudo certbot renew`, `sudo systemctl start nginx`. |
+| Wings doesn't pick up the renewed certificate within a day | Restart it manually: `sudo systemctl restart wings`. |
 
 === Method 2: Certbot (DNS Challenge)
 
@@ -325,7 +312,7 @@ Let's Encrypt is the default because it is free and renews itself, but any certi
 
 ### Certificates Issued by the Reverse Proxy
 
-Caddy, Traefik and Nginx Proxy Manager all talk to Let's Encrypt on their own for every hostname they serve. If the Panel and Wings both sit behind such a proxy, you never touch a certificate file: point the proxy at the hostname and it issues, installs and renews the certificate itself. The [reverse proxy guide](reverse-proxies.md) covers the configuration for each.
+Caddy, Traefik and Nginx Proxy Manager all talk to Let's Encrypt on their own for every hostname they serve. If the Panel and Wings both sit behind such a proxy, you never touch a certificate file: point the proxy at the hostname and it issues, installs and renews the certificate itself. The [reverse proxy guide](reverse-proxies/) covers the configuration for each.
 
 The catch is that these proxies keep the certificate in their own storage, in a layout that changes between versions, so reusing it for Wings' [built-in SSL](../wings/configuration.md#ssl-configuration) is fragile. Put Wings behind the proxy as well, or issue a separate certificate for the node with one of the methods above.
 

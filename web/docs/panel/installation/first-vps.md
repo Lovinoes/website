@@ -55,7 +55,7 @@ No. The Panel works at `http://203.0.113.10:8000` without one, and players conne
 | Passkeys and security keys | Available | Unavailable; use an authenticator app for two-factor authentication |
 | Minecraft on port 25565 | Same | Same |
 
-Pick one and stick to it. Steps 2 and 6 differ by path; every other step is the same. The **With a domain** and **Without a domain** tabs in those steps switch together, so select yours once. Running without a domain is a reasonable choice for one administrator on a hobby server. If you get a domain later, follow the [reverse-proxy guide](../../additional/reverse-proxies.md) to add HTTPS.
+Pick one and stick to it. Steps 2 and 6 differ by path; every other step is the same. The **With a domain** and **Without a domain** tabs in those steps switch together, so select yours once. Running without a domain is a reasonable choice for one administrator on a hobby server. If you get a domain later, follow the [reverse-proxy guide](../../additional/reverse-proxies/panel.md) to add HTTPS.
 
 ## 1. Connect to your VPS
 
@@ -311,7 +311,7 @@ To confirm the proxy setup, open **Account → Activity**: the login IP should b
 - `502` response: run `docker compose ps` and repeat the `curl` check from step 4.
 - Certificate errors: run `journalctl -u caddy --no-pager -n 80`, check DNS including stray IPv6 records, and keep Cloudflare on DNS only.
 
-Don't click through a certificate warning; fix the error first. The [reverse-proxy guide](../../additional/reverse-proxies.md#troubleshooting) has more checks.
+Don't click through a certificate warning; fix the error first. The [reverse-proxy guide](../../additional/reverse-proxies/panel.md#troubleshooting) has more checks.
 :::
 
 === Without a domain

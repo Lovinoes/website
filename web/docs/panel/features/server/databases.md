@@ -29,7 +29,7 @@ Database hosts are set up by administrators and attached to locations, see [Data
 
 Right-click a database and choose **Details** to open the **Database connection details** modal: database name, host, username, password, and a ready-made **JDBC Connection String** in the form `jdbc:mysql://<username>:<password>@192.0.2.1:3306/<database>`.
 
-<img src="./images/databases/details-modal.webp" width="220" alt="" />
+![](./images/databases/details-modal.webp)
 
 The password is only visible with the `databases.read-password` permission. From the same modal, **Rotate Password** generates a new password immediately, invalidating the old one.
 
@@ -76,13 +76,17 @@ Below that are live **CPU Load** and **Memory Load** graphs (with an "Instance i
 
 While a [database backup](./backups.md#database-backups) is being restored into the instance, a banner at the top reads "A backup is currently being restored into this managed database. Please wait..." with a progress bar and time estimate, and **Start**, **Restart**, and **Stop** are disabled until it finishes. A toast tells you whether the restore completed or failed.
 
-A restore also **write locks** the instance, and anything connected to it notices. New connections are refused with "database is write locked", and **connections that are already open are dropped**, so a game server using the database will see its connection die mid-query and need to reconnect once the restore is done. Restores are the only thing that locks an instance; exports and remote imports you start yourself do not, so your own export will not freeze the database under a running server. The [query explorer](#data-explorer) also refuses to run while the lock is held.
+A restore also **write locks** the instance, and anything connected to it notices. New connections are refused with "database is write locked", and **connections that are already open are dropped**, so a game server using the database will see its connection die mid-query and need to reconnect once the restore is done.
+
+Restores are the only thing that locks an instance; exports and remote imports you start yourself do not, so your own export will not freeze the database under a running server. The [query explorer](#data-explorer) also refuses to run while the lock is held.
 
 ![](./images/databases/instance-restoring.webp)
 
 ### Databases Tab
 
-Not shown for Redis, which has no named databases. Lists the databases inside the instance with their size, up to its own per-instance cap. **Create** asks for a name (letters and numbers only) and requires the instance to be running. It also has a **Create a user for this database** switch, on by default, which "creates a user named after the database, grants it access and shows its credentials once the database is created" - leave it on and you get a working database and login in one step. A warning icon next to a database means it has no user attached yet, so nothing can connect to it.
+Not shown for Redis, which has no named databases. Lists the databases inside the instance with their size, up to its own per-instance cap.
+
+**Create** asks for a name (letters and numbers only) and requires the instance to be running. It also has a **Create a user for this database** switch, on by default, which "creates a user named after the database, grants it access and shows its credentials once the database is created": leave it on and you get a working database and login in one step. A warning icon next to a database means it has no user attached yet, so nothing can connect to it.
 
 Right-click a database for:
 
@@ -99,13 +103,15 @@ Right-click a database for:
 
 Per-instance database users, shown with the `database-instances.users` permission and capped by **Max Users per Database Instance** under [Settings > Server](../admin/settings.md#server) ("0 of 10 maximum users created."). Each row lists the databases that user can reach as badges under a **Databases** column, blue for read and write access, grey for read-only.
 
-**Create** takes a **Username** of 2 to 23 characters, letters and digits only, and for everything except Redis a **Database Access** list. What you type is a suffix rather than the final name: the agent prefixes it to keep users from different servers apart, so `appuser` is created as something like `ub3bf2a14_appuser`, and that prefixed form is what the table, the credentials and your connection string all use. You never choose a password either; the agent generates one and **Details** shows it.
+**Create** takes a **Username** of 2 to 23 characters, letters and digits only, and for everything except Redis a **Database Access** list. What you type is a suffix rather than the final name: the agent prefixes it to keep users from different servers apart, so `appuser` is created as something like `ub3bf2a14_appuser`, and that prefixed form is what the table, the credentials and your connection string all use.
+
+You never choose a password either; the agent generates one and **Details** shows it.
 
 #### Database Access
 
 Access is granted per database rather than per instance. The list names every database in the instance with a **No Access** / **Read Only** / **Read & Write** control beside it, and one user can hold a different level in each. You get the same list whether you are creating a user or editing one through **Permissions**, and the **Databases** badges on the row summarize the result.
 
-<img src="./images/databases/instance-user-permissions-modal.webp" width="220" alt="" />
+![](./images/databases/instance-user-permissions-modal.webp)
 
 **No Access** is the absence of a grant rather than a stored setting. Creating a database only takes a name, so a new one starts out unreachable until you grant somebody access to it. **Recreate** keeps the grants, so wiping a database does not change who can reach it.
 

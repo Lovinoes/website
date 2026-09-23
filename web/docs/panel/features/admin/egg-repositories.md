@@ -31,7 +31,7 @@ The **Eggs** tab lists everything found by the last sync (Path, Name, Author, De
 
 ![](./images/egg-repositories/eggs.webp)
 
-<img src="./images/egg-repositories/readme-drawer.webp" width="311" alt="" />
+![](./images/egg-repositories/readme-drawer.webp)
 
 ::: info
 Actions here map to the `egg-repositories.*` admin permissions (syncing needs `egg-repositories.sync`); see the [Permissions Reference](../dashboard/permissions.md).

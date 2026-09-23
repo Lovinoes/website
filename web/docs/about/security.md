@@ -374,7 +374,7 @@ sensitive endpoints are covered individually rather than by one blanket limit:
 Dedicated limits for expensive actions supplement the general client budget.
 Those requests still count toward the shared client limit. Limits are keyed by
 client IP, so configure trusted proxies and the real client address correctly
-(see [Reverse proxies](../additional/reverse-proxies)).
+(see [Reverse proxies](../additional/reverse-proxies/)).
 
 Redis/Valkey coordinates limits across Panel instances. When Redis is unavailable or returns an error, the local fallback keeps
 counters in one process; it cannot provide a shared budget across replicas.

@@ -49,4 +49,4 @@ Dragging also works *between* groups: drop a server onto another group to move i
 
 Hold **S** and click servers (or click the check icon on a card) to select them; a plain click opens the server instead. An action bar appears with **Start**, **Restart**, and **Stop** for the whole selection, each showing how many servers it applies to, plus **Cancel**. Removing a server from a group is separate: the red minus icon on its card (the server itself is never deleted).
 
-<img src="./images/servers/bulk-power-actions.webp" width="200" alt="" />
+![](./images/servers/bulk-power-actions.webp)

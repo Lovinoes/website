@@ -184,79 +184,12 @@ To test your configuration, head into your account settings, click `OAuth Links`
 
 ### Troubleshooting
 
-#### Error: "Redirect URI Mismatch" or "Invalid Redirect URI"
-**Cause:** The redirect URL in your OIDC provider doesn't match the one provided by Calagopus Panel.
-
-**Solution:**
-1. Go back to your Calagopus Panel OAuth provider configuration page
-2. Copy the exact Redirect URL shown
-3. Go to your OIDC provider's configuration
-4. Update the redirect/callback URL to match exactly (including `https://`, trailing slashes, etc.)
-5. Save the changes in your OIDC provider
-
-#### Error: "Invalid URLs" or connection fails immediately
-**Cause:** One or more of the OAuth URLs (Auth URL, Token URL, Info URL) are incorrect.
-
-**Solution:**
-1. Visit your OIDC provider's well-known URL: `https://your-provider/.well-known/openid-configuration`
-2. Verify the following values match:
-   - Auth URL matches `authorization_endpoint`
-   - Token URL matches `token_endpoint`
-   - Info URL matches `userinfo_endpoint`
-3. Update the URLs in your Calagopus Panel OAuth provider configuration
-4. Save the changes
-
-#### Error: "Failed to extract user data" or missing user information
-**Cause:** The JSON paths for extracting user data are incorrect.
-
-**Solution:**
-1. Check your OIDC provider's `userinfo_endpoint` response format
-2. Visit [https://serdejsonpath.live](https://serdejsonpath.live) to test your JSON paths
-3. Verify each path:
-   - Identifier Path (required) - usually `$.sub`
-   - Email Path - usually `$.email`
-   - Username Path - usually `$.preferred_username` or `$.username`
-   - First Name Path - usually `$.given_name`
-   - Last Name Path - usually `$.family_name`
-4. Update the paths in your Calagopus Panel configuration
-5. Save the changes
-
-#### Error: "Invalid Scope" or "Insufficient Scopes"
-**Cause:** The requested scopes are not supported by your OIDC provider or are incorrectly configured.
-
-**Solution:**
-1. Visit your OIDC provider's well-known URL: `https://your-provider/.well-known/openid-configuration`
-2. Check the `scopes_supported` array
-3. Ensure your configuration includes the necessary scopes (typically `openid`, `profile`, `email`)
-4. Update the scopes in your Calagopus Panel OAuth provider configuration
-5. Save the changes
-
-#### Error: "Invalid Client" or "Authentication Failed"
-**Cause:** Client ID, Client Secret, or Basic Auth configuration is incorrect.
-
-**Solution:**
-1. Verify your Client ID and Client Secret from your OIDC provider
-2. Update both values in your Calagopus Panel configuration
-3. Check if your provider requires HTTP Basic Authentication:
-   - If yes, enable the `Basic Auth` option
-   - If no, ensure `Basic Auth` is disabled
-4. Save the changes
-
-#### OAuth connection button doesn't appear
-**Cause:** The OAuth provider is not enabled in the panel.
-
-**Solution:**
-1. Go to your Calagopus Panel admin page
-2. Navigate to OAuth Providers
-3. Click on your custom provider
-4. Ensure the `Enabled` switch is turned on
-5. Save the changes
-
-#### Error: "Access Denied" after clicking authorize
-**Cause:** User denied permission or OIDC provider account has issues.
-
-**Solution:**
-1. Try the authorization process again
-2. Ensure you click the authorization/consent button on your provider's page
-3. Verify your account with the OIDC provider is active and verified
-4. Check if your OIDC provider requires additional configuration or permissions
+| Symptom | Fix |
+| --- | --- |
+| Error: "Redirect URI Mismatch" or "Invalid Redirect URI" | The redirect URL in your OIDC provider doesn't match the one provided by Calagopus Panel. Go back to your Calagopus Panel OAuth provider configuration page, copy the exact Redirect URL shown, then update the redirect/callback URL in your OIDC provider's configuration to match exactly (including `https://`, trailing slashes, etc.) and save. |
+| Error: "Invalid URLs" or the connection fails immediately | One or more of the OAuth URLs (Auth URL, Token URL, Info URL) is incorrect. Visit your OIDC provider's well-known URL, `https://your-provider/.well-known/openid-configuration`, and check that Auth URL matches `authorization_endpoint`, Token URL matches `token_endpoint`, and Info URL matches `userinfo_endpoint`. Update the URLs in your Calagopus Panel OAuth provider configuration and save. |
+| Error: "Failed to extract user data", or missing user information | The JSON paths for extracting user data are incorrect. Check your OIDC provider's `userinfo_endpoint` response format, and use [serdejsonpath.live](https://serdejsonpath.live) to test your JSON paths against the usual values: Identifier Path (required) is usually `$.sub`, Email Path `$.email`, Username Path `$.preferred_username` or `$.username`, First Name Path `$.given_name`, and Last Name Path `$.family_name`. Update the paths in your Calagopus Panel configuration and save. |
+| Error: "Invalid Scope" or "Insufficient Scopes" | The requested scopes aren't supported by your OIDC provider or are incorrectly configured. Visit your OIDC provider's well-known URL, `https://your-provider/.well-known/openid-configuration`, check the `scopes_supported` array, and make sure your configuration includes the necessary scopes, typically `openid`, `profile` and `email`. Update the scopes in your Calagopus Panel OAuth provider configuration and save. |
+| Error: "Invalid Client" or "Authentication Failed" | Client ID, Client Secret, or Basic Auth configuration is incorrect. Verify your Client ID and Client Secret from your OIDC provider and update both values in your Calagopus Panel configuration. Check whether your provider requires HTTP Basic Authentication, and turn the **Basic Auth** option on or off to match, then save. |
+| OAuth connection button doesn't appear | The OAuth provider isn't enabled in the panel. Go to your Calagopus Panel admin page, navigate to OAuth Providers, click your custom provider, turn the **Enabled** switch on, and save. |
+| Error: "Access Denied" after clicking authorize | The user denied permission, or the OIDC provider account has an issue. Try the authorization process again and make sure you click the authorization/consent button on your provider's page. Verify your account with the OIDC provider is active and verified, and check whether your OIDC provider requires additional configuration or permissions. |

@@ -70,36 +70,8 @@ If everything works correctly, you should now be able to see your GitHub account
 
 ### Troubleshooting
 
-#### Error: "Redirect URI Mismatch" or "Invalid Redirect URI"
-The authorization callback URL in GitHub doesn't match the one provided by Calagopus Panel.
-
-**Solution:**
-
-1. Go back to your Calagopus Panel OAuth provider configuration page
-2. Copy the exact Redirect URL shown
-3. Go to your GitHub OAuth App settings (Account Settings → Developer Settings → OAuth Apps)
-4. Click on your application
-5. Update the "Authorization callback URL" field to match exactly (including `https://`, trailing slashes, etc.)
-6. Click `Update application`
-
-#### Error: "Invalid Client Credentials" or "Bad Credentials"
-The Client ID or Client Secret is incorrect or expired.
-
-**Solution:**
-
-1. Go to your GitHub OAuth App settings
-2. Copy your Client ID
-3. Click `Generate a new client secret`
-4. Copy the new Client Secret immediately (it won't be shown again)
-5. Update both values in your Calagopus Panel OAuth provider configuration
-6. Save the changes
-
-#### OAuth connection doesn't work with "device_flow" error
-Device Flow is enabled on your GitHub OAuth App.
-
-**Solution:**
-
-1. Go to your GitHub OAuth App settings
-2. Ensure the `Enable Device Flow` checkbox is **unchecked**
-3. Click `Update application`
-4. Try the OAuth connection again
+| Symptom | Fix |
+| --- | --- |
+| Error: "Redirect URI Mismatch" or "Invalid Redirect URI" | The authorization callback URL in GitHub doesn't match the one provided by Calagopus Panel. Go back to your Calagopus Panel OAuth provider configuration page and copy the exact Redirect URL shown, then go to your GitHub OAuth App settings (Account Settings → Developer Settings → OAuth Apps), click your application, update the "Authorization callback URL" field to match exactly (including `https://`, trailing slashes, etc.), and click **Update application**. |
+| Error: "Invalid Client Credentials" or "Bad Credentials" | The Client ID or Client Secret is incorrect or expired. Go to your GitHub OAuth App settings, copy your Client ID, click **Generate a new client secret**, copy the new Client Secret immediately (it won't be shown again), then update both values in your Calagopus Panel OAuth provider configuration and save. |
+| OAuth connection doesn't work, with a "device_flow" error | Device Flow is enabled on your GitHub OAuth App. Go to your GitHub OAuth App settings, make sure the **Enable Device Flow** checkbox is unchecked, click **Update application**, and try the OAuth connection again. |

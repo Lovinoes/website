@@ -23,7 +23,7 @@ Click **Create**, or open a configuration's ID to edit it. The base fields are *
 
 ![](./images/egg-configurations/create-form.webp)
 
-<img src="./images/egg-configurations/eggs-select.webp" width="399" alt="" />
+![](./images/egg-configurations/eggs-select.webp)
 
 Below are three collapsible sections. Each has an enable toggle; a disabled section isn't defined by this configuration, so a lower-priority one (or the default behavior) applies.
 
