@@ -3,7 +3,7 @@ import { json, preflight } from '../http.ts';
 
 const SNAPSHOT_KEY = 'telemetry::snapshot';
 
-const WINDOW_DAYS = 7;
+const WINDOW_HOURS = 48;
 const HISTORY_DAYS = 730;
 
 const MIN_INSTANCES = 50;
@@ -23,7 +23,7 @@ export interface DayPoint {
 export interface TelemetrySnapshot {
   status: 'ok' | 'insufficient_data';
   generated_at: string;
-  window_days: number;
+  window_hours: number;
   instances: number;
   totals: Record<string, number>;
   daily: DayPoint[];
@@ -39,7 +39,7 @@ const LATEST_PER_INSTANCE = `
     argMax("nodes.memory_total_bytes", received_at) AS node_memory_bytes,
     argMax("nodes.servers_online", received_at) AS node_servers_online
   FROM telemetry_submissions
-  WHERE day >= {from:Date}
+  WHERE day >= {from:Date} AND received_at >= now() - INTERVAL {hours:UInt32} HOUR
   GROUP BY uuid
 `;
 
@@ -97,7 +97,7 @@ function insufficient(): TelemetrySnapshot {
   return {
     status: 'insufficient_data',
     generated_at: new Date().toISOString(),
-    window_days: WINDOW_DAYS,
+    window_hours: WINDOW_HOURS,
     instances: 0,
     totals: {},
     daily: [],
@@ -105,9 +105,9 @@ function insufficient(): TelemetrySnapshot {
 }
 
 async function buildSnapshot(config: ClickHouseConfig): Promise<TelemetrySnapshot> {
-  const from = isoDaysAgo(WINDOW_DAYS);
+  const from = isoDaysAgo(Math.ceil(WINDOW_HOURS / 24));
 
-  const [totals] = await queryRows<Record<string, number>>(config, TOTALS_QUERY, { from });
+  const [totals] = await queryRows<Record<string, number>>(config, TOTALS_QUERY, { from, hours: WINDOW_HOURS });
   const instances = Number(totals?.instances ?? 0);
   if (instances < MIN_INSTANCES) return insufficient();
 
@@ -132,7 +132,7 @@ async function buildSnapshot(config: ClickHouseConfig): Promise<TelemetrySnapsho
   return {
     status: 'ok',
     generated_at: new Date().toISOString(),
-    window_days: WINDOW_DAYS,
+    window_hours: WINDOW_HOURS,
     instances: roundCount(instances),
     totals: {
       servers: roundCount(Number(totals.servers)),
@@ -170,7 +170,7 @@ export async function handleTelemetryStats(request: Request, env: Env): Promise<
   return json({
     status: current.status,
     generated_at: current.generated_at,
-    window_days: current.window_days,
+    window_hours: current.window_hours,
     instances: current.instances,
     totals: current.totals,
   });

@@ -35,7 +35,9 @@ export default {
   },
 
   async scheduled(_event, env) {
-    await refreshReleases(env);
-    await refreshTelemetryStats(env);
+    const results = await Promise.allSettled([refreshReleases(env), refreshTelemetryStats(env)]);
+    for (const result of results) {
+      if (result.status === 'rejected') console.error('scheduled refresh failed', result.reason);
+    }
   },
 } satisfies ExportedHandler<Env>;

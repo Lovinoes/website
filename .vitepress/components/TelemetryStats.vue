@@ -15,7 +15,7 @@ interface DayPoint {
 interface Stats {
   status: string;
   generated_at: string;
-  window_days: number;
+  window_hours: number;
   instances: number;
   totals: Record<string, number>;
 }
@@ -109,7 +109,7 @@ const tiles = computed(() => {
   const memory = current.totals.node_memory_bytes / 1024 ** 4;
 
   return [
-    { value: formatCount(current.instances), label: `panels reporting in the last ${current.window_days} days` },
+    { value: formatCount(current.instances), label: `panels reporting in the last ${current.window_hours} hours` },
     { value: formatCount(current.totals.servers), label: 'game servers under management' },
     { value: formatCount(current.totals.nodes), label: 'nodes attached to those panels' },
     { value: `${memory.toFixed(memory >= 10 ? 0 : 1)} TiB`, label: 'memory across those nodes' },
