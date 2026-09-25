@@ -442,6 +442,7 @@ export default withMermaid({
                 items: [
                   { text: 'TrueNAS SCALE', link: '/docs/panel/installation/external-methods/truenas' },
                   { text: 'Unraid', link: '/docs/panel/installation/external-methods/unraid' },
+                  { text: 'umbrelOS', link: '/docs/panel/installation/external-methods/umbrelos' },
                   { text: 'Hostinger', link: '/docs/panel/installation/external-methods/hostinger' },
                 ],
               },
