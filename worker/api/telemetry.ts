@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { clickhouseConfig, insertRows } from '../clickhouse.ts';
 import { accepted, noStore, preflight } from '../http.ts';
 
-const TABLE = 'telemetry_submissions';
+const TABLE = 'telemetry_observations';
 
 const MAX_BODY_BYTES = 512 * 1024;
 const MAX_NODES = 2_000;
@@ -12,27 +12,18 @@ const MAX_AUTHORS = 32;
 
 const label = z.string().max(128).catch('');
 const line = z.string().max(1_024).catch('');
-const count = z.number().int().min(0).max(Number.MAX_SAFE_INTEGER).catch(0);
+const count = z.number().int().min(0).max(Number.MAX_SAFE_INTEGER);
 
-const counts = z
-  .record(label, count)
-  .catch({})
-  .transform((value) => Object.fromEntries(Object.entries(value).slice(0, MAX_MAP_ENTRIES)));
+const counts = z.record(z.string().max(128), count).refine((value) => Object.keys(value).length <= MAX_MAP_ENTRIES);
 
-const MEMORY_FALLBACK = { total_bytes: 0, free_bytes: 0, used_bytes: 0, used_bytes_process: 0 };
+const memory = z.object({
+  total_bytes: count,
+  free_bytes: count,
+  used_bytes: count,
+  used_bytes_process: count,
+});
 
-const memory = z
-  .object({
-    total_bytes: count,
-    free_bytes: count,
-    used_bytes: count,
-    used_bytes_process: count,
-  })
-  .catch(MEMORY_FALLBACK);
-
-const TRIPLE_FALLBACK = { total: 0, online: 0, offline: 0 };
-
-const triple = z.object({ total: count, online: count, offline: count }).catch(TRIPLE_FALLBACK);
+const triple = z.object({ total: count, online: count, offline: count });
 
 const host = {
   version: label,
@@ -68,37 +59,22 @@ const list = <T extends z.ZodTypeAny>(item: T, max: number) =>
 
 export const telemetrySchema = z.object({
   uuid: z.guid(),
-  panel: z
-    .object({
-      version: label,
-      container_type: label,
-      database_version: label,
-      cache_version: label,
-      architecture: label,
-      kernel_version: line,
-    })
-    .catch({
-      version: '',
-      container_type: '',
-      database_version: '',
-      cache_version: '',
-      architecture: '',
-      kernel_version: '',
-    }),
-  resources: z
-    .object({
-      users: z.object({ total: count, languages: counts }).catch({ total: 0, languages: {} }),
-      backups: z.object({ total: count, disks: counts }).catch({ total: 0, disks: {} }),
-      servers: z.object({ total: count }).catch({ total: 0 }),
-    })
-    .catch({
-      users: { total: 0, languages: {} },
-      backups: { total: 0, disks: {} },
-      servers: { total: 0 },
-    }),
+  panel: z.object({
+    version: z.string().min(1).max(128),
+    container_type: label,
+    database_version: label,
+    cache_version: label,
+    architecture: label,
+    kernel_version: line,
+  }),
+  resources: z.object({
+    users: z.object({ total: count, languages: counts }),
+    backups: z.object({ total: count, disks: counts }),
+    servers: z.object({ total: count }),
+  }),
   extensions: list(extension, MAX_EXTENSIONS),
-  nodes: list(node, MAX_NODES),
-  database_agent_hosts: list(databaseAgentHost, MAX_NODES),
+  nodes: z.array(node).max(MAX_NODES),
+  database_agent_hosts: z.array(databaseAgentHost).max(MAX_NODES).default([]),
 });
 
 export type Telemetry = z.infer<typeof telemetrySchema>;

@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 
-const SCHEMA = 'scripts/clickhouse-schema.sql';
+const SCHEMA = process.argv[2] || 'scripts/clickhouse-schema.sql';
 const CONFIG = 'wrangler.json';
 
 const url = process.env.CLICKHOUSE_URL;

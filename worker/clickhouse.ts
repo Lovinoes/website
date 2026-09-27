@@ -23,14 +23,15 @@ export async function insertRows(
   config: ClickHouseConfig,
   table: string,
   rows: Record<string, unknown>[],
+  acknowledged = false,
 ): Promise<void> {
   if (rows.length === 0) return;
 
   const endpoint = new URL(config.url);
   endpoint.searchParams.set('database', config.database);
   endpoint.searchParams.set('query', `INSERT INTO ${table} FORMAT JSONEachRow`);
-  endpoint.searchParams.set('async_insert', '1');
-  endpoint.searchParams.set('wait_for_async_insert', '0');
+  endpoint.searchParams.set('async_insert', acknowledged ? '0' : '1');
+  endpoint.searchParams.set('wait_for_async_insert', acknowledged ? '1' : '0');
 
   const response = await fetch(endpoint, {
     method: 'POST',
