@@ -96,7 +96,7 @@ Required: :white_check_mark:\
 Example: `/var/run/postgresql/.s.PGSQL.5432`
 
 ### Memory / Swap / Disk
-Container resource limits, in MB. `0` means no limit for memory and disk, `-1` means no limit for swap. The disk limit is a soft limit unless a disk limiter is configured on the node.
+Container resource limits, in MiB. `0` means no limit for memory and disk, `-1` means no limit for swap. DB Agent periodically checks disk usage and stops a running instance when it reaches its nonzero disk limit. It refuses to start the instance again while it remains full. Checks follow [`disk_check_interval`](./configuration.md#disk-check-interval), so temporary overage is possible; this is not a hard filesystem quota.
 
 Required: :white_check_mark:\
 Example: `512` / `-1` / `5120`
@@ -124,6 +124,8 @@ Both create their socket at `/run/mysqld/mysqld.sock` by default and run as UID/
 
 ### MongoDB
 MongoDB writes its socket to `/tmp` by default, which conflicts with DB Agent's tmpfs mount. The preset's command overrides this with `--unixSocketPrefix /run/mongodb` and enables `--auth`, so the socket lands at `/run/mongodb/mongodb-27017.sock`.
+
+Custom MongoDB templates must also enforce authorization. DB Agent refuses proxied sessions if MongoDB starts without it, with `mongod does not enforce authorization, add --auth and restart`. DB Agent bootstraps its own root account; it does not add `--auth` to a custom command automatically.
 
 ### Redis
 Redis does not open a unix socket unless told to, so the preset's command starts `redis-server` with `--unixsocket /run/redis/redis.sock`.

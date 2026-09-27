@@ -100,6 +100,8 @@ Backups can be browsed read-only through the same file manager; the breadcrumb r
 
 Use the row checkboxes, `Ctrl`-click to toggle, `Shift`-click for a range, drag a selection box across rows, or the breadcrumb checkbox / `Ctrl+A` for everything. As soon as anything is selected, an action bar appears with quick buttons for download (as a `.zip`), remote copy, copy, archive, rename, move, and delete.
 
+![Files selected with download, copy, archive, rename, move and delete controls](./images/files/bulk-actions.webp)
+
 Right-clicking a selected row opens the mass action menu:
 
 | Item | What it does |
@@ -284,6 +286,8 @@ Revisions are recorded by Wings for edits made through the file manager and SFTP
 :::
 
 ## Live Collaboration
+
+Collaborative editing normalizes mixed line endings to one style when saving. Files with mostly CRLF or CR line endings use CRLF; otherwise they use LF. An existing UTF-8 byte-order mark is preserved.
 
 When several people open the same file, the editor switches to a shared real-time session: everyone's avatar appears in the header, and edits merge live. **Save** persists the shared document for everyone. Each participant also gets a colored cursor and selection labeled with their name, in both Monaco and Pierre. The [VS Code extension](../../../integrations/vscode.md) supports the same real-time collaboration, synchronized through the panel.
 

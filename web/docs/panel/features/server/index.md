@@ -36,6 +36,7 @@ Suspension, node maintenance and an in-progress transfer block the view the same
 | [Network](./network/index.md) | Allocations, firewall rules, and private connections to other servers |
 | [Startup](./startup.md) | Startup command, Docker image, and egg variables |
 | [Mounts](./mounts.md) | Toggle extra directories mounted into the server |
+| [Devices](./devices.md) | Attach host devices from the Devices tab under Mounts |
 | [Settings](./settings.md) | Rename, reinstall, auto-kill, auto-start, and timezone |
 | [Activity](./activity.md) | A log of everything that's happened on the server |
 

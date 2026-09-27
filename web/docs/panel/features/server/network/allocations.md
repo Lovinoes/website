@@ -39,3 +39,5 @@ The pool allocations are drawn from is defined per node by admins, under the nod
 :::
 
 With `allocations.delete`, select several allocations (checkboxes, drag, or `Ctrl+A`) and **Remove** them after one confirmation. The primary allocation is skipped. Each action reports how many items it changed, skipped or failed in a toast.
+
+![Additional allocation selected with the bulk Remove control](../images/network/allocations-selection.webp)

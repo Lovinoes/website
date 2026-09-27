@@ -43,6 +43,8 @@ Right-click a key (or open the menu at the end of its row) for **Edit**, **Disab
 
 Select rows with their checkboxes, by dragging across them, or with `Ctrl+A` (`Esc` clears); only rows on the current page are selected. The action bar can **Enable**, **Disable** or **Delete** the selected keys; enabling and disabling skip keys already in that state, and deleting asks for confirmation first. Each action reports how many items it changed, skipped or failed in a toast.
 
+![API key selected with Enable, Disable and Delete controls](./images/api-keys/bulk-actions.webp)
+
 ## Third-Party Key Requests
 
 External applications can send you to `/account/api-keys/create` or `/account/api-keys/update` to request a key with specific permissions, or changes to an existing one. The page shows exactly what is requested, with **Added**, **Granted**, and **Removed** badges on the permission diff, warns when admin permissions are involved, and returns you to the app's callback URL once you approve.

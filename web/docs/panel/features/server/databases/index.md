@@ -39,4 +39,20 @@ A searchable **Tables** sidebar (collapsible via **Hide Tables**) lists the data
 - **Structure**: the column list shows Name, Type, Nullable, Key, Default, and Attributes. Create tables (columns with **Type**, **Nullable**, **Primary Key**, and **Auto Increment**), add, rename, and delete columns, and rename or delete whole tables; deleting a table or column permanently destroys its data, and adding a non-nullable column to a table that already has rows fails.
 - **Query**: a SQL console with syntax highlighting, a **Row Limit** (default 100), and **Run**. **Read-only** is on by default ("Rejects statements that change data or structure."); turn it off to run writes.
 
+![Database row selected with the Delete control](../images/databases/explorer-selection.webp)
+
+### Editing Values
+
+In **Rows**, the cell editor follows the column type:
+
+| Column | Editor |
+| --- | --- |
+| Enum | Searchable list of the allowed values; column filters also offer these choices. |
+| MariaDB/MySQL `SET` | Multiple-choice selector. |
+| PostgreSQL boolean, or recognized MySQL `tinyint(1)` boolean values | **True** / **False** selector. |
+| Date, time, timestamp, or year | Text input with an optional calendar or time picker. |
+| Other types | Text input. |
+
+These controls apply to table rows, not arbitrary SQL results in **Query**. Editing and deleting existing rows requires a primary key and is unavailable for views. A row with a truncated primary key is locked against changes. Use a database client to edit values the explorer cannot display in full.
+
 Browsing needs the `databases.query` permission (`database-instances.query` inside instances); editing rows, editing structure, deleting structure, and the Query tab each map to their own key, see the [Permissions Reference](../../dashboard/permissions.md). Treat `query-raw` like handing out the database credentials themselves, and note that a [database host in maintenance mode](../../admin/database-hosts.md#maintenance-mode) blocks the explorer entirely. SQLite files in the file manager get the same treatment via the [files page](../files.md#sqlite-databases).

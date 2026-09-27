@@ -59,7 +59,7 @@ A panel served under more than one address, say a public domain and a LAN addres
 - links in the emails users trigger themselves: verification, password reset and email change,
 - console WebSocket, download and upload links for a node that runs through the panel's `/wings-proxy`.
 
-Everything else keeps using the main **URL**, including links in emails the panel sends on its own, the addresses of avatars and other files kept in [filesystem storage](#storage), and the panel address handed to nodes. Browsers on an additional address must be able to reach the main one for those. A host that matches nothing falls back to the main URL too, so a spoofed `Host` header cannot inject an address that is not configured. Behind a reverse proxy the panel reads `X-Forwarded-Host`, but only from addresses listed in [`APP_TRUSTED_PROXIES`](../../environment.md#app-trusted-proxies).
+Links in emails the Panel sends on its own, avatars, and other files kept in [filesystem storage](#storage) use the main **URL**. Browsers on an additional address must be able to reach it. [Pairing and enrollment](../../../wings/next-steps/configure-node.md#use-an-enrollment-command) use the configured Panel URL matching the request host, unless you supply an explicit **Panel URL** override. A host that matches nothing falls back to the main URL, so a spoofed `Host` header cannot inject an unconfigured address. Behind a reverse proxy, the Panel reads `X-Forwarded-Host` only from addresses listed in [`APP_TRUSTED_PROXIES`](../../environment.md#app-trusted-proxies).
 
 Trailing slashes are stripped and duplicates of the main URL are dropped on save. Two more things need setting up per address: every URL needs its own redirect URL registered with each [OAuth provider](./oauth-providers.md) (the provider page lists one per configured URL), and [security keys](#webauthn) only work on addresses under the **RP Id**.
 
@@ -243,7 +243,9 @@ Retention for the three activity logs and what gets logged.
 
 Per-endpoint API rate limits. Each endpoint card has two values: **Hits**, the maximum number of requests allowed per window, and **Window**, the window duration in seconds.
 
-Endpoints covered: `auth/register`, `auth/login`, `auth/login/checkpoint`, `auth/login/checkpoint/email`, `auth/login/security-key`, `auth/password/forgot`, `auth/password/reset`, `auth/email/verify`, `client`, `client/account/email/resend-verification`, `client/servers/backups/create`, `client/servers/files/pull`, `client/servers/files/pull/query`, `remote`, and `remote/sftp/auth`.
+Endpoints covered: `auth/register`, `auth/login`, `auth/login/checkpoint`, `auth/login/checkpoint/email`, `auth/login/security-key`, `auth/password/forgot`, `auth/password/reset`, `auth/email/verify`, `client`, `client/account/email/resend-verification`, `client/servers/backups/create`, `client/servers/files/pull`, `client/servers/files/pull/query`, `remote`, `remote/enroll`, and `remote/sftp/auth`.
+
+**Remote Enroll** limits redemption of node enrollment codes to 10 requests per 60 seconds by default. Its settings key is `remote_enroll`; it is separate from the general remote API limit.
 
 ### Exemptions
 

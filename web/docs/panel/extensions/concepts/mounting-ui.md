@@ -93,6 +93,28 @@ export default function MyServerSettingsCard() {
 
 This is a slightly manual process but it's flexible and it avoids the common "ordering API where nobody agrees on priorities" mess. On a slot whose stock entries carry `order-` classes, an entry without one has CSS order `0` and lands *first*, whatever `appendComponent` suggests, so on those pages pick a number. The card in the screenshot above uses `order-25`, which is why it sits after Rename Server and before Auto-Start.
 
+### Action Bars, Schedules, and Devices
+
+Selection action bars have their own slots. Register a component before or after the built-in actions:
+
+```ts
+ctx.extensionRegistry.pages.server.schedules.enterActionBar((bar) =>
+  bar.appendComponent(MyScheduleAction),
+);
+```
+
+`MyScheduleAction` is your React component. These slots use `ComponentListRegistry` with no selection props: registration does not hand your component the selected rows, a clear-selection callback, or the page's refresh function. The slot renders with the action bar when the user selects rows.
+
+| Registry under `pages` | Action-bar slot |
+| --- | --- |
+| `dashboard.apiKeys`, `dashboard.sshKeys`, `dashboard.oauthLinks`, `dashboard.commandSnippets` | `enterActionBar(...)` |
+| `server.backups`, `server.databases`, `server.databases.instances` | `enterActionBar(...)` |
+| `server.mounts`, `server.devices`, `server.network`, `server.schedules`, `server.subusers` | `enterActionBar(...)` |
+
+Each supports `prependComponent` and `appendComponent`. `server.schedules` and `server.devices` also expose `enterContainer(...)` for their page wrappers. Schedules do not expose a per-schedule context-menu registry.
+
+`server.mounts.enterSubNavigation(...)` extends the navigation shared by **Mounts** and **Devices**. Admin device pages are under `pages.admin.devices`: the list exposes `enterContainer`, and `view` exposes `subNavigation`, `eggs`, `nodes`, and `servers`. Egg/node assignment tabs have `enterSubContainer` and `enterContextMenu`; the servers tab has `enterSubContainer`. The device tabs of admin nodes and servers are under `pages.admin.nodes.view.devices` and `pages.admin.servers.view.devices`.
+
 ### Full Slot-Point Surface
 
 The page tree under `ctx.extensionRegistry.pages` is large and evolves as the Panel grows new slot points. Rather than enumerate it here (and go stale immediately), see the typedocs: [ExtensionRegistry](https://typedocs.calagopus.com/classes/extensions_shared_src_registries.ExtensionRegistry). Look for `pages.*` and follow the types to find the container method you need.

@@ -207,11 +207,9 @@ Two calls. `state.settings.get().await?` gives you a snapshot of the current set
 The type parameter on `find_extension_settings` is usually inferred from the annotation on the left-hand side (`let ext_settings: &ExtensionSettingsData = ...`), but you can also call it as `.find_extension_settings::<ExtensionSettingsData>()?` if the surrounding code doesn't disambiguate.
 
 ::: info
-**How the settings store actually works.** Under the hood, `state.settings` keeps two `RwLock` buffers and an "active" index. Reads follow the active buffer. `get_mut` loads a fresh copy from the database into the inactive buffer and hands you that, and `save()` writes it out and flips the index while the guard is still held.
+**How the settings store works.** `state.settings` keeps two `RwLock` buffers and an active index. Reads use the active buffer. `get_mut` loads a fresh database copy into the inactive buffer; `save()` persists it, releases its write guard, and then publishes that buffer as active.
 
-The upshot: **reads usually don't block on ongoing writes**. A long `get_mut` isn't stalling every request in your Panel - readers keep going against the active buffer the whole time. Writes themselves are serialized (one writer at a time).
-
-Don't rely on "reads never block" as an absolute, though. Each buffer expires after 60 seconds, and a reader that finds its buffer expired reloads it from the database behind the same lock a writer holds, so roughly once a minute a read can wait for an in-flight write. If you're writing latency-sensitive code, assume the worst case is "a read might block briefly."
+Writers are serialized. Readers normally continue using the active snapshot during a write. When the cache expires after 60 seconds, a refresh also loads the inactive buffer before publishing it; invalidation switches to an expired inactive buffer so the next read refreshes it. Reads can still wait during refresh or lock contention, so do not assume they are always nonblocking.
 :::
 
 ## Writing Settings

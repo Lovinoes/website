@@ -13,7 +13,9 @@ Next to **Create** sits **Find by External ID**: enter the external identifier (
 
 ## Bulk Actions
 
-Selecting servers in the list turns the header into an action bar that applies one operation to the whole selection. Select with the row checkboxes, or by dragging a box across the rows.
+Selecting servers in the list opens an action bar at the bottom of the page that applies one operation to the whole selection. Select with the row checkboxes, or by dragging a box across the rows.
+
+![Admin server selected with Clear State, Unsuspend, Suspend and Delete controls](./images/servers/bulk-actions.webp)
 
 | Action | Effect | Needs |
 | --- | --- | --- |
@@ -152,6 +154,10 @@ The same variable grid as the client [Startup](../server/startup.md) page, but e
 Mounts attached to this server: ID, Name, Source, Target, and Added. **Add** attaches one of the mounts available to this server from the admin **Mounts** area; right-click for **Remove**. The owner sees and toggles these on their [Mounts](../server/mounts.md) page.
 
 ![](./images/servers/mounts.webp)
+
+### Devices
+
+Attach or detach [host devices](./devices.md) for this server (requires `servers.devices`). The available list includes devices assigned to both its node and egg. Admins can attach devices even when **User Attachable** is off. Restart the server after changing attachments.
 
 ### Backups
 

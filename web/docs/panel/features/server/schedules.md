@@ -65,6 +65,8 @@ Select rows with their checkboxes, by dragging across them, or with `Ctrl+A` (`E
 
 Selecting needs `schedules.update` or `schedules.delete`. Each action reports how many items it changed, skipped or failed in a toast.
 
+![Schedule selected with Run Now, Enable, Disable and Delete controls](./images/schedules/bulk-actions.webp)
+
 ## The Schedule Page
 
 Opening a schedule shows its name with an **Active**/**Inactive** badge, a **Run Now** button, and **Edit**. Two cards show **Last Run** and **Last Failure** ("Never" until they happen). Below that are three tabs: **Actions**, **Conditions**, and **Triggers**.

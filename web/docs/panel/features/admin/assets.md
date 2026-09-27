@@ -25,6 +25,8 @@ Right-click a file for:
 
 You can also select multiple files (checkboxes, Ctrl+click, drag selection, or Ctrl+A for everything on the page) and delete them in one go with the action bar or the Delete key.
 
+![Asset selected with the bulk Delete control](./images/assets/bulk-actions.webp)
+
 ## Public URLs
 
 With the default filesystem storage driver, assets are served by the panel itself at `<panel URL>/assets/<path>`, e.g. `https://panel.example.com/assets/branding/icon.png`. With the S3 storage driver, links use the bucket's configured **Public URL** instead. The storage driver is set in [Settings > Storage](./settings.md#storage).

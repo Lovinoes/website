@@ -70,4 +70,6 @@ Right-click a subuser (or open the row menu) for **Edit** and **Remove**. **Edit
 
 With `subusers.delete`, select several subusers (checkboxes, drag, or `Ctrl+A`) and **Remove** them together after one confirmation.
 
+![Subuser selected with the bulk Remove control](./images/subusers/bulk-actions.webp)
+
 Viewing the page requires `subusers.read`; creating, editing, and removing require `subusers.create`, `subusers.update`, and `subusers.delete` respectively.

@@ -32,7 +32,11 @@ The badge falls back to **Deployment Enabled** when the allocation figures canno
 
 Select nodes with the checkboxes, by dragging, or with `Ctrl+A` (`Escape` clears). An action bar appears with **Update Config**, which opens a YAML editor and applies the entered configuration to every selected node at once.
 
+![Node selected with the bulk Update Config control](./images/nodes/bulk-actions.webp)
+
 ## Creating a Node
+
+**Pair a Waiting Node** connects to an unconfigured Wings instance with the code from its logs and fills in detected resources. Use **Set Up Manually** to enter the fields yourself. See [Configuring a New Node](../../../wings/next-steps/configure-node.md) for both workflows.
 
 Click **Create** in the top right (requires `nodes.create`). If no location exists yet, a create-location modal appears first.
 
@@ -89,7 +93,11 @@ The same form as [creating a node](#creating-a-node), plus three extra buttons:
 
 ## Configuration
 
-Everything needed to connect wings to this node entry. The page starts collapsed behind **Reveal Configuration** because the output contains the node token (requires `nodes.read-token`). On an All-in-One node there is nothing to join, so **Initial Setup** is left out and the page opens straight on **Live Configuration**.
+**Pair with Wings** accepts the code from an unconfigured Wings instance, or generates a single-use enrollment command that expires after 30 minutes. **Panel URL** overrides the address Wings uses to reach the Panel. Pairing needs `nodes.reset-token`; it is unavailable for All-in-One nodes. See the [pairing and enrollment guide](../../../wings/next-steps/configure-node.md).
+
+![Node pairing and enrollment controls](./images/nodes/pairing.webp)
+
+Below that are the manual configuration tools needed to connect Wings to this node entry. These start collapsed behind **Reveal Configuration** because the output contains the node token (requires `nodes.read-token`). On an All-in-One node there is nothing to join, so **Initial Setup** is left out and the page opens straight on **Live Configuration**.
 
 ![](./images/nodes/configuration.webp)
 
@@ -101,7 +109,7 @@ Everything needed to connect wings to this node entry. The page starts collapsed
 
 ![](./images/nodes/verify-connection.webp)
 
-**Live Configuration** below edits the full `config.yml` of the running wings instance in a YAML editor. **Save Configuration** (or `Ctrl+S`) pushes it to the node. See the [wings configuration reference](../../../wings/configuration.md) for every option.
+**Live Configuration** below edits the full `config.yml` of the running wings instance in a YAML editor. **Save Configuration** (or `Ctrl+S`) pushes it to the node. The editor lists options that cannot be changed from the web UI, and reports changes to those paths as ignored. Edit them on the Wings host instead; this includes `allowed_mounts` and `allowed_devices`. See the [Wings configuration reference](../../../wings/configuration.md) for every option.
 
 ![](./images/nodes/live-configuration.webp)
 
@@ -140,6 +148,10 @@ Select allocations (drag, checkboxes, or `Ctrl+A`) for the action bar: **Update*
 Which admin-defined [mounts](../server/mounts.md) are usable on this node (requires `nodes.mounts`). **Add** attaches an existing mount; removing a row only detaches it from the node. Wings must also allow the source path via [`allowed_mounts`](../../../wings/configuration.md#allowed_mounts).
 
 ![](./images/nodes/mounts.webp)
+
+## Devices
+
+The **Devices** tab assigns admin-defined [devices](./devices.md) to this node (requires `nodes.devices`). **Add** makes a device available here; removing it detaches its node assignment. The server's egg must also allow it, and Wings must allow its source in [`allowed_devices`](../../../wings/configuration.md#allowed-devices).
 
 ## Database Hosts
 
@@ -187,6 +199,8 @@ All servers on the node, in the standard admin server list (ID, Status, Name, No
 ![](./images/nodes/servers.webp)
 
 Select individual servers (checkboxes, drag, `Ctrl+A`, or click while holding `S`) to run the same actions on just the selection.
+
+![Node server selected with power and Transfer controls](./images/nodes/servers-selection.webp)
 
 **Transfer Servers** moves servers to another node:
 

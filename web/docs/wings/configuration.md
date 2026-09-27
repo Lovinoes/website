@@ -13,6 +13,23 @@ This page is a reference for all Wings configuration options. The configuration 
 If no `-c`/`--config` flag is passed and `/etc/calagopus-wings/config.yml` doesn't exist, Wings automatically looks for a config at `/etc/pterodactyl/config.yml`, then `/etc/pelican/config.yml`, then `./config.yml`, in that order, and uses the first one it finds. This means an existing Pterodactyl or Pelican Wings install keeps working without moving its config file, though it's recommended to migrate to the `calagopus-wings` path when convenient.
 :::
 
+## Environment Overrides
+
+Wings accepts configuration overrides through environment variables prefixed with `CALAGOPUS_`. Uppercase the key and replace dots with underscores: `api.port` becomes `CALAGOPUS_API_PORT`, and `system.backups.s3.streaming` becomes `CALAGOPUS_SYSTEM_BACKUPS_S3_STREAMING`.
+
+```yaml
+environment:
+  CALAGOPUS_API_PORT: "8080"
+  CALAGOPUS_SYSTEM_BACKUPS_S3_STREAMING: "false"
+  CALAGOPUS_ALLOWED_DEVICES: "[/dev/dri/renderD128]"
+```
+
+This example belongs under the Wings service in Docker Compose. For a native service, set the variables in its service environment. String fields take the value literally; other fields accept YAML values such as `false`, `8080`, or a list. Set a whole map or list when adding entries. Unknown variable names produce a warning and are ignored; invalid values for a recognized option prevent the configuration from loading.
+
+Overrides apply when Wings loads or replaces its configuration, including updates from the Panel, and are saved into `config.yml`. Removing a variable leaves its last saved value in the file; edit the file as well if you want to undo the override.
+
+On a fresh installation without a configuration file, Wings waits for [pairing with the Panel](./next-steps/configure-node.md). `WINGS_ENROLL_PANEL_URL` and `WINGS_ENROLL_CODE` can enroll it automatically during that first start. These enrollment variables are separate from `CALAGOPUS_` configuration overrides.
+
 ## Core Configuration
 
 ### debug
@@ -422,12 +439,7 @@ username: calagopus
 ```
 
 ### system.timezone
-The timezone used by Wings (e.g., `+00:00`) for logs and containers. It is auto-detected from the host, falls back to UTC if detection fails, and is passed into all created containers.
-
-Default value:
-```yaml
-timezone: +00:00
-```
+The timezone passed into server containers. Generated from `TZ`, then the first line of `/etc/timezone`, then the current local UTC offset. The example uses `+00:00`; the generated value depends on the host.
 
 ### system.user.rootless.enabled
 Enables rootless container execution, allowing Wings to run containers without requiring root privileges on the host. When enabled, Wings takes `system.username`, `system.user.uid` and `system.user.gid` from the user it runs as and derives `docker.userns_mode` from the container UID/GID below.
@@ -1027,6 +1039,14 @@ Default value:
 create_threads: 4
 ```
 
+### system.backups.s3.streaming
+Whether server-file S3 backups try the streaming endpoint before falling back to a buffered upload. Set to `false` to skip the probe and use buffered uploads directly, for example with a Panel that does not support that endpoint. Database dumps use a separate streaming path and are unaffected.
+
+Default value:
+```yaml
+streaming: true
+```
+
 ### system.backups.s3.part_upload_timeout
 The maximum time (in seconds) to wait for a single part of a multipart upload.
 
@@ -1052,15 +1072,15 @@ create_threads: 4
 ```
 
 ### system.backups.ddup_bak.compression_format
-The compression format used for each `ddup-bak` chunk.
+Compression for DdupBak backups: `none`, `deflate`, `gzip`, `brotli`, or `zstd`. New configurations default to `zstd`; an existing explicit value such as `deflate` is kept.
 
 Available options:
 
-`none`, `deflate`, `gzip`, `brotli`
+`none`, `deflate`, `gzip`, `brotli`, `zstd`
 
 Default value:
 ```yaml
-compression_format: deflate
+compression_format: zstd
 ```
 
 ### system.backups.restic.repository
@@ -1830,6 +1850,14 @@ Default value:
 allowed_mounts: []
 ```
 
+### allowed_devices
+Host device paths or directories whose devices may be passed into server containers through the Panel [Devices](../panel/features/admin/devices.md) feature. Empty by default, so no Panel-defined device mappings are allowed. Sources must resolve to character or block devices within an allowed path; invalid mappings are skipped with a warning. Prefer individual device paths over broad directories. Change this on the Wings host, because the Panel cannot update it. The separate built-in KVM passthrough setting is unaffected.
+
+Default value:
+```yaml
+allowed_devices: []
+```
+
 ### allowed_origins
 A list of specific URLs (origins) that are permitted to make cross-origin requests to the Wings API. By default, the URL defined in the `remote:` setting is the only allowed origin.
 
@@ -1855,11 +1883,11 @@ ignore_panel_config_updates: false
 ```
 
 ::: info Options the panel can never change
-Even with panel config updates enabled, a set of paths is stripped out of every patch the panel sends, so they can only be changed by editing `config.yml` on the node itself:
+Even with panel config updates enabled, a set of paths is stripped out of every patch the panel sends, so change them locally in `config.yml` or through environment overrides:
 
 - Node identity: `uuid`, `token`, `token_id`, `remote`, `remote_headers`
 - Paths: `system.root_directory`, `system.log_directory`, `system.data`, `system.diffs_directory`, `system.vmount_directory`, `system.archive_directory`, `system.backup_directory`, `system.tmp_directory`, `system.passwd.directory`, `system.backups.restic.repository`, `system.backups.restic.password_file`, `system.backups.mounting.path`, `tundra.data_directory`, `tundra.binary`
-- Host access: `system.username`, `system.user`, `system.passwd`, `docker.socket`, `tundra.image`, `tundra.source_image`, `allowed_mounts`
+- Host access: `system.username`, `system.user`, `system.passwd`, `docker.socket`, `tundra.image`, `tundra.source_image`, `allowed_mounts`, `allowed_devices`
 - Listener and egress: `api.host`, `api.port`, `api.ssl`, `api.trusted_proxies`, `api.disable_remote_download`, `api.remote_download_blocked_cidrs`, `api.schedule.steps.http_request`
 - The flags themselves: `ignore_panel_config_updates`, `ignore_panel_wings_upgrades`
 
@@ -2084,11 +2112,12 @@ system:
       archive_format: tar_gz
     s3:
       create_threads: 4
+      streaming: true
       part_upload_timeout: 7200
       retry_limit: 10
     ddup_bak:
       create_threads: 4
-      compression_format: deflate
+      compression_format: zstd
     restic:
       repository: '{root_directory}/backups/restic'
       password_file: '{root_directory}/backups/restic_password'
@@ -2206,6 +2235,7 @@ remote_query:
   boot_servers_per_page: 50
   retry_limit: 10
 allowed_mounts: []
+allowed_devices: []
 allowed_origins: []
 allow_cors_private_network: false
 ignore_panel_config_updates: false
@@ -2384,11 +2414,12 @@ system:
       archive_format: tar_gz
     s3:
       create_threads: 4
+      streaming: true
       part_upload_timeout: 7200
       retry_limit: 10
     ddup_bak:
       create_threads: 4
-      compression_format: deflate
+      compression_format: zstd
     restic:
       repository: '{root_directory}\backups\restic'
       password_file: '{root_directory}\backups\restic_password'
@@ -2506,6 +2537,7 @@ remote_query:
   boot_servers_per_page: 50
   retry_limit: 10
 allowed_mounts: []
+allowed_devices: []
 allowed_origins: []
 allow_cors_private_network: false
 ignore_panel_config_updates: false

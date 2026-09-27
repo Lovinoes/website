@@ -37,7 +37,7 @@ The four remote options (**S3**, **Restic**, **Proxmox Backup Server**, and **Ko
 
 Like **Restic** and **DdupBak**, both **Proxmox Backup Server** and **Kopia** deduplicate at the chunk level. What sets them apart is that they deduplicate *incrementally against the previous snapshot of the same server*, so a backup only uploads the chunks that changed since last time. Proxmox Backup Server stores each backup as a `pxar` archive in a PBS datastore; Kopia stores a snapshot in a Kopia repository, reached through a [Kopia repository server](https://kopia.io/docs/repository-server/). Kopia requires the `kopia` binary to be installed on the Wings node; PBS talks to the server over its HTTP API and needs no extra binary.
 
-**DdupBak** is currently **experimental**, but it's the fastest deduplicating backend available - faster than restic both when creating and restoring backups - while keeping the operational setup as simple as a local tarball (no repository, no password, nothing to initialize). If you want deduplication and are comfortable with the experimental status, it's worth trying. See [ddup-bak on GitHub](https://github.com/0x7d8/ddup-bak) for details on the format.
+**DdupBak** is **experimental** and stores deduplicated backups locally without a repository password or a separate initialization step. Fresh Wings configurations use Zstd compression; existing configurations keep their selected format. Set [`system.backups.ddup_bak.compression_format`](../configuration.md#system-backups-ddup-bak-compression-format) to `none`, `deflate`, `gzip`, `brotli`, or `zstd`. See [ddup-bak on GitHub](https://github.com/0x7d8/ddup-bak) for details on the format.
 
 **Btrfs** and **Zfs** store backups as filesystem snapshots and require the corresponding [disk limiter](../disk-limiters/index.md) to be configured on the Wings node - that's what puts each server on its own subvolume or dataset in the first place, and snapshots only exist relative to that. See the [Btrfs](../disk-limiters/btrfs-subvolume.md) and [ZFS](../disk-limiters/zfs-dataset.md) disk limiter guides for the host-side setup. The same migration caveat applies: servers created before their node switched to `btrfs_subvolume` / `zfs_dataset` won't have backups that work until you transfer the server off the node and back.
 
@@ -66,6 +66,12 @@ Like **Restic** and **DdupBak**, both **Proxmox Backup Server** and **Kopia** de
 
 There is no "test connection" button. To verify a new configuration works, create a small test backup of a real server that's assigned to it.
 
+## Removing Saved Provider Settings
+
+Switching **Backup Disk** can leave the previous provider settings saved as additional configurations. On the edit form, use the **X** on an inactive provider section, confirm removal, then click **Save** to persist it. The active provider cannot be removed this way.
+
+Keep old provider settings while backups still depend on them. Removing credentials does not migrate or delete those backups, and can prevent Wings from accessing them.
+
 ## Disk-specific Settings
 
 Pick the disk you configured above:
@@ -88,6 +94,8 @@ Use the **S3** disk for AWS S3, MinIO, Backblaze B2's S3-compatible endpoint, Cl
 ::: info
 If you're unsure whether your provider needs **Path Style**, try it off first. If uploads fail with DNS or certificate errors, turn it on.
 :::
+
+Wings tries a streaming upload for server-file S3 backups, then falls back to buffering if the Panel does not support it. Set [`system.backups.s3.streaming`](../configuration.md#system-backups-s3-streaming) to `false` on the node to skip that probe and buffer directly. This setting does not change the database-dump upload path.
 
 === Restic
 

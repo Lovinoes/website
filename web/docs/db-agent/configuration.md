@@ -44,7 +44,7 @@ log_dir: /var/log/calagopus-db-agent
 ```
 
 ### disk_check_interval
-The interval (in seconds) at which DB Agent checks disk usage for its data directory.
+The interval in seconds between database instance disk checks, with a minimum of 1 second. A running instance at or above its nonzero disk limit is stopped, and cannot start again while full. These periodic checks can allow temporary overage; they are not a hard filesystem quota.
 
 Default value:
 ```yaml
@@ -52,7 +52,7 @@ disk_check_interval: 60
 ```
 
 ### disk_check_concurrency
-The number of concurrent allowed disk scans DB Agent can perform. This limits the number of simultaneous disk usage checks to prevent excessive background resource consumption.
+The number of concurrent allowed disk scans DB Agent can perform. This limits the number of simultaneous disk usage checks to prevent excessive background resource consumption. Values below 1 are treated as 1.
 
 Default value:
 ```yaml
@@ -261,12 +261,7 @@ container_sysctls: {}
 ```
 
 ### docker.timezone
-The default timezone passed into database containers when a database doesn't specify its own.
-
-Default value:
-```yaml
-timezone: UTC
-```
+The timezone passed into database containers when an instance does not specify its own. Generated from `TZ`, then a nonempty first line of `/etc/timezone`, then the current local UTC offset. The example uses `UTC`; the generated value depends on the host.
 
 ### docker.userns_mode
 The user namespace mode for database containers, used to isolate container users from host users for enhanced security. Ignored when `docker.rootless.enabled` is `true`.
@@ -389,7 +384,7 @@ request_log_limit: 250
 ```
 
 ### api.disable_remote_import
-Whether to prevent databases from being imported directly from a remote database through a connection string. When disabled, the import endpoint rejects every request instead of dumping the source.
+Whether to prevent databases from being imported directly from a remote database through a connection string. When set to `true`, the import endpoint rejects every request instead of dumping the source.
 
 Default value:
 ```yaml

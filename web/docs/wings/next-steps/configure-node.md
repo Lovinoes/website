@@ -1,11 +1,11 @@
 ---
 title: Configuring a New Node
-description: Connect Wings to the panel by creating a location and node, installing Wings, and applying the node configuration.
+description: Connect Wings to the Panel with a pairing code, an enrollment command, or a manually supplied node configuration.
 ---
 
 # Configuring a New Node
 
-A node connects Wings on a remote or local host to the panel. Create a location and node, install Wings, then apply its configuration before starting it.
+A node connects Wings on a remote or local host to the Panel. A fresh Wings installation can start without a configuration file and wait for you to pair it. You can also create the node first and use an enrollment command or the generated YAML.
 
 If you use the Panel's All-in-One image, its integrated node is already configured. Use that existing node; these steps are for adding a separate Wings installation.
 
@@ -29,10 +29,35 @@ Locations group nodes together and control backup configuration inheritance. You
 ![](./images/configure-node/create-location.webp)
 ![](./images/configure-node/location-field.webp)
 
-## Create the node
+## Pair a Waiting Node
+
+Install Wings using the [Docker](../installation/docker.md), [Binary](../installation/binary.md), or [Package Manager](../installation/pkgmanager.md) guide, then start it without creating a `config.yml`. Wings listens for setup over HTTP on port `8080` by default and prints a pairing code in its logs.
+
+| Installation | Where to read the code |
+| --- | --- |
+| Docker Compose | `docker compose logs wings` from the Compose directory |
+| systemd service | `journalctl -u wings -n 50 --no-pager` |
+| Foreground process | The terminal running `wings` or `calagopus-wings` |
+
+1. Open **Admin → Nodes → Create** and select **Pair a Waiting Node**.
+2. Enter the **Node Address**, including the port, and the **Pairing Code** from the logs. Use an address the Panel can reach, such as `http://192.0.2.10:8080`; replace that example IP with your node's address.
+3. Click **Connect**. The Panel checks Wings and shows its version, resources, and container-runtime status.
+4. Review the node form, choose its location, and finish creating and pairing it. Memory and disk start at 90% of the detected totals; adjust them for your host.
+
+![Pair a waiting Wings node using its address and pairing code](./images/configure-node/pairing.webp)
+
+Keep the code private. After five failed pairing requests, Wings prints a replacement code. Successful pairing writes the configuration and continues into normal operation automatically. If the node entry already exists, use **Pair with Wings** on its **Configuration** tab; this is also available during first-time setup.
+
+For Docker port mappings, use the published host port in **Node Address**. Pairing keeps Wings' local API and SFTP listener ports, so `7777:8080` means the address ends in `:7777` while Wings still listens on `8080` inside its container.
+
+::: info Existing installations
+Setup mode only starts when no configuration file is found. An invalid existing file still needs fixing. Wings also refuses automatic setup if its server data directory already contains data: restore the configuration or explicitly configure the installation. `--no-setup` disables automatic setup for unattended runs that should fail when configuration is missing.
+:::
+
+## Create the node manually
 
 - **OOBE**: continues automatically after the location step.
-- **Existing panel**: go to **Admin → Nodes → Create**.
+- **Existing panel**: go to **Admin → Nodes → Create** and select **Set Up Manually**.
 
 | Field | Description |
 |---|---|
@@ -57,17 +82,33 @@ If your panel has SSL but Wings doesn't, **Wings Proxy Mode** lets the panel pro
 ![](./images/configure-node/create-node.webp)
 ![](./images/configure-node/node-field.webp)
 
-> The OOBE also asks for an **IP** and **Port Ranges** here, so your first allocation is ready immediately. Via the Admin panel, add allocations afterward. See [Setting up Allocations](./setting-up-allocations.md).
+> The OOBE also asks for an **IP** and **Port Ranges** here, so your first allocation is ready immediately. The admin pairing form also offers optional **IP** and **Port Ranges** fields. With manual admin creation, add allocations afterward. See [Setting up Allocations](./setting-up-allocations.md).
 
 Click **Create** (or **Create & Continue** in the OOBE).
 
 ## Install Wings
 
-Follow the [Wings Installation](../../wings/installation/index.md) guide for your chosen method. Install the binary or package, or download the Docker Compose file, then return here for the node configuration. Apply that configuration before starting Wings.
+If Wings is not installed yet, follow [Wings Installation](../installation/index.md). Return here to enroll an existing node entry or apply its configuration manually.
+
+## Use an Enrollment Command
+
+For an existing node entry, open **Admin → Nodes → (your node) → Configuration** or the **Node Configuration** step during first-time setup. Under **Pair with Wings**, click **Generate Enrollment Command** and run the command on the node:
+
+```bash
+calagopus-wings configure --panel-url https://panel.example.com --enroll CODE_FROM_PANEL
+```
+
+Use the command generated by your Panel, with its real URL and code. If you installed the standalone binary as `wings`, use that name instead. Each code expires after 30 minutes and can be redeemed once. Redemption rotates the node token, so do not use it to configure a second copy of an already-running node. Pairing and command generation require `nodes.reset-token` and are unavailable for the integrated All-in-One node.
+
+![Pairing and enrollment card with a Panel URL override](../../panel/features/admin/images/nodes/pairing.webp)
+
+Set **Panel URL** in the pairing card when Wings must use a different reachable Panel address. Leave it empty for the normal address. The command writes the node credentials, Panel origins, and the API/SFTP ports returned by the Panel. Start or restart Wings afterward. If an unconfigured Wings process is already waiting for pairing, stop that process before running the command, then start it again.
+
+Docker installations can pass the URL and code as [first-start enrollment variables](../installation/docker.md#automatic-enrollment). Normal node operation still needs the Panel and Wings to reach each other after enrollment.
 
 ## Apply the node configuration
 
-Once the node exists in the panel, open its configuration:
+Manual YAML and the existing join command are still available. Once the node exists in the Panel, open its configuration:
 
 - **OOBE**: shown on the Node Configuration step.
 - **Admin panel**: go to **Admin → Nodes → (your node) → Configuration** tab.

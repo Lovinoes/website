@@ -58,16 +58,38 @@ sed -i -e "s/calagopus\/wings:latest/calagopus\/wings:nightly/g" compose.yml
 
 ## Configure Wings
 
-Before starting Wings, you need to register the node in the panel and get its configuration. Follow the [Configuring a New Node](../../wings/next-steps/configure-node.md) guide to create the node, then copy the configuration content from the Node Configuration page in the panel.
-
-Create the config directory and file:
+For a fresh installation, create the configuration directory and leave it empty:
 
 ```bash
-mkdir config
+mkdir -p config
+```
+
+Continue to [Start Wings](#start-wings). Wings waits for pairing and prints a code in `docker compose logs wings`. In the Panel, use [Pair a Waiting Node](../next-steps/configure-node.md#pair-a-waiting-node) to connect it.
+
+### Automatic Enrollment
+
+If you have already created the node entry, generate an enrollment command from its **Configuration** tab. Put its Panel URL and code in the `environment` block of your existing `wings` service before the first start:
+
+```yaml
+environment:
+  WINGS_ENROLL_PANEL_URL: "https://panel.example.com"
+  WINGS_ENROLL_CODE: "CODE_FROM_PANEL"
+```
+
+The code expires after 30 minutes and can be used once. These variables are read only when no configuration file exists. Wings saves the resulting configuration in `config/config.yml` and starts normally; if enrollment fails, it logs the error and waits for pairing instead. Remove the enrollment variables from Compose after success. Keep the `config/` volume so restarts retain the node identity.
+
+For other first-start settings, use [environment overrides](../configuration.md#environment-overrides), for example `CALAGOPUS_API_PORT: "8080"`. Match the container side of any port mapping to that listener port. Automatic enrollment preserves local API/SFTP listener ports.
+
+### Manual Configuration
+
+You can still copy the generated YAML from **Admin → Nodes → (your node) → Configuration** into `config/config.yml` before starting Wings:
+
+```bash
+mkdir -p config
 nano config/config.yml
 ```
 
-Paste the configuration from the panel and save.
+Existing installations keep using their saved file. Do not remove a working configuration to force pairing.
 
 ::: warning Every data directory needs a volume
 Wings maps the directories from `config/config.yml` to their host paths by inspecting its own container, so the host side of a volume can be anywhere. Every directory Wings uses still has to be covered by a volume, though: if you split `/var/lib/calagopus-wings` across several mounts, make sure `volumes`, `diffs`, `vmounts`, `archives` and `backups` are all still inside one of them, or Wings refuses to start.
@@ -79,7 +101,7 @@ Wings maps the directories from `config/config.yml` to their host paths by inspe
 docker compose up -d
 ```
 
-This pulls the image and starts Wings in detached mode. Once running, the panel should show the node as connected.
+This pulls the image and starts Wings in detached mode. A fresh installation waits for pairing; an enrolled or manually configured installation connects to the Panel.
 
 If you run into issues, check the logs:
 
@@ -91,7 +113,7 @@ docker compose logs -f wings
 
 | Symptom | Fix |
 | --- | --- |
-| `failed to load config from /etc/calagopus-wings/config.yml: ... No such file or directory` | The `config/` directory exists, Docker created it on first start, but `config/config.yml` was never written. Stop the container, write the file with the configuration from the panel as described above, and start again. If you changed the compose file to bind-mount the config file itself rather than the `config/` directory, you can also see `Is a directory (os error 21)`, because Docker created a directory at the file's path; delete it and write the real file. |
+| `failed to load config from /etc/calagopus-wings/config.yml: ... No such file or directory` | On current Wings, a missing config normally starts pairing mode. This error can indicate an older build or `--no-setup`; update Wings or write the file manually as described above. If you changed the compose file to bind-mount the config file itself rather than the `config/` directory, you can also see `Is a directory (os error 21)`, because Docker created a directory at the file's path; delete it and write the real file. |
 | `failed to load SSL certificate and key ... No such file or directory` | The certificate lives on the host but isn't mounted into the container. Add `- /etc/letsencrypt:/etc/letsencrypt:ro` under the `wings` service's `volumes:` and recreate it. |
 | The panel can't connect even though Wings logs look fine | Compare three numbers: `api.port` in `config/config.yml`, the container side of the `ports:` mapping in `compose.yml`, and the port in the node URL on the panel. They must agree, or the host port must map to `api.port`. A compose line of `7777:8080` with a node URL ending in `:8080` connects to nothing. |
 | `localhost` doesn't work in `remote:` | Inside the container `localhost` is the container. When the panel runs on the same host, use the host's LAN IP, or `network_mode: host` on the `wings` service. |

@@ -283,6 +283,16 @@ Permissions that control the ability to manage server mounts.
 | `mounts.read` | Allows viewing existing mounts. |
 | `mounts.detach` | Allows detaching mounts from the server. |
 
+### Devices
+
+Permissions that control server device attachments.
+
+| Permission | Description |
+| --- | --- |
+| `devices.attach` | Allows attaching new devices to the server. |
+| `devices.read` | Allows viewing existing devices. |
+| `devices.detach` | Allows detaching devices from the server. |
+
 ### Settings
 
 Permissions that control the ability to manage settings on this server.
@@ -419,6 +429,7 @@ Permissions that control the ability to manage [system backup policies](../admin
 | `nodes.reset-token` | Allows resetting a node's token. |
 | `nodes.allocations` | Allows viewing and managing a node's allocations. |
 | `nodes.mounts` | Allows viewing and managing a node's mounts. |
+| `nodes.devices` | Allows viewing and managing a node's devices. |
 | `nodes.database-hosts` | Allows viewing and managing a node's database hosts. |
 | `nodes.database-agent-hosts` | Allows viewing and managing a node's database agent hosts. |
 | `nodes.backups` | Allows viewing and managing a node's backups. |
@@ -438,6 +449,7 @@ Permissions that control the ability to manage [system backup policies](../admin
 | `servers.allocations` | Allows viewing and managing a server's allocations. |
 | `servers.variables` | Allows viewing and managing a server's variables. |
 | `servers.mounts` | Allows viewing and managing a server's mounts. |
+| `servers.devices` | Allows viewing and managing a server's devices. |
 
 ### Nests
 
@@ -457,6 +469,7 @@ Permissions that control the ability to manage [system backup policies](../admin
 | `eggs.update` | Allows modifying eggs. |
 | `eggs.delete` | Allows deleting eggs. |
 | `eggs.mounts` | Allows viewing and managing an egg's mounts. |
+| `eggs.devices` | Allows viewing and managing an egg's devices. |
 
 ### Egg Configurations
 
@@ -526,6 +539,15 @@ Permissions that control the ability to manage [system backup policies](../admin
 | `mounts.read` | Allows viewing mounts. |
 | `mounts.update` | Allows modifying mounts. |
 | `mounts.delete` | Allows deleting mounts. |
+
+### Devices
+
+| Permission | Description |
+| --- | --- |
+| `devices.create` | Allows creating new devices. |
+| `devices.read` | Allows viewing devices. |
+| `devices.update` | Allows modifying devices. |
+| `devices.delete` | Allows deleting devices. |
 
 ### Activity
 

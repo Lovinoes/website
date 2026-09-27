@@ -73,7 +73,7 @@ On the configuration page:
 - **WebUI Port** / **SFTP Port**, default to `8000` and `2022`. Change these if they conflict with other containers on your Unraid host.
 
 ::: info Advanced path mappings
-The advanced path mappings (Docker socket, Wings config/data/log/tmp directories, and on the heavy template, the extension build directories) default to subfolders under `/mnt/user/appdata/calagopus/`, leave them unless you have a specific reason to relocate them. If applicable, don't forget to move the wings configuration from step 3. Mounting files outside of the designated mount points may cause files to disappear after a reboot. Use with care.
+The advanced path mappings (Docker socket, Wings config/data/log directories, and on the heavy template, the extension build directories) default to subfolders under `/mnt/user/appdata/calagopus/`, leave them unless you have a specific reason to relocate them. If applicable, don't forget to move the wings configuration from step 3. Mounting files outside of the designated mount points may cause files to disappear after a reboot. Use with care.
 :::
 
 Click **Apply**. Unraid pulls the image and starts the container.

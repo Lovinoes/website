@@ -357,6 +357,7 @@ export default withMermaid({
                   },
                   { text: 'Startup', link: '/docs/panel/features/server/startup' },
                   { text: 'Mounts', link: '/docs/panel/features/server/mounts' },
+                  { text: 'Devices', link: '/docs/panel/features/server/devices' },
                   { text: 'Settings', link: '/docs/panel/features/server/settings' },
                   { text: 'Activity', link: '/docs/panel/features/server/activity' },
                 ],
@@ -418,6 +419,7 @@ export default withMermaid({
                     collapsed: true,
                     items: [
                       { text: 'Mounts', link: '/docs/panel/features/admin/mounts' },
+                      { text: 'Devices', link: '/docs/panel/features/admin/devices' },
                       { text: 'Backup Configurations', link: '/docs/panel/features/admin/backup-configurations' },
                       { text: 'System Backup Policies', link: '/docs/panel/features/admin/system-backup-policies' },
                     ],

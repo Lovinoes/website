@@ -39,13 +39,14 @@ export const dbAgentConfigDoc: ConfigDoc = {
         },
         {
           key: 'disk_check_interval',
-          description: 'The interval (in seconds) at which DB Agent checks disk usage for its data directory.',
+          description:
+            'The interval in seconds between database instance disk checks, with a minimum of 1 second. A running instance at or above its nonzero disk limit is stopped, and cannot start again while full. These periodic checks can allow temporary overage; they are not a hard filesystem quota.',
           default: 60,
         },
         {
           key: 'disk_check_concurrency',
           description:
-            'The number of concurrent allowed disk scans DB Agent can perform. This limits the number of simultaneous disk usage checks to prevent excessive background resource consumption.',
+            'The number of concurrent allowed disk scans DB Agent can perform. This limits the number of simultaneous disk usage checks to prevent excessive background resource consumption. Values below 1 are treated as 1.',
           default: 5,
         },
         {
@@ -209,8 +210,9 @@ export const dbAgentConfigDoc: ConfigDoc = {
         },
         {
           key: 'docker.timezone',
-          description: "The default timezone passed into database containers when a database doesn't specify its own.",
-          default: 'UTC',
+          description:
+            'The timezone passed into database containers when an instance does not specify its own. Generated from `TZ`, then a nonempty first line of `/etc/timezone`, then the current local UTC offset. The example uses `UTC`; the generated value depends on the host.',
+          example: 'UTC',
         },
         {
           key: 'docker.userns_mode',
@@ -305,7 +307,7 @@ export const dbAgentConfigDoc: ConfigDoc = {
         {
           key: 'api.disable_remote_import',
           description:
-            'Whether to prevent databases from being imported directly from a remote database through a connection string. When disabled, the import endpoint rejects every request instead of dumping the source.',
+            'Whether to prevent databases from being imported directly from a remote database through a connection string. When set to `true`, the import endpoint rejects every request instead of dumping the source.',
           default: false,
         },
         {

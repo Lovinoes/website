@@ -37,3 +37,5 @@ The rest of the right-click menu:
 | **Delete** | Permanently deletes the database and all data. Type the database name to confirm. |
 
 With `databases.delete`, you can also select several databases (checkboxes, drag, or `Ctrl+A`) and **Delete** them together after one confirmation. Locked databases are skipped. Each action reports how many items it changed, skipped or failed in a toast.
+
+![Classic database selected with the bulk Delete control](../images/databases/classic-bulk-actions.webp)

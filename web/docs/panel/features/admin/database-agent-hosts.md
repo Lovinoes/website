@@ -15,6 +15,8 @@ The list at `/admin/database-agent-hosts` shows a health indicator, ID, Name, an
 
 Rows have selection checkboxes; drag across rows or Ctrl/Cmd-click to select several (Ctrl/Cmd+A for all, Escape to clear). With hosts selected, an action bar appears with **Update Config**, which applies a YAML configuration snippet to every selected host at once.
 
+![Database agent host selected with the bulk Update Config control](./images/database-agent-hosts/bulk-actions.webp)
+
 ::: info
 The capacity states compare the memory and disk claimed by the host's instances against its configured limits, whichever of the two is worse: **Nearly Full** from 90%, **No Capacity** at 100% or over. A limit of `0` is unlimited and never counts toward either. **Deployment Disabled**, **Under Maintenance** and **No Types Enabled** each rule the host out on their own, so they are checked first, in that order. The allocation figures are cached for 30 seconds.
 :::
@@ -59,7 +61,7 @@ Copy the generated YAML into `/etc/calagopus-db-agent/config.yml` on the host, o
 
 Click **Verify Connection** to check the panel can reach the agent; the result appears in the **Backend to DB Agent** box.
 
-Below the setup steps, **Live Configuration** shows the running agent's full config in a YAML editor; edit it and hit **Save Configuration** to push changes without touching the machine. This is the same config the bulk **Update Config** action patches across many hosts.
+Below the setup steps, **Live Configuration** shows the running agent's full config in a YAML editor; edit it and hit **Save Configuration** to push changes without touching the machine. This is the same config the bulk **Update Config** action patches across many hosts. The editor lists options that cannot be changed from the web UI, such as paths, the API listener/token, and remote-import policy. Changes to these options are ignored; edit them in the agent's local `config.yml`. See [Remote Management](../../../db-agent/configuration.md#remote-management) for the full list.
 
 ![Live configuration editor](./images/database-agent-hosts/live-config.webp)
 

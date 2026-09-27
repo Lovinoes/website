@@ -29,6 +29,8 @@ Open a repository and hit **Sync**. The panel clones the repository, scans it fo
 
 The **Eggs** tab lists everything found by the last sync (Path, Name, Author, Description, Updated), searchable and paginated. Click a row to open its README in a drawer with its own **Install** button, or select eggs and **Install** them into a nest. See [the walkthrough](../../next-steps/egg-repos.md) for the install and update flows step by step.
 
+![Repository egg selected with the Install control](./images/egg-repositories/eggs-selection.webp)
+
 ![](./images/egg-repositories/eggs.webp)
 
 ![](./images/egg-repositories/readme-drawer.webp)

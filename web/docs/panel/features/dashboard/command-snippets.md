@@ -27,6 +27,8 @@ Right-click an existing snippet (or open the menu at the end of its row) to edit
 
 To delete several snippets at once, select them (checkboxes, drag, or `Ctrl+A`) and use **Delete** in the action bar, which asks for confirmation.
 
+![Command snippet selected with the bulk Delete control](./images/command-snippets/bulk-actions.webp)
+
 ::: info
 The maximum number of command snippets per account is set by the instance administrator under [Settings > User](../admin/settings.md#user).
 :::

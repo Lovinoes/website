@@ -56,6 +56,7 @@ The sidebar starts with **Back** (returns to the dashboard) and **Home**, follow
 | Page | Description |
 | --- | --- |
 | [Mounts](./mounts.md) | Host directories that can be mounted into server containers |
+| [Devices](./devices.md) | Host devices available to eligible servers |
 | [Backup Configurations](./backup-configurations.md) | Where server backups are stored |
 | [System Backup Policies](./system-backup-policies.md) | Scheduled automatic server backups with retention, scoped to locations, nodes, or servers |
 

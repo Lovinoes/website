@@ -47,6 +47,8 @@ The **Instances** tab lists every instance using the template: Name, Server, Typ
 
 ![Template instances tab](./images/database-agent-templates/instances.webp)
 
+![Template instance selected with the Apply Updates control](./images/database-agent-templates/instances-selection.webp)
+
 ::: warning
 Applying updates restarts the affected databases to pick up the new configuration. Locked instances and instances on hosts in maintenance mode are skipped. Users can also apply a pending update themselves from the instance page.
 :::

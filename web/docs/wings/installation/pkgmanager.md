@@ -213,31 +213,32 @@ ln -s $(whereis -b calagopus-wings | awk '{print $2}') /usr/local/bin/wings
 
 ## Configure Wings
 
-Before starting Wings, you need to register the node in the panel and get its configuration. Follow the [Configuring a New Node](../../wings/next-steps/configure-node.md) guide to create the node, then run the auto-deploy command the panel provides:
-
-```bash
-calagopus-wings configure --join-data xxxxxx
-```
-
-Test the configuration by running Wings in the foreground - you should see it connect to the panel:
+On a fresh installation, Wings starts in setup mode when no configuration file exists. You can start it in the foreground:
 
 ```bash
 calagopus-wings
 ```
 
-Kill it with `Ctrl-C` once you've confirmed it connects.
+Read the pairing code printed in the terminal, then follow [Pair a Waiting Node](../next-steps/configure-node.md#pair-a-waiting-node) in the Panel. Keep Wings running while you pair it; it writes its configuration and starts normal operation when pairing succeeds.
+
+To create the node entry first, use the Panel's [enrollment command](../next-steps/configure-node.md#use-an-enrollment-command), or apply the generated YAML or `configure --join-data` command. Existing configurations continue to load normally.
 
 ## Install as a Service
+
+Stop any foreground Wings process with `Ctrl+C` before starting the service:
 
 ```bash
 calagopus-wings service-install
 ```
 
-This creates and enables a systemd service that starts on boot. Check its status with:
+The installer creates, enables, and starts a service for the host's init system. An unconfigured installation starts in setup mode; a configured one starts normal operation. On systemd, check its status and read the pairing code with:
 
 ```bash
 systemctl status wings
+journalctl -u wings -n 50 --no-pager
 ```
+
+On Alpine/OpenRC, check it with `rc-service wings status`; if the pairing code is not visible in service logs, configure it using the enrollment command before starting the service.
 
 ## Next Steps
 

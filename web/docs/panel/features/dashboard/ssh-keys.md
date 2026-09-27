@@ -32,3 +32,5 @@ Right-click a key (or open the menu at the end of its row) to edit or delete it.
 <img src="./images/ssh-keys/edit-form.webp" width="220" alt="" />
 
 To remove several keys at once, select them (checkboxes, drag, or `Ctrl+A`) and use **Delete** in the action bar, which asks for confirmation. Each action reports how many items it changed, skipped or failed in a toast.
+
+![SSH key selected with the bulk Delete control](./images/ssh-keys/bulk-actions.webp)

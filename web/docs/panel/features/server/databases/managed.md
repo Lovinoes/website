@@ -23,6 +23,8 @@ Templates and the resource limits they carry are configured by administrators un
 
 Select rows with their checkboxes, by dragging across them, or with `Ctrl+A` (`Esc` clears); only rows on the current page are selected. The action bar has **Start**, **Restart**, **Stop** and **Kill** for every selected instance (`database-instances.power`; **Kill** asks first, since it can corrupt data), and **Delete** (`database-instances.delete`), which permanently removes the instances and their data after a confirmation. Locked instances are skipped by **Delete**. Each action reports how many items it changed, skipped or failed in a toast.
 
+![Managed database instances selected with power and Delete controls](../images/databases/managed-bulk-actions.webp)
+
 ## The Instance Page
 
 Each instance has its own page at `/server/<id>/databases/instances/<id>` with the instance name, its type badge, and badges for **Locked**, **Update Available**, and **Restoring backup** where relevant.
@@ -51,7 +53,7 @@ Restores are the only thing that locks an instance; exports and remote imports y
 
 Not shown for Redis, which has no named databases. Lists the databases inside the instance with their size, up to its own per-instance cap.
 
-**Create** asks for a name (letters and numbers only) and requires the instance to be running. It also has a **Create a user for this database** switch, on by default, which "creates a user named after the database, grants it access and shows its credentials once the database is created": leave it on and you get a working database and login in one step. A warning icon next to a database means it has no user attached yet, so nothing can connect to it.
+**Create** asks for a name (letters and numbers only) and requires the instance to be running. It also has a **Create a user for this database** switch, on by default, which "creates a user named after the database, grants it access and shows its credentials once the database is created": leave it on and you get a working database and login in one step. The switch requires `database-instances.users` and is disabled when the instance has reached its user limit. A warning icon next to a database means it has no user attached yet, so nothing can connect to it.
 
 Right-click a database for:
 
@@ -63,6 +65,18 @@ Right-click a database for:
 | **Import from Remote** | Dumps another database server over a **Connection String** and imports the result. An optional **Source Database** field "Overrides the database named in the connection string", and a wipe toggle clears the target first. The connection string is only used to take the dump, it is never stored. Runs in the background as a cancellable operation. |
 | **Recreate** | Wipes all data and recreates an empty database with the same name and user access. Type the name to confirm. |
 | **Delete** | Permanently deletes the database and its data. |
+
+### Importing from a Remote MariaDB/MySQL Server
+
+For **Import from Remote**, use a `mysql://` or `mariadb://` connection string. To require TLS with server-certificate verification, add `ssl-mode=verify_identity`:
+
+```text
+mysql://USER:PASSWORD@db.example.com:3306/source?ssl-mode=verify_identity
+```
+
+Replace the credentials, address, and database name with your source database details. `sslmode=verify-full` is also accepted for this mode. DB Agent takes the dump in a temporary container using the target instance's image. The source must be reachable from that container, and its database client must trust the certificate.
+
+The administrator can disable remote imports with [`api.disable_remote_import`](../../../../db-agent/configuration.md#api-disable-remote-import). Private, loopback, and link-local sources are blocked by the default [`api.remote_import_blocked_cidrs`](../../../../db-agent/configuration.md#api-remote-import-blocked-cidrs); importing from a LAN database requires an administrator to adjust that policy on the agent host.
 
 ## Users Tab
 
@@ -78,7 +92,7 @@ Access is granted per database rather than per instance. The list names every da
 
 ![](../images/databases/instance-user-permissions-modal.webp)
 
-**No Access** is the absence of a grant rather than a stored setting. Creating a database only takes a name, so a new one starts out unreachable until you grant somebody access to it. **Recreate** keeps the grants, so wiping a database does not change who can reach it.
+**No Access** is the absence of a grant rather than a stored setting. If you turn off **Create a user for this database**, grant an existing or new user access before connecting. Leaving it on creates the user and grants read/write access automatically. **Recreate** keeps the grants, so wiping a database does not change who can reach it.
 
 Redis instances have no databases, so their users are instance-wide and **Permissions** never appears for them. An instance whose databases you have not created yet says "This instance has no databases yet." and hides the action too.
 

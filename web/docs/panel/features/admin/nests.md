@@ -27,6 +27,8 @@ The **Eggs** tab lists the nest's eggs with the same columns as the nest list (I
 
 Eggs support bulk operations: drag across rows to select, Ctrl/Cmd-click or use the checkboxes, Ctrl/Cmd+A to select everything, Escape to clear. With eggs selected, an action bar appears with **Update from Repository**, **Move** (to another nest), and **Delete**.
 
+![Egg selected with Update from Repository, Move and Delete controls](./images/nests/eggs-selection.webp)
+
 ### Creating an Egg
 
 **Create** opens the egg form described under [General](#general) below. New eggs start with a stub install script (a `debian:latest` container running `/bin/bash`) that you fill in afterwards.
@@ -132,6 +134,10 @@ Each card has its own **Save**, **Duplicate**, and **Remove** buttons.
 Mounts attached here become available to every server using this egg, on top of any per-server mounts. The searchable table lists ID, Name, Source, Target, and Added; **Add** opens a modal to pick one of the panel's configured [mounts](./mounts.md), and each row's context menu offers **Remove**. See the server-side [Mounts page](../server/mounts.md) for how users interact with them.
 
 ![](./images/nests/egg-mounts.webp)
+
+### Devices
+
+Assign [devices](./devices.md) that servers using this egg may attach (requires `eggs.devices`). **Add** selects a device; **Remove** detaches its egg assignment. The server's node must also be assigned to the device, and the device must be attached to the server before it is used.
 
 ### Servers
 
