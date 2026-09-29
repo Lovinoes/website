@@ -28,6 +28,8 @@ Picking S3, Restic, Proxmox Backup Server, or Kopia reveals a disk-specific sett
 
 Finish with **Save** or **Save & Stay**; **View Documentation** links to the walkthrough above.
 
+**Test** opens a dialog where you pick a node and click **Run Test**. The node checks the values currently in the form, saved or not. The dialog shows whether that worked and how long it took, plus the error Wings reported when it didn't. [Testing a Configuration](../../../wings/advanced/backup-configurations.md#testing-a-configuration) lists what each disk checks.
+
 ## Where Configurations Attach
 
 A configuration takes effect once it's assigned to a **location**, **node**, or **server**; the panel picks the most specific one when a backup is created (server first, then node, then location). Assignment happens on those resources' own edit forms, each of which has a **Backup Configuration** field. See [Assigning a Backup Configuration](../../../wings/advanced/backup-configurations.md#assigning-a-backup-configuration).
@@ -52,4 +54,4 @@ When there are failed backups, a **Delete Failed** button appears above the tabl
 
 ![Servers tab](./images/backup-configurations/servers.webp)
 
-Managing configurations requires the `backup-configurations.create`, `backup-configurations.update`, and `backup-configurations.delete` admin permissions; the Backups tab uses `backup-configurations.backups`. See the [Permissions Reference](../dashboard/permissions.md).
+Managing configurations requires the `backup-configurations.create`, `backup-configurations.update`, and `backup-configurations.delete` admin permissions; **Test** works with either create or update, and the Backups tab uses `backup-configurations.backups`. See the [Permissions Reference](../dashboard/permissions.md).

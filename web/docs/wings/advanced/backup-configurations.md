@@ -64,7 +64,25 @@ Like **Restic** and **DdupBak**, both **Proxmox Backup Server** and **Kopia** de
 3. Fill in the disk-specific fields (see [Disk-specific Settings](#disk-specific-settings) below for S3, Restic, Proxmox Backup Server and Kopia; the node-local disks have no extra fields).
 4. Click **Save**.
 
-There is no "test connection" button. To verify a new configuration works, create a small test backup of a real server that's assigned to it.
+Before you save, **Test** checks the configuration from a node of your choice. See [Testing a Configuration](#testing-a-configuration).
+
+## Testing a Configuration
+
+The create and edit forms have a **Test** button. Pick a node and click **Run Test**, and that node tries the values currently in the form the way a backup would, so you don't have to save first. The dialog then shows whether the node can use the configuration and how long the check took. If it fails, you also get the error Wings ran into.
+
+| Disk | What the test does |
+| --- | --- |
+| **Local**, **Ddup-Bak** | Wings writes a small file to the node's backup directory, then deletes it. |
+| **Btrfs** | Wings does the same write check and runs `btrfs filesystem df` on the backup and data directories. |
+| **ZFS** | Wings does the same write check and runs `zfs list` on the data directory. |
+| **S3** | The node uploads a small object under `.calagopus-test/` through a presigned URL, and the panel deletes it afterwards. |
+| **Restic** | Wings runs `restic cat config` against the repository. This checks the password without taking a lock. |
+| **Proxmox Backup Server** | Wings lists the datastore's backup groups with the API token, inside the namespace if one is set. |
+| **Kopia** | Wings connects to the repository server with the username and password, using a throwaway client config. |
+
+The test runs on one node. If the configuration is assigned to a location, test a node from each network your backups will come from. For Btrfs and ZFS it only checks the tools and the filesystem; whether each server sits on its own subvolume or dataset is checked when a backup runs. If the node has its own restic password file in its Wings config, backups use the node's repository instead of the configured one, and so does the test.
+
+Testing needs the `backup-configurations.create` or `backup-configurations.update` admin permission. Nodes running a Wings version without the test endpoint answer with "node's wings version does not support backup tests".
 
 ## Removing Saved Provider Settings
 
@@ -251,7 +269,7 @@ Yes. A backup configuration is assigned at the **location**, **node**, or **serv
 
 ### How do I verify a new configuration works?
 
-There is no "test connection" button. Create a small test backup of a real server that the configuration is assigned to; if it succeeds, the credentials and connectivity are good.
+Click **Test** on the configuration's form and pick a node. [Testing a Configuration](#testing-a-configuration) lists what each disk checks. For the most complete check, run a small backup of a real server that uses the configuration.
 
 ## Troubleshooting
 

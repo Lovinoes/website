@@ -65,10 +65,7 @@ try {
     .filter(Boolean))
     await execute(statement);
   const rows = [row(4), row(3), row(2), row(1), row(0, 30500001)];
-  await insertRows(config, 'telemetry_submissions', rows, true);
-  const migration = await readFile(new URL('./clickhouse-import-telemetry.sql', import.meta.url), 'utf8');
-  await execute(migration);
-  await execute(migration);
+  await insertRows(config, 'telemetry_observations', rows, true);
   assert.equal(Number((await queryRows(config, 'SELECT count() AS count FROM telemetry_observations'))[0].count), 5);
   assert.equal((await queryRows(config, DIRTY_IDENTITIES)).length, 1);
   assert.equal(await replayIdentity(config, uuid), true);
