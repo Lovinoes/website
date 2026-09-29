@@ -1,5 +1,5 @@
 ---
-description: "Connect Calagopus with billing platforms and developer tools: VS Code, Paymenter, WHMCS, and Blesta integration guides."
+description: "Connect Calagopus with billing platforms and developer tools: VS Code, Paymenter, WHMCS, Blesta, and FOSSBilling integration guides."
 prev: false
 next: true
 ---
@@ -14,3 +14,4 @@ Calagopus integrates with third-party billing platforms and developer tools. Pic
 | [Paymenter](./paymenter.md) | Automate server provisioning through Paymenter |
 | [WHMCS](./whmcs.md) | Automate server provisioning through WHMCS |
 | [Blesta](./blesta.md) | Automate server provisioning through Blesta |
+| [FOSSBilling](./fossbilling.md) | Automate server provisioning through FOSSBilling |

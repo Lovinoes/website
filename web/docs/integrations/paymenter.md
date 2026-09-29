@@ -1,11 +1,11 @@
 ---
 title: Paymenter
-description: The Calagopus Paymenter module provisions servers from your billing workflow, creating, suspending, upgrading, and terminating them automatically, with optional OAuth account linking.
+description: The Calagopus Paymenter module provisions servers from your billing workflow, creating, suspending, upgrading, and terminating them automatically, shows customers a live server summary, and can link accounts via OAuth.
 ---
 
 # Paymenter
 
-The **Calagopus Paymenter module** is a server provisioning extension for [Paymenter](https://paymenter.org). It lets Paymenter automatically create, suspend, unsuspend, upgrade, and terminate Calagopus servers as part of your billing workflow, and can optionally link customer accounts to the panel via OAuth so they log in with their Paymenter credentials.
+The **Calagopus Paymenter module** is a server provisioning extension for [Paymenter](https://paymenter.org). It lets Paymenter automatically create, suspend, unsuspend, upgrade, and terminate Calagopus servers as part of your billing workflow, shows customers a live summary of their server on the service page, and can optionally link customer accounts to the panel via OAuth so they log in with their Paymenter credentials.
 
 ::: danger
 This module authenticates with an **admin API key**, which grants full administrative access to your panel (creating users, servers, reading every resource, and more). Treat it like a root password: store it only in Paymenter's encrypted configuration, never commit it anywhere, and rotate it immediately if it is ever exposed.
@@ -19,10 +19,25 @@ Once configured against a product, the module maps Paymenter's service lifecycle
 | --- | --- |
 | Create | Finds or creates a panel user for the customer, then provisions a server (on a specific node, or auto-deployed across locations). |
 | Suspend / Unsuspend | Toggles the server's suspended state. |
-| Upgrade / Change package | Updates the server's resource and feature limits to match the new product configuration and the service's configurable options. |
-| Terminate | Deletes the server (backups are removed). |
+| Upgrade / Change package | Updates the server's resource limits, feature limits, passthrough flags, pinned CPUs, and Docker image to match the new product configuration and the service's configurable options. |
+| Terminate | Deletes the server, including its backups. |
 
-Customers are matched to panel users by their Paymenter user ID (stored as the user's `external_id`), so each customer reuses the same panel account across all of their services. If a matching email or username already exists, the module links to it instead of creating a duplicate.
+Customers are matched to panel users by their Paymenter user ID, stored as the panel user's `external_id`, so each customer reuses the same panel account across all of their services. When [OAuth linking](#optional-oauth-account-linking) is set up, the module first looks for a panel user already linked to the customer's Paymenter account.
+
+If creating the panel user fails because the email or username is taken, the module links the existing panel user with the same email, but only when the customer has verified their email in Paymenter. An unverified email doesn't prove the customer owns that panel account. Users are never matched by username. Otherwise provisioning stops with an error and you link the account by hand, as described under [Troubleshooting](#troubleshooting).
+
+Each service page in the Paymenter client area gets a **Go to Server** button that opens the server in your panel, and a server summary below the service details. The summary shows:
+
+- the server name, egg, and nest,
+- its current state, from the panel (running, offline, installing, suspended, and so on),
+- the address, with a **Copy** button,
+- the location, and the uptime while it runs,
+- memory, disk, and CPU as usage against the limit, where a limit of `0` shows as unlimited,
+- the included databases, backups, ports, and schedules, plus any numeric limits an extension adds.
+
+Live usage comes from the node. If the node can't be reached, the summary falls back to the configured limits.
+
+![](./images/paymenter/client-area.webp)
 
 ## Requirements
 
@@ -46,10 +61,10 @@ Customers are matched to panel users by their Paymenter user ID (stored as the u
    | --- | --- |
    | **Panel URL** | Full URL of your panel, e.g. `https://panel.example.com`. |
    | **API Key** | An admin API key for your Calagopus panel (stored encrypted). |
-   | **Default User Language** | Two-letter language code for newly created users, e.g. `en`. |
+   | **Default User Language** | Two-letter language code for newly created users. Defaults to `en`. |
    | **OAuth Provider UUID** | Optional - used for account linking, see [below](#optional-oauth-account-linking). |
 
-4. Use **Test Connection** to confirm Paymenter can reach the panel with the supplied key.
+4. Click **Create**. On the saved server, use **Test Connection** next to the **Server** field to confirm Paymenter can reach the panel with the supplied key.
 
 ![](./images/paymenter/server-config.webp)
 
@@ -58,17 +73,19 @@ Customers are matched to panel users by their Paymenter user ID (stored as the u
 Create a product (or edit an existing one) and select **Calagopus** as the server extension. The product configuration is where you define what every server provisioned from this product looks like.
 
 ::: info
-The **Nest**, **Egg**, **Node**, and **Location** fields are populated live from your panel through the API key you configured on the server, so you can pick them from dropdowns rather than copying UUIDs by hand. Choosing a nest refreshes the available eggs.
+The **Nest**, **Egg**, **Node**, and **Location(s)** fields are populated live from your panel through the API key you configured on the server, so you can pick them from dropdowns rather than copying UUIDs by hand. Choosing a nest refreshes the available eggs.
 :::
+
+![](./images/paymenter/product-config.webp)
 
 ### Deployment target
 
 You can deploy in one of two ways:
 
 - **Specific node** - pick a **Node**, and the module provisions onto the first available allocation on that node.
-- **Auto deploy** - leave the node set to *Auto* and select one or more **Locations**. Calagopus picks a node and allocation automatically.
+- **Auto deploy** - leave the **Node** empty and select one or more **Location(s)**. Calagopus picks a node automatically, and assigns allocations according to the egg's configuration on the panel.
 
-If no node is selected and no locations are provided, provisioning fails, so make sure at least one is set.
+If no node is selected and no locations are provided, provisioning fails with "No node or location UUIDs configured for this product.", so make sure at least one is set.
 
 ### Resources and limits
 
@@ -79,7 +96,7 @@ If no node is selected and no locations are provided, provisioning fails, so mak
 | **Memory Overhead** | Hidden memory added on top of the container's limit. |
 | **IO Weight** | `10`–`1000`; leave blank for the default. |
 | **Allocations / Databases / Backups / Schedules** | Standard feature limits. |
-| **Custom Feature Limits** | Extension-added limits, as `key:value` pairs, e.g. `plugins:5,worlds:3`. |
+| **Custom Feature Limits** | Extension-added limits, as `key:value` pairs, e.g. `plugins:5,worlds:3`. Numbers are sent as numbers, `true` and `false` as booleans, anything else as text. |
 
 ### Egg and advanced options
 
@@ -94,17 +111,15 @@ If no node is selected and no locations are provided, provisioning fails, so mak
 | **Pinned CPUs** | Comma-separated core IDs, e.g. `0,1,2`. Blank disables pinning. |
 | **Backup Configuration UUID** | Optional backup configuration to assign to the server. |
 
-When a service is active, the module exposes a **Go to Server** button in the Paymenter client area that links straight to the server in your panel.
-
 ::: tip
 The product configuration has no field for egg variables. To set them, use [configurable options](#overriding-settings-with-configurable-options) whose environment variable matches the egg variable.
 :::
 
 ## Overriding settings with configurable options
 
-Paymenter's **configurable options** (Admin → Configurable options) let a customer choose values at checkout, such as a memory tier or a game version. When the module provisions or upgrades a server, it merges every option value on the service on top of the product configuration, so the option wins whenever both are set.
+Paymenter's **Config Options** (admin area → **Config Options**) let a customer choose values at checkout, such as a memory tier or a game version. When the module provisions or upgrades a server, it merges every option value on the service on top of the product configuration, so the option wins whenever both are set. Custom properties on the service are merged the same way.
 
-The match is made on the option's **environment variable** name. Depending on what that name is, an option can do one of three things:
+The match is made on the option's **Environment Variable**. The value it passes is the chosen option's own **Environment Variable**, or its name when that is left blank. Depending on the option's environment variable, it can do one of three things:
 
 ### Override a product setting
 
@@ -126,7 +141,11 @@ Name the environment variable after a product setting key and its value replaces
 | `backup_configuration_uuid` | Backup Configuration UUID | UUID |
 | `node_uuid`, `location_uuids`, `nest_uuid`, `egg_uuid` | Deployment target and egg | UUIDs from your panel |
 
-For example, a configurable option named **Memory** with the environment variable `memory` and the choices `2048`, `4096`, and `8192` lets a customer pick their RAM tier at checkout, with the product's own Memory field acting as the default when the option is not on the service.
+For example, a config option named **Memory** with the environment variable `memory`, the type **Select**, and choices whose environment variables are `2048`, `4096`, and `8192` lets a customer pick their RAM tier at checkout. The product's own **Memory** field is the default when the option is not on the service.
+
+![](./images/paymenter/config-option.webp)
+
+![](./images/paymenter/config-option-choices.webp)
 
 ### Set an egg variable
 
@@ -164,6 +183,28 @@ OAuth linking lets your customers log into the Calagopus panel using their Payme
 
 From now on, when a server is created for a customer, Paymenter links their panel account to their Paymenter identity automatically, letting them sign in to the panel with their Paymenter credentials.
 
+### Link existing customers
+
+Links are only created at server creation, so customers who already had a server before you set up OAuth have no link yet. You can backfill them in two ways:
+
+- **All at once** - on the saved Calagopus server in Paymenter, click **Sync All Users** next to the **OAuth Provider UUID** field. This queues a background sweep over every customer who owns a service on that server, so it needs a running queue worker. Save any pending changes first, since the sweep uses the saved configuration.
+- **One customer at a time** - go to **Calagopus OAuth Links** in the admin area, find the customer, and click **Sync** on their row.
+
+![](./images/paymenter/oauth-sync-all.webp)
+
+Neither creates panel accounts; they only add missing links. A customer is linked only when their panel user has the same email and they have verified their email in Paymenter. The **Calagopus OAuth Links** page lists every customer with a service on the server, shows the progress of a running sweep, and keeps each customer's last result:
+
+| Result | Meaning |
+| --- | --- |
+| Linked | The link was created. |
+| Already linked | The customer was already linked. |
+| No panel account | No panel user has this customer's Paymenter user ID as its `external_id`. |
+| Email mismatch | The matching panel user has a different email, so it wasn't linked automatically. |
+| Email unverified | The customer hasn't verified their Paymenter email. Email verification is off on a default Paymenter install, so most customers land here until they verify or you link them in the panel. |
+| Failed | The panel rejected the request. The reason is shown on the page. |
+
+![](./images/paymenter/oauth-links.webp)
+
 ::: info
 The provided template is configured as **login only** - customers use it to authenticate, and the provider does not let them manage the link themselves. For more on OAuth providers in general, see [Setting up OAuth](../additional/setting-up-oauth/index.md).
 :::
@@ -172,7 +213,9 @@ The provided template is configured as **login only** - customers use it to auth
 
 | Symptom | Fix |
 | --- | --- |
-| "Calagopus API Error (HTTP 401)" on Test Connection | The API key is missing, malformed, or lacks admin access. Generate a fresh **admin** API key in your panel and re-enter it. |
+| "Connection failed: Calagopus API Error (HTTP 401)" on Test Connection | The API key is missing, malformed, or lacks admin access. Generate a fresh **admin** API key in your panel and re-enter it. |
 | "No available allocations on the selected node" | The chosen node has no free allocations. Add allocations to the node, or switch the product to auto-deploy across locations. |
+| "No node or location UUIDs configured for this product." | Pick a **Node** or at least one **Location(s)** in the product's server settings. |
 | "Server already exists on the panel" | A server is already linked to this service's ID (`external_id`). Remove or re-link the existing panel server before re-provisioning. |
-| Customers get a duplicate panel account | The module matches existing users by email and username. If a customer signed up to the panel separately with a different email than the one in Paymenter, link the accounts by setting that panel user's `external_id` to the Paymenter user ID. |
+| "User with this email/username already exists on the panel" | A panel user already has the customer's email or username, and the module couldn't link it because the customer's email isn't verified or only the username matches. After checking that the customer owns that panel account, set its `external_id` to the Paymenter user ID given in the message, then retry. |
+| The service page says "Unable to load server information from the panel." | Paymenter couldn't reach the panel with the server's API key. Check the panel is up and use **Test Connection** on the server. |

@@ -1,6 +1,6 @@
 ---
 prev: true
-next: false
+next: true
 description: The Calagopus Blesta module provisions, suspends, upgrades and terminates Calagopus servers from your Blesta billing workflow through the panel admin API.
 ---
 # Blesta
@@ -24,13 +24,29 @@ The module maps Blesta's service lifecycle onto the Calagopus admin API:
 | Add | Finds or creates a panel user for the client, then provisions a server (on a specific node, or auto-deployed across locations). |
 | Suspend / Unsuspend | Toggles the server's suspended state. |
 | Edit / Change package | Updates the server's resource and feature limits, name, and egg variables to match the package configuration and the service's configurable options. |
-| Cancel | Deletes the server from the panel. |
+| Cancel | Deletes the server from the panel, including its backups. |
 
-Clients are matched to panel users by their Blesta client ID (stored as the user's `external_id`), so each client reuses the same panel account across all of their services. If a matching email or username already exists, the module links to it instead of creating a duplicate.
+Clients are matched to panel users by the `external_id` `bl-<client id>`, so each client reuses the same panel account across all of their services. When the module creates a user and the panel reports that the email or username is already taken, it looks for a panel user with exactly the client's email address and links that account by setting its `external_id`. A clash on the username alone is never linked automatically - provisioning stops with an error so you can check who owns that account first.
 
-The client service page shows a server summary (name, status, address, memory, disk) with an **Open in Panel** button, and the admin service tab surfaces the same details.
+Clients see a summary of their server when they expand the service in their services list:
 
 ![](./images/blesta/client-area.webp)
+
+It shows the same information the panel does:
+
+- The server's name as set on the panel, its egg and nest, and a status badge (**Running**, **Offline**, **Installing**, **Suspended** and so on).
+- The address with a **Copy** button, the location, and the uptime while the server runs.
+- Memory, disk and CPU as current use against the limit, with a usage bar. Live usage comes from the node, and memory and CPU use only show while the server is up. A limit of `0` shows as **Unlimited**.
+- An **Includes** line with the database, backup, port and schedule limits, followed by any numeric custom feature limits.
+- An **Open Panel** button that opens the server on the panel.
+
+The same summary is also on its own **Server** tab when the client manages the service:
+
+![](./images/blesta/server-tab.webp)
+
+Staff see the same live state, address and usage when they expand the service on the client's admin page, along with the server UUID, node and panel owner and an **Open Panel** link:
+
+![](./images/blesta/admin-service-info.webp)
 
 ## Requirements
 
@@ -74,9 +90,11 @@ The **Nest**, **Egg**, **Node**, and **Location** fields are populated live from
 You can deploy in one of two ways:
 
 - **Specific node** - pick a **Node**, and the module provisions onto the first available allocation on that node.
-- **Auto deploy** - leave the node set to *Auto* and select one or more **Locations**. Calagopus picks a node and allocation automatically.
+- **Auto deploy** - leave the node on **-- Auto (use locations) --** and select one or more **Location(s)**. Calagopus picks a node and allocation automatically.
 
 At least one of a node or one or more locations must be set, or the package will not save.
+
+![](./images/blesta/package-deployment.webp)
 
 ### Resources and limits
 
@@ -95,16 +113,18 @@ At least one of a node or one or more locations must be set, or the package will
 | --- | --- |
 | **Docker Image** | Override the egg default. Blank uses the egg's default image. |
 | **Startup Command** | Override the egg default startup command. |
-| **Server Name Prefix** | Used when the **Server Name** field on the order form is left blank; servers are then named `<prefix><client id>`. Blank defaults to `Server-`. |
+| **Server Name Prefix** | Names the server `<prefix><client id>` when a service is created without a server name. The order form requires a **Server Name**, so this only applies to services added some other way. Blank defaults to `Server-`. |
 | **Pinned CPUs** | Comma-separated core IDs, e.g. `0,1,2`. Blank disables pinning. |
 | **Backup Configuration UUID** | Optional backup configuration to assign to the server. |
-| **Skip Installer** | Skips the egg's installation script. |
+| **Skip Egg Install Script** | Skips the egg's installation script. |
 | **Start on Completion** | Starts the server automatically once installation finishes. |
 | **Hugepages / KVM Passthrough** | Mount `/dev/hugepages` / allow `/dev/kvm` inside the container. |
 
 ### Egg variables
 
-The package form renders a field for each of the egg's environment variables, validated against the egg's own rules. Each variable has a **(display)** checkbox - tick it to expose that variable to the client during checkout, letting them set its value themselves; leave it unticked to keep the value fixed by the package.
+The package form renders a field for each of the egg's environment variables, validated against the egg's own rules. Each variable has a checkbox under its field. Tick it to show that variable to the client during checkout so they can set its value themselves, or leave it unticked to keep the value fixed by the package.
+
+![](./images/blesta/package-egg-variables.webp)
 
 ## Overriding settings with configurable options
 
@@ -130,17 +150,40 @@ For example, a configurable option named `memory` with the choices `2048`, `4096
 Each egg variable is resolved from the first of these that is set:
 
 1. A configurable option named after the environment variable in lowercase, e.g. `minecraft_version` for `MINECRAFT_VERSION`.
-2. The variable's service field on the order form, which clients only see when the variable's **(display)** checkbox is ticked on the package.
-3. The value stored on the package.
-4. The egg's default value.
+2. The value entered on the order form. Staff can always set it, and clients only see the field when the variable's checkbox is ticked on the package.
+3. The value already stored on the service.
+4. The value stored on the package.
+5. The egg's default value.
 
 ### Server name
 
-The **Server Name** service field on the order form sets the server's name for both clients and staff. When it is left blank, the module falls back to the package's Server Name Prefix followed by the client ID.
+The **Server Name** field on the order form is required and becomes the server's name on the panel. Clients and staff always see the name the panel currently has, so a server renamed on the panel shows its new name in Blesta too.
 
 ### What applies on edit
 
 Editing a service or changing its package, with **Use module** enabled, re-reads the package fields and the service's options, then updates the server's resource limits, feature limits, pinned CPUs, hugepages and KVM passthrough, Docker image, and egg variables. A new Server Name value renames the server. The deployment target, startup command, and the install and start flags are only used when the server is first created.
+
+## Migrating from Pterodactyl
+
+If you sold servers through the official Blesta **Pterodactyl** module and have moved your panel to Calagopus, this module can take over your existing packages and services.
+
+Before you start:
+
+1. Migrate your servers, users, nests, eggs and locations to the Calagopus panel. Nests, eggs and locations are matched **by name**, so they have to exist on the Calagopus panel first.
+2. Keep the Pterodactyl module installed and its panel reachable. The import uses it to translate Pterodactyl IDs into names and server UUIDs.
+3. Add at least one Calagopus server under **Manage** on this module.
+
+The **Import from Pterodactyl** section appears on the module's **Manage** page while the Pterodactyl module is installed. It lists each Pterodactyl server with an **Import Into** dropdown: pick the Calagopus server its packages and services should move to, or leave it on **-- Do not import --**, then click **Import**.
+
+The import:
+
+- Reassigns each package to this module and converts its settings: `io` becomes **IO Weight**, `image` **Docker Image**, `startup` **Startup Command**, and the database, allocation and backup limits and egg variables (with their checkbox for showing them to clients) carry over. The package's Pterodactyl location becomes its only deploy location.
+- Rewrites each service's fields and links it to its server on the Calagopus panel, found by its external ID or, failing that, by translating the Pterodactyl server ID into a UUID through the Pterodactyl panel. The server's UUID, IP and port are refreshed from the panel.
+- Copies the tracked panel username of each migrated client.
+
+Anything that cannot be matched is skipped and listed in the results. Imported packages no longer belong to the Pterodactyl module, so after fixing the cause you can run the import again and it leaves the finished packages alone.
+
+A few Pterodactyl settings have no Calagopus equivalent and are dropped: `port_range`, `dedicated_ip` and `pack_id`. Packages that deployed through a Pterodactyl server group are assigned directly to the Calagopus server you picked. Configurable options keep working when their names already match the Calagopus field names; recreate the ones named `nest_id`, `egg_id`, `location_id`, `io`, `image`, `startup`, `databases`, `allocations` or `backups` under the new names from [Overriding settings with configurable options](#overriding-settings-with-configurable-options).
 
 ## Troubleshooting
 
@@ -149,4 +192,6 @@ Editing a service or changing its package, with **Use module** enabled, re-reads
 | Saving the server fails with a connection error | The API key is missing, malformed, or lacks admin access, or the Panel URL is incorrect. Confirm the Panel URL points at your panel (HTTPS is assumed if you omit the protocol) and re-enter a valid **admin** API key. |
 | "No available allocations on the selected node" | The chosen node has no free allocations. Add allocations to the node, or switch the package to auto-deploy across locations. |
 | The package will not save | Either the Nest or Egg is unset, or neither a node nor any locations were selected. All selections must come from the same panel the server is configured against. |
-| Clients get a duplicate panel account | The module matches existing users by email and username. If a client registered on the panel separately with a different email than the one in Blesta, link the accounts by setting that panel user's `external_id` to the Blesta client ID. |
+| "A panel user with this username already exists and was not linked automatically" | The panel already has a user with the generated username but a different email. Check that the account belongs to this client, then link it by setting that panel user's `external_id` to `bl-<client id>` and provision again. |
+| Clients get a duplicate panel account | The module only links existing users by exact email. If a client registered on the panel with a different email than the one in Blesta, link the accounts by setting that panel user's `external_id` to `bl-<client id>`. |
+| The server summary shows "Server information is not available." | The service has no server UUID yet, or the server was deleted on the panel. Check the service's fields on its admin page. |
