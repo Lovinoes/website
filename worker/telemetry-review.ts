@@ -1,5 +1,11 @@
 import { type ClickHouseConfig, insertRows, queryRows } from './clickhouse.ts';
-import { classifyObservations, METRICS, type Observation, POLICY_VERSION } from './telemetry-policy.ts';
+import {
+  classifyObservations,
+  METRICS,
+  type Observation,
+  POLICY_VERSION,
+  SERVED_POLICY_VERSIONS,
+} from './telemetry-policy.ts';
 
 export const MAX_OBSERVATIONS = 20_000;
 const REPLAY_BATCH = 100;
@@ -19,7 +25,7 @@ export const ELIGIBLE_GENERATIONS = `
   SELECT r.uuid AS uuid, r.generation AS generation
   FROM (${COMMITTED_REPUTATION}) r
   LEFT JOIN (${MODERATION_REVISIONS}) m ON r.uuid = m.uuid
-  WHERE r.policy_version = ${POLICY_VERSION}
+  WHERE r.policy_version IN (${SERVED_POLICY_VERSIONS.join(', ')})
     AND r.moderation_revision = ifNull(m.moderation_revision, '')
 `;
 

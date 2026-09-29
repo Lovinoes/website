@@ -1,4 +1,5 @@
-export const POLICY_VERSION = 1;
+export const POLICY_VERSION = 2;
+export const SERVED_POLICY_VERSIONS = [1, POLICY_VERSION];
 
 const DAY = 86_400;
 const PROBATION_DAYS = 3;
@@ -65,6 +66,16 @@ export interface Reputation {
   tier: ReputationTier;
 }
 
+function exceeding(observation: Observation, reference: Observation): Metric | undefined {
+  return METRICS.find(
+    (metric) => observation[metric] > Math.max(reference[metric] * 5, reference[metric] + GROWTH_ALLOWANCE[metric]),
+  );
+}
+
+function stable(left: Observation, right: Observation): boolean {
+  return !exceeding(left, right) && !exceeding(right, left);
+}
+
 export function classifyObservations(observations: Observation[]): {
   decisions: Decision[];
   history: Observation[];
@@ -76,15 +87,19 @@ export function classifyObservations(observations: Observation[]): {
   let firstAccepted = 0;
   let previous: Observation | undefined;
   let rolling: Observation[] = [];
+  let plateau: Observation[] = [];
   let tier: ReputationTier = 'new';
 
   for (const observation of observations) {
     const day = Math.floor(observation.received_at / DAY);
     const inactive = previous !== undefined && observation.received_at - previous.received_at >= INACTIVITY_SECONDS;
     let reason = '';
+    let rebaseline = false;
 
-    if (observation.action === 'quarantine') reason = 'manual_quarantine';
-    else if (
+    if (observation.action === 'quarantine') {
+      reason = 'manual_quarantine';
+      plateau = [];
+    } else if (
       !observation.valid ||
       METRICS.some((metric) => !Number.isSafeInteger(observation[metric]) || observation[metric] < 0)
     )
@@ -95,12 +110,16 @@ export function classifyObservations(observations: Observation[]): {
       else if (previous) {
         const lastAccepted = previous;
         const baseline = rolling.find((entry) => observation.received_at - entry.received_at <= 30 * DAY) ?? previous;
-        const growth = METRICS.find((metric) =>
-          [lastAccepted, baseline].some(
-            (entry) => observation[metric] > Math.max(entry[metric] * 5, entry[metric] + GROWTH_ALLOWANCE[metric]),
-          ),
-        );
-        if (growth) reason = `growth:${growth}`;
+        const growth = exceeding(observation, lastAccepted) ?? exceeding(observation, baseline);
+        if (growth) {
+          plateau = plateau.filter((entry) => observation.received_at - entry.received_at <= 30 * DAY);
+          while (plateau.some((entry) => !stable(entry, observation))) plateau.shift();
+          plateau.push(observation);
+          const plateauDays = new Set(plateau.map((entry) => Math.floor(entry.received_at / DAY)));
+          rebaseline =
+            plateauDays.size >= PROBATION_DAYS && observation.received_at - plateau[0].received_at >= PROBATION_SECONDS;
+          if (!rebaseline) reason = `growth:${growth}`;
+        }
       }
     }
 
@@ -132,9 +151,18 @@ export function classifyObservations(observations: Observation[]): {
       received_at: observation.received_at,
       accepted: 1,
       eligible: Number(eligible),
-      reason: observation.action === 'approve' ? 'manual_approval' : eligible ? 'accepted' : 'probation',
+      reason:
+        observation.action === 'approve'
+          ? 'manual_approval'
+          : rebaseline
+            ? 'rebaseline'
+            : eligible
+              ? 'accepted'
+              : 'probation',
     });
     if (eligible) history.set(day, observation);
+    if (rebaseline) rolling = [];
+    plateau = [];
     rolling = rolling.filter((entry) => observation.received_at - entry.received_at <= 30 * DAY);
     if (!previous || Math.floor(previous.received_at / DAY) !== day || inactive) rolling.push(observation);
     previous = observation;

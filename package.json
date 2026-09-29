@@ -21,6 +21,7 @@
     "apply-clickhouse-schema": "node scripts/apply-clickhouse-schema.mjs",
     "sync-ai-search": "node scripts/sync-ai-search.mjs",
     "check-telemetry-clickhouse": "node scripts/check-telemetry-clickhouse.mjs",
+    "check-telemetry-policy": "node scripts/check-telemetry-policy.mjs",
     "telemetry": "node --env-file=.dev.vars scripts/telemetry.mjs",
     "biome:validate": "biome format --css-parse-tailwind-directives=true && biome lint --css-parse-tailwind-directives=true && biome check",
     "biome:fix": "biome format --write --css-parse-tailwind-directives=true && biome lint --write --css-parse-tailwind-directives=true && biome check --write",

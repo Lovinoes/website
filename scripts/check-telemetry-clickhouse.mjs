@@ -4,7 +4,13 @@ import { readFile } from 'node:fs/promises';
 import { insertRows, queryRows } from '../worker/clickhouse.ts';
 import { buildRow, telemetrySchema } from '../worker/api/telemetry.ts';
 import { DAILY_QUERY, TOTALS_QUERY, refreshTelemetryStats } from '../worker/api/telemetry-stats.ts';
-import { DIRTY_IDENTITIES, ELIGIBLE_GENERATIONS, replayIdentity } from '../worker/telemetry-review.ts';
+import {
+  COMMITTED_REPUTATION,
+  DIRTY_IDENTITIES,
+  ELIGIBLE_GENERATIONS,
+  replayIdentity,
+} from '../worker/telemetry-review.ts';
+import { POLICY_VERSION } from '../worker/telemetry-policy.ts';
 
 const config = {
   url: 'http://127.0.0.1:18123',
@@ -79,6 +85,20 @@ try {
     decisions.map((d) => d.reason),
     ['probation', 'probation', 'accepted', 'accepted', 'limit:users_total'],
   );
+
+  const [current] = await queryRows(config, COMMITTED_REPUTATION);
+  await insertRows(
+    config,
+    'telemetry_reputation',
+    [{ ...current, policy_version: POLICY_VERSION - 1, started_at: current.started_at + 1 }],
+    true,
+  );
+  assert.equal((await queryRows(config, ELIGIBLE_GENERATIONS)).length, 1);
+  assert.equal(Number((await totals()).users), 10);
+  assert.equal((await queryRows(config, DIRTY_IDENTITIES)).length, 1);
+  await replayIdentity(config, uuid);
+  assert.equal(Number((await queryRows(config, COMMITTED_REPUTATION))[0].policy_version), POLICY_VERSION);
+  assert.equal((await queryRows(config, DIRTY_IDENTITIES)).length, 0);
 
   await moderate(rows[3], 'quarantine');
   assert.equal((await queryRows(config, ELIGIBLE_GENERATIONS)).length, 0);
