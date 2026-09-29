@@ -10,7 +10,7 @@ import {
   ELIGIBLE_GENERATIONS,
   replayIdentity,
 } from '../worker/telemetry-review.ts';
-import { POLICY_VERSION } from '../worker/telemetry-policy.ts';
+import { POLICY_VERSION, SERVED_POLICY_VERSIONS } from '../worker/telemetry-policy.ts';
 
 const config = {
   url: 'http://127.0.0.1:18123',
@@ -78,7 +78,7 @@ try {
   assert.equal((await queryRows(config, DIRTY_IDENTITIES)).length, 0);
   assert.equal(Number((await totals()).users), 10);
   const days = await queryRows(config, DAILY_QUERY, { from: '2000-01-01' });
-  assert.equal(days.length, 2);
+  assert.equal(days.length, 3);
   assert.equal(days[0].day, new Date((now - 2 * DAY) * 1000).toISOString().slice(0, 10));
   const decisions = await queryRows(config, `SELECT reason FROM telemetry_decisions ORDER BY received_at`);
   assert.deepEqual(
@@ -93,8 +93,9 @@ try {
     [{ ...current, policy_version: POLICY_VERSION - 1, started_at: current.started_at + 1 }],
     true,
   );
-  assert.equal((await queryRows(config, ELIGIBLE_GENERATIONS)).length, 1);
-  assert.equal(Number((await totals()).users), 10);
+  const staleServed = SERVED_POLICY_VERSIONS.includes(POLICY_VERSION - 1);
+  assert.equal((await queryRows(config, ELIGIBLE_GENERATIONS)).length, staleServed ? 1 : 0);
+  assert.equal(Number((await totals()).users), staleServed ? 10 : 0);
   assert.equal((await queryRows(config, DIRTY_IDENTITIES)).length, 1);
   await replayIdentity(config, uuid);
   assert.equal(Number((await queryRows(config, COMMITTED_REPUTATION))[0].policy_version), POLICY_VERSION);
@@ -105,7 +106,7 @@ try {
   assert.equal(Number((await totals()).instances), 0);
   await replayIdentity(config, uuid);
   const quarantineDays = await queryRows(config, DAILY_QUERY, { from: '2000-01-01' });
-  assert.equal(quarantineDays.length, 1);
+  assert.equal(quarantineDays.length, 2);
   assert.equal(Number((await totals()).instances), 0);
 
   await moderate(rows[3], 'reset');
@@ -113,7 +114,7 @@ try {
   assert.equal(Number((await totals()).users), 10);
   await moderate(rows[4], 'approve');
   await replayIdentity(config, uuid);
-  assert.equal(Number((await totals()).users), 30500001);
+  assert.equal(Number((await totals()).users), 10);
   await moderate(rows[4], 'reset');
   await replayIdentity(config, uuid);
   assert.equal(Number((await totals()).users), 10);
@@ -234,10 +235,16 @@ try {
     `INSERT INTO telemetry_observations (uuid,submission_id,received_at,panel_version) SELECT toUUID('${flood}'),generateUUIDv4(),now(),'1.2.2' FROM numbers(20001)`,
   );
   const queue = await queryRows(config, DIRTY_IDENTITIES);
-  assert.equal(queue.length, 100);
-  assert.equal(queue.filter((r) => existing.includes(r.uuid)).length, 75);
-  assert.equal(queue.filter((r) => newcomers.includes(r.uuid)).length, 25);
-  assert.ok(!queue.some((r) => r.uuid === flood));
+  assert.equal(queue.length, 221);
+  const head = queue.slice(0, 100);
+  assert.equal(head.filter((r) => existing.includes(r.uuid)).length, 75);
+  assert.equal(head.filter((r) => newcomers.includes(r.uuid)).length, 25);
+  assert.ok(queue.some((r) => r.uuid === flood));
+  assert.equal(await replayIdentity(config, flood), true);
+  const [flooded] = await queryRows(config, 'SELECT count() AS count FROM telemetry_decisions WHERE uuid = {uuid:UUID}', {
+    uuid: flood,
+  });
+  assert.equal(Number(flooded.count), 24);
   await refreshTelemetryStats({
     CLICKHOUSE_URL: config.url,
     CLICKHOUSE_USER: config.user,

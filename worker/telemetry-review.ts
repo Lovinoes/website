@@ -8,8 +8,9 @@ import {
 } from './telemetry-policy.ts';
 
 export const MAX_OBSERVATIONS = 20_000;
-const REPLAY_BATCH = 100;
-const WRITE_BATCH = 1_000;
+const DAILY_SAMPLE = 24;
+const REPLAY_BATCH = 1_000;
+const WRITE_BATCH = MAX_OBSERVATIONS;
 
 export const MODERATION_REVISIONS = `
   SELECT uuid, toString(max(tuple(recorded_at, event_id))) AS moderation_revision
@@ -29,11 +30,19 @@ export const ELIGIBLE_GENERATIONS = `
     AND r.moderation_revision = ifNull(m.moderation_revision, '')
 `;
 
+// A real panel reports once a day, so keeping a submission_id-hashed sample per day bounds replay
+// cost without letting a flooder pick which of a day's reports survive.
+const sampledObservations = (filter: string) => `
+  SELECT *, node_count, database_agent_host_count FROM telemetry_observations
+  WHERE ${filter} AND received_at >= now() - INTERVAL 2 YEAR
+  ORDER BY cityHash64(submission_id)
+  LIMIT ${DAILY_SAMPLE} BY uuid, day
+`;
+
 const SOURCES = `
   SELECT uuid, count() AS source_count,
     toString(sum(cityHash64(submission_id, received_at))) AS source_fingerprint
-  FROM telemetry_observations
-  WHERE received_at >= now() - INTERVAL 2 YEAR
+  FROM (${sampledObservations('1')})
   GROUP BY uuid
 `;
 
@@ -61,8 +70,7 @@ export const SOURCE_STATE = `
   FROM (
     SELECT count() AS source_count,
       toString(sum(cityHash64(submission_id, received_at))) AS source_fingerprint
-    FROM telemetry_observations
-    WHERE uuid = {uuid:UUID} AND received_at >= now() - INTERVAL 2 YEAR
+    FROM (${sampledObservations('uuid = {uuid:UUID}')})
   )
 `;
 
@@ -81,12 +89,11 @@ export const OBSERVATIONS_QUERY = `
         o.\`database_agent_hosts.instances_total\`, o.\`database_agent_hosts.instances_online\`, o.\`database_agent_hosts.instances_offline\`)
     ) AS valid,
     ifNull(m.action, '') AS action
-  FROM telemetry_observations o
+  FROM (${sampledObservations('uuid = {uuid:UUID}')}) o
   LEFT JOIN (
     SELECT submission_id, argMax(toString(action), tuple(recorded_at, event_id)) AS action
     FROM telemetry_moderation WHERE uuid = {uuid:UUID} GROUP BY submission_id
   ) m ON o.submission_id = m.submission_id
-  WHERE o.uuid = {uuid:UUID} AND o.received_at >= now() - INTERVAL 2 YEAR
   ORDER BY o.received_at, o.submission_id
   LIMIT ${MAX_OBSERVATIONS + 1}
 `;

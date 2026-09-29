@@ -108,5 +108,110 @@ const BASELINE_REASONS = ['probation', 'probation', 'accepted', 'accepted', 'acc
   assert.deepEqual(r.slice(0, 6), [...BASELINE_REASONS, 'growth:users_total']);
   assert.deepEqual(r.slice(6), Array(34).fill('accepted'));
 }
+{
+  const real = { users_total: 10_000, servers_total: 800 };
+  const input = [];
+  for (let d = 0; d < 20; d++) {
+    input.push(obs(d, 12, real), obs(d, 13, d % 2 ? { users_total: 1_999, servers_total: 800 } : {}));
+  }
+  const result = classifyObservations(input);
+  for (const [i, d] of result.decisions.entries()) {
+    if (i % 2) assert.equal(d.reason, 'drop:users_total', `${i}`);
+    else assert.equal(d.accepted, 1, `${i} ${d.reason}`);
+  }
+  assert.equal(result.history.at(-1).users_total, 10_000);
+}
+{
+  const r = reasons([...days(0, 5, { users_total: 3_000, servers_total: 300 }), ...days(5, 15, { users_total: 50, servers_total: 3 })]);
+  assert.deepEqual(r.slice(5), ['drop:users_total', 'drop:users_total', 'rebaseline', ...Array(7).fill('accepted')]);
+}
+{
+  const r = reasons([...days(0, 5, { ...SMALL, backups_total: 6_000 }), ...days(5, 10, { ...SMALL, backups_total: 900 })]);
+  assert.deepEqual(r.slice(5), Array(5).fill('accepted'));
+}
+{
+  const online = Array.from({ length: 12 }, (_, d) => obs(d, 12, { servers_total: 1_000, servers_online: d % 2 ? 600 : 0 }));
+  const memory = Array.from({ length: 12 }, (_, d) =>
+    obs(d, 12, { ...SMALL, node_count: 1, node_memory_bytes: d % 2 ? 3 * 1024 ** 4 : 0 }),
+  );
+  for (const input of [online, memory]) {
+    for (const d of classifyObservations(input).decisions) assert.equal(d.accepted, 1, d.reason);
+  }
+}
+{
+  const fake = { users_total: 121_269, servers_total: 16, node_count: 3 };
+  const result = classifyObservations([...days(0, 10, fake), obs(10, 12, fake, { action: 'approve' })]);
+  for (const d of result.decisions) {
+    assert.equal(d.reason, 'implausible:users_per_server');
+    assert.equal(d.accepted, 0);
+  }
+  assert.equal(result.history.length, 0);
+
+  assert.deepEqual(reasons([obs(0, 12, { servers_total: 5, servers_online: 6 })]), ['implausible:servers_online']);
+  assert.deepEqual(reasons([obs(0, 12, { node_memory_bytes: 1 })]), ['implausible:node_memory_bytes']);
+  for (const [users, servers] of [
+    [10_000, 5],
+    [25_000, 100],
+  ]) {
+    assert.deepEqual(reasons([obs(0, 12, { users_total: users, servers_total: servers })]), ['probation']);
+    assert.deepEqual(reasons([obs(0, 12, { users_total: users + 1, servers_total: servers })]), [
+      'implausible:users_per_server',
+    ]);
+  }
+}
+{
+  const r = reasons([...baseline(), obs(5, 12, { users_total: 30_500_001 }, { action: 'approve' })]);
+  assert.equal(r[5], 'limit:users_total');
+}
+{
+  const base = days(0, 5, { users_total: 100, servers_total: 5 });
+  const back = { users_total: 50_000, servers_total: 500 };
+  const lastAccepted = base.at(-1).received_at;
+
+  const early = classifyObservations([...base, obs(0, 0, back, { received_at: lastAccepted + 30 * DAY - 1 })]);
+  assert.equal(early.decisions[5].reason, 'growth:users_total');
+
+  const result = classifyObservations([...base, ...days(34, 37, back)]);
+  assert.deepEqual(
+    result.decisions.slice(5).map((d) => [d.reason, d.eligible]),
+    [
+      ['probation', 0],
+      ['probation', 0],
+      ['accepted', 1],
+    ],
+  );
+  assert.equal(result.history.at(-1).users_total, 50_000);
+}
+{
+  // UTC days 0, 1, 2; the first report starts at 01:00 (+1 s)
+  for (const [offset, reason] of [
+    [0, 'accepted'],
+    [1, 'probation'],
+  ]) {
+    const first = T0 + HOUR + offset;
+    const input = [first, T0 + DAY + 12 * HOUR, T0 + 2 * DAY].map((t) => obs(0, 0, SMALL, { received_at: t }));
+    assert.deepEqual(reasons(input).at(-1), reason, `${offset}`);
+  }
+}
+{
+  const N = 20_000;
+  const start = T0 + 22 * HOUR;
+  const variants = [
+    () => ({ users_total: 10_000, servers_total: 500 }),
+    (i) => ({ users_total: i % 2 ? 100_000 : 10_000, servers_total: 500 }),
+  ];
+  for (const metrics of variants) {
+    const input = [obs(0, 21, SMALL)];
+    for (let i = 0; i < N; i++) {
+      input.push(obs(0, 0, metrics(i), { received_at: start + Math.floor((i * 46 * HOUR) / N) }));
+    }
+    const t = performance.now();
+    const { decisions } = classifyObservations(input);
+    const elapsed = performance.now() - t;
+    assert.ok(elapsed < 1000, `${elapsed}ms`);
+    assert.equal(decisions.length, N + 1);
+    assert.ok(decisions.slice(1).every((d) => d.reason === 'growth:users_total'));
+  }
+}
 
 console.log('telemetry policy checks passed');

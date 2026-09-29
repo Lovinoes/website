@@ -61,7 +61,7 @@ export const TOTALS_QUERY = `
 
 export const DAILY_QUERY = `
   SELECT
-    toString(day) AS day,
+    toString(target) AS day,
     count() AS instances,
     sum(servers_total) AS servers,
     sum(users_total) AS users,
@@ -69,18 +69,22 @@ export const DAILY_QUERY = `
     sum(node_count) AS nodes
   FROM (
     SELECT
-      day,
+      target,
       argMax(servers_total, tuple(received_at, submission_id)) AS servers_total,
       argMax(users_total, tuple(received_at, submission_id)) AS users_total,
       argMax(backups_total, tuple(received_at, submission_id)) AS backups_total,
       argMax(node_count, tuple(received_at, submission_id)) AS node_count
-    FROM telemetry_accepted_history
-  WHERE (uuid, generation) IN (${ELIGIBLE_GENERATIONS})
-    AND day >= {from:Date}
-    GROUP BY day, uuid
+    FROM (
+      SELECT uuid, arrayJoin([day, day + 1]) AS target, received_at, submission_id,
+        servers_total, users_total, backups_total, node_count
+      FROM telemetry_accepted_history
+      WHERE (uuid, generation) IN (${ELIGIBLE_GENERATIONS})
+        AND day >= {from:Date}
+    )
+    GROUP BY target, uuid
   )
-  GROUP BY day
-  ORDER BY day
+  GROUP BY target
+  ORDER BY target
 `;
 
 function roundCount(value: number): number {

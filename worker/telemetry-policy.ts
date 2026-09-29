@@ -1,12 +1,17 @@
-export const POLICY_VERSION = 2;
-export const SERVED_POLICY_VERSIONS = [1, POLICY_VERSION];
+export const POLICY_VERSION = 3;
+export const SERVED_POLICY_VERSIONS = [2, POLICY_VERSION];
 
 const DAY = 86_400;
+const HOUR = 3_600;
 const PROBATION_DAYS = 3;
-const PROBATION_SECONDS = 2 * DAY;
+const PROBATION_SECONDS = 2 * DAY - HOUR;
 const ESTABLISHED_DAYS = 14;
 const ESTABLISHED_SECONDS = 21 * DAY;
 const INACTIVITY_SECONDS = 30 * DAY;
+const BASELINE_SECONDS = 30 * DAY;
+const MEMORY_PER_NODE = 4 * 1024 ** 4;
+const USERS_FLOOR = 10_000;
+const USERS_PER_SERVER = 250;
 
 export const METRICS = [
   'users_total',
@@ -18,7 +23,11 @@ export const METRICS = [
   'servers_online',
 ] as const;
 
+const GUARDED = ['users_total', 'servers_total', 'node_count', 'database_agent_host_count'] as const;
+const STABLE = [...GUARDED, 'backups_total'] as const;
+
 type Metric = (typeof METRICS)[number];
+type StableMetric = (typeof STABLE)[number];
 export type Metrics = Record<Metric, number>;
 export type ReputationTier = 'new' | 'probation' | 'established';
 
@@ -66,14 +75,58 @@ export interface Reputation {
   tier: ReputationTier;
 }
 
-function exceeding(observation: Observation, reference: Observation): Metric | undefined {
-  return METRICS.find(
-    (metric) => observation[metric] > Math.max(reference[metric] * 5, reference[metric] + GROWTH_ALLOWANCE[metric]),
+interface PlateauDay {
+  day: number;
+  first: number;
+  min: Record<StableMetric, number>;
+  max: Record<StableMetric, number>;
+}
+
+function band(metric: Metric, value: number): number {
+  return Math.max(value * 5, value + GROWTH_ALLOWANCE[metric]);
+}
+
+function shifted(observation: Observation, reference: Observation): string | undefined {
+  const growth = STABLE.find((metric) => observation[metric] > band(metric, reference[metric]));
+  if (growth) return `growth:${growth}`;
+  const drop = GUARDED.find((metric) => reference[metric] > band(metric, observation[metric]));
+  if (drop) return `drop:${drop}`;
+}
+
+function implausible(observation: Observation): string | undefined {
+  if (observation.servers_online > observation.servers_total) return 'servers_online';
+  if (observation.node_memory_bytes > observation.node_count * MEMORY_PER_NODE) return 'node_memory_bytes';
+  if (observation.users_total > Math.max(USERS_FLOOR, USERS_PER_SERVER * observation.servers_total))
+    return 'users_per_server';
+}
+
+function stableWith(bucket: PlateauDay, observation: Observation): boolean {
+  return STABLE.every(
+    (metric) =>
+      observation[metric] <= band(metric, bucket.min[metric]) &&
+      bucket.max[metric] <= band(metric, observation[metric]),
   );
 }
 
-function stable(left: Observation, right: Observation): boolean {
-  return !exceeding(left, right) && !exceeding(right, left);
+function joinPlateau(plateau: PlateauDay[], observation: Observation, day: number): PlateauDay[] {
+  const recent = plateau.filter((bucket) => observation.received_at - bucket.first <= BASELINE_SECONDS);
+  let start = recent.length;
+  while (start > 0 && stableWith(recent[start - 1], observation)) start--;
+  const kept = recent.slice(start);
+  const last = kept.at(-1);
+  if (last?.day === day) {
+    for (const metric of STABLE) {
+      last.min[metric] = Math.min(last.min[metric], observation[metric]);
+      last.max[metric] = Math.max(last.max[metric], observation[metric]);
+    }
+  } else {
+    const values = Object.fromEntries(STABLE.map((metric) => [metric, observation[metric]])) as Record<
+      StableMetric,
+      number
+    >;
+    kept.push({ day, first: observation.received_at, min: { ...values }, max: { ...values } });
+  }
+  return kept;
 }
 
 export function classifyObservations(observations: Observation[]): {
@@ -87,7 +140,7 @@ export function classifyObservations(observations: Observation[]): {
   let firstAccepted = 0;
   let previous: Observation | undefined;
   let rolling: Observation[] = [];
-  let plateau: Observation[] = [];
+  let plateau: PlateauDay[] = [];
   let tier: ReputationTier = 'new';
 
   for (const observation of observations) {
@@ -104,21 +157,20 @@ export function classifyObservations(observations: Observation[]): {
       METRICS.some((metric) => !Number.isSafeInteger(observation[metric]) || observation[metric] < 0)
     )
       reason = 'invalid_observation';
-    else if (observation.action !== 'approve') {
+    else {
       const extreme = METRICS.find((metric) => observation[metric] > LIMITS[metric]);
+      const rule = implausible(observation);
       if (extreme) reason = `limit:${extreme}`;
-      else if (previous) {
-        const lastAccepted = previous;
-        const baseline = rolling.find((entry) => observation.received_at - entry.received_at <= 30 * DAY) ?? previous;
-        const growth = exceeding(observation, lastAccepted) ?? exceeding(observation, baseline);
-        if (growth) {
-          plateau = plateau.filter((entry) => observation.received_at - entry.received_at <= 30 * DAY);
-          while (plateau.some((entry) => !stable(entry, observation))) plateau.shift();
-          plateau.push(observation);
-          const plateauDays = new Set(plateau.map((entry) => Math.floor(entry.received_at / DAY)));
+      else if (rule) reason = `implausible:${rule}`;
+      else if (observation.action !== 'approve' && previous && !inactive) {
+        const baseline =
+          rolling.find((entry) => observation.received_at - entry.received_at <= BASELINE_SECONDS) ?? previous;
+        const shift = shifted(observation, previous) ?? shifted(observation, baseline);
+        if (shift) {
+          plateau = joinPlateau(plateau, observation, day);
           rebaseline =
-            plateauDays.size >= PROBATION_DAYS && observation.received_at - plateau[0].received_at >= PROBATION_SECONDS;
-          if (!rebaseline) reason = `growth:${growth}`;
+            plateau.length >= PROBATION_DAYS && observation.received_at - plateau[0].first >= PROBATION_SECONDS;
+          if (!rebaseline) reason = shift;
         }
       }
     }
@@ -163,7 +215,7 @@ export function classifyObservations(observations: Observation[]): {
     if (eligible) history.set(day, observation);
     if (rebaseline) rolling = [];
     plateau = [];
-    rolling = rolling.filter((entry) => observation.received_at - entry.received_at <= 30 * DAY);
+    rolling = rolling.filter((entry) => observation.received_at - entry.received_at <= BASELINE_SECONDS);
     if (!previous || Math.floor(previous.received_at / DAY) !== day || inactive) rolling.push(observation);
     previous = observation;
   }
