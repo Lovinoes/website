@@ -28,9 +28,11 @@ The last two control what users see on their own [OAuth Links](../dashboard/oaut
 
 | Field | Notes |
 | --- | --- |
-| **Client Id** / **Client Secret** | Required. The credentials from the external provider's app registration. |
+| **Client Id** | Required. The client id from the external provider's app registration. |
+| **Client Secret** | The client secret from the same registration. Leave it empty for a public client that only authenticates with PKCE. |
 | **Auth URL** / **Token URL** / **Info URL** | Required. The provider's authorization, token, and user-info endpoints. |
 | **Basic Auth** | "Uses HTTP Basic Authentication to transmit the client id and secret, not common anymore." |
+| **PKCE** | "Sends a Proof Key for Code Exchange (S256) with every login, supported by most modern providers." Off by default. Turn it on when the provider supports it. Public clients without a client secret usually need it. |
 | **Scopes** | "The OAuth2 scopes to request, make sure to include scopes for email and profile info when needed." |
 | **Identifier Path** | Required. Extracts the unique user identifier from the Info URL response. |
 | **Email Path** / **Username Path** / **First Name Path** / **Last Name Path** | Optional paths for profile fields, used to fill in accounts registered through this provider. |
