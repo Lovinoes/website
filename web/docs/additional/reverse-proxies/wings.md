@@ -5,9 +5,7 @@ description: Put Nginx, Apache, Caddy, Traefik or Nginx Proxy Manager in front o
 
 # Putting Wings Behind a Reverse Proxy
 
-This guide applies to standalone Wings nodes installed with the [Wings guides](../../wings/installation/index.md). If you run the [All-in-One image](../../panel/installation/docker.md#option-a-all-in-one-recommended-for-single-node-setups), the bundled Wings is already covered by the [Panel guide](./panel.md).
-
-See [Setting up a Reverse Proxy](./index.md) for how a reverse proxy fits into the request path if you haven't read that yet.
+This guide covers standalone Wings nodes. The Wings bundled with the [All-in-One image](../../panel/installation/docker.md#option-a-all-in-one-recommended-for-single-node-setups) is covered by the [Panel guide](./panel.md). For how a proxy fits into the request path, see [Setting up a Reverse Proxy](./index.md).
 
 ::: info
 These configurations target current releases of each proxy and of Wings. After updating Wings, compare your configuration with this page again; see [Keeping the Configuration Current](./index.md#keeping-the-configuration-current).
@@ -25,23 +23,19 @@ With the first two options, browsers connect to Wings directly for the console, 
 
 ## Prerequisites
 
-Have these ready before you start:
-
-- Wings is [installed](../../wings/installation/index.md) and reachable at `http://<node-ip>:8080`.
-- A domain name for the node with an `A` record (and `AAAA` if you use IPv6) pointing at its public IP. This guide uses `<node-domain>` as a placeholder; replace it everywhere it appears.
-- Ports `80` and `443` open in your firewall and forwarded on your router if the node is at home.
-- A TLS certificate for the domain, unless you pick Caddy (which issues one by itself). See [Generating SSL Certificates](../ssl-certificates.md).
-- The proxy software installed on the node: `apt install nginx`, `apt install apache2`, or the [Caddy install guide](https://caddyserver.com/docs/install). For a proxy that runs in Docker, see [Proxies running in Docker](./panel.md#proxies-running-in-docker) first.
+- Wings [installed](../../wings/installation/index.md), reachable at `http://<node-ip>:8080`.
+- A domain for the node (`<node-domain>` below) with an `A` record, plus `AAAA` for IPv6 pointing at it.
+- Ports `80` and `443` open, and forwarded on your router if the node is at home.
+- A [TLS certificate](../ssl-certificates.md) for the domain. Caddy, Traefik and Nginx Proxy Manager issue their own.
+- The proxy installed on the node, or running in Docker (see [Proxies Running in Docker](./panel.md#proxies-running-in-docker)).
 
 ::: warning
-A broken proxy configuration makes the node unreachable until it is fixed, so keep a terminal open and know how to roll back.
+A broken proxy configuration makes the node unreachable until it's fixed, so keep a terminal open.
 :::
 
 ## Step 1: Prepare Wings
 
-Everything in this step happens on the node itself, mostly in `config.yml` (`/etc/calagopus-wings/config.yml`, or `config/config.yml` in the Wings compose directory). `api.host`, `api.port`, `api.ssl` and `api.trusted_proxies` are all excluded from the configuration the Panel pushes to the node, so the Panel cannot undo them and you cannot set them from the Panel either.
-
-Restart Wings once at the end of the step rather than after each change.
+Everything in this step happens on the node, mostly in `config.yml` (`/etc/calagopus-wings/config.yml`, or `config/config.yml` in the Wings compose directory). The Panel never pushes `api.host`, `api.port`, `api.ssl` or `api.trusted_proxies`, so they can only be set here. Restart Wings once at the end.
 
 ### Turn Off Wings' Own SSL
 
@@ -161,13 +155,11 @@ Every configuration below does the same things. If you use a proxy that isn't li
 | Request buffering off | With it on, the proxy reads a whole upload chunk or transfer to disk before Wings sees a byte of it |
 | Response buffering off | Backups and file archives stream from disk and can be many gigabytes. With buffering on, the proxy keeps reading ahead of the client and writing the excess to temporary files |
 | Read and write timeouts above 60s | A slow client moving a multi-gigabyte file, or another node transferring a server, holds one connection open far longer than the defaults allow |
-| `X-Forwarded-For` or `X-Real-IP` | The client IPs from Step 1. Wings reads those two and nothing else, so `X-Forwarded-Proto`, `X-Forwarded-Host` and the RFC 7239 `Forwarded` header are ignored |
+| `X-Forwarded-For` or `X-Real-IP` | The client IPs from Step 1 |
 | No CORS headers | Wings sets `Access-Control-Allow-Origin` from the Panel URL it was configured with, and exposes `Upload-Offset` for resumable uploads. A second copy from the proxy makes the browser reject every response |
 | No `X-Robots-Tag` | Every endpoint answers `401` without a token, so there is nothing to crawl |
 
-Other nodes use this proxy too, not just browsers and the Panel. A server transfer or a file copy to this node is POSTed by the source node's Wings to this node's URL under `/api/transfers`. Uploads stay capped by [`api.upload_limit`](../../wings/configuration.md#api-upload-limit), which Wings checks against the `Upload-Length` header before the first chunk arrives.
-
-The examples also set `X-Content-Type-Options: nosniff` on downloads, which Wings does not send itself.
+Other nodes use this proxy too: a server transfer or file copy to this node is POSTed by the source node's Wings to `/api/transfers` on this node's URL.
 
 Only HTTP goes through the proxy. SFTP (port `2022`), the [private network](../../wings/advanced/private-network.md) tunnel and the game server ports all connect to the node directly, which works as long as the node's hostname resolves to its real IP.
 
@@ -184,7 +176,7 @@ This sends `Connection: upgrade` only on requests that actually ask for a WebSoc
 
 <<< @/snippets/reverse-proxies/wings/nginx.conf{nginx}
 
-The `upstream` block names Wings once, and `keepalive 16` lets each nginx worker keep up to 16 idle connections to it open for reuse instead of opening a new one for every request. Its name differs from the Panel's, so both sites can share one nginx.
+The `upstream` block names Wings once, and `keepalive 16` lets each Nginx worker keep up to 16 idle connections to it open for reuse instead of opening a new one for every request. Its name differs from the Panel's, so both sites can share one Nginx.
 
 **3. Enable it and reload.** On Debian and Ubuntu, link the site into `sites-enabled`. On RHEL-based systems the file in `conf.d/` is already active.
 
@@ -215,8 +207,6 @@ On RHEL-based systems the modules are compiled in or loaded already; you can ski
 **2. Create the site** as `/etc/apache2/sites-available/calagopus-wings.conf` on Debian and Ubuntu, or `/etc/httpd/conf.d/calagopus-wings.conf` on RHEL-based systems.
 
 <<< @/snippets/reverse-proxies/wings/apache.conf{apache}
-
-`ProxyTimeout` only takes effect in server or virtual host context, so moving it into a `<Location>` is a configuration error.
 
 **3. Enable it and reload.**
 
@@ -282,9 +272,7 @@ Nginx Proxy Manager runs as a container, so it reaches Wings over a shared Docke
 
 5. Save.
 
-Nginx Proxy Manager sets `X-Forwarded-For`, `X-Real-IP` and `X-Forwarded-Proto` on its own. The block above lifts its 2000 MB body limit, which a server transfer exceeds, and raises its `90s` `proxy_read_timeout` and `proxy_send_timeout`.
-
-Custom Nginx Configuration goes in at server level, above the generated `location /`. Those directives inherit into it, but `add_header` does not, so the response headers from the other tabs have no equivalent here. Leave them out rather than adding a `location` block that collides with the generated one.
+Nginx Proxy Manager sets `X-Forwarded-For`, `X-Real-IP` and `X-Forwarded-Proto` on its own. The block above lifts its 2000 MB body limit, which a server transfer exceeds, raises its `90s` timeouts and turns off its response buffering. Don't add a `location /` there; Nginx Proxy Manager generates its own.
 
 ::::
 

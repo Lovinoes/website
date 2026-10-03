@@ -5,9 +5,7 @@ description: Put Nginx, Apache, Caddy, Traefik or Nginx Proxy Manager in front o
 
 # Putting the Panel Behind a Reverse Proxy
 
-This guide covers the Panel. For a standalone Wings node, see [Putting Wings Behind a Reverse Proxy](./wings.md) instead. The All-in-One image doesn't need that guide, since this guide already covers the bundled Wings.
-
-See [Setting up a Reverse Proxy](./index.md) for how a reverse proxy fits into the request path if you haven't read that yet.
+This guide covers the Panel, including the Wings bundled with the All-in-One image. For a standalone node, see [Putting Wings Behind a Reverse Proxy](./wings.md). For how a proxy fits into the request path, see [Setting up a Reverse Proxy](./index.md).
 
 ::: info
 These configurations target current releases of each proxy and of the Panel. After updating the Panel, compare your configuration with this page again; see [Keeping the Configuration Current](./index.md#keeping-the-configuration-current).
@@ -15,16 +13,14 @@ These configurations target current releases of each proxy and of the Panel. Aft
 
 ## Prerequisites
 
-Have these ready before you start:
-
-- The Panel is [installed with Docker](../../panel/installation/docker.md) and reachable at `http://<server-ip>:8000`.
-- A domain name with an `A` record (and `AAAA` if you use IPv6) pointing at the server's public IP. This guide uses `<domain>` as a placeholder; replace it everywhere it appears.
-- Ports `80` and `443` open in your firewall and forwarded on your router if the server is at home.
-- A TLS certificate for the domain, unless you pick Caddy (which issues one by itself). See [Generating SSL Certificates](../ssl-certificates.md). The examples below use the paths certbot creates under `/etc/letsencrypt/live/<domain>/`.
-- The proxy software installed on the same machine as the Panel: `apt install nginx`, `apt install apache2`, or the [Caddy install guide](https://caddyserver.com/docs/install). For a proxy that runs in Docker, see [Proxies running in Docker](#proxies-running-in-docker) first.
+- The Panel [installed with Docker](../../panel/installation/docker.md), reachable at `http://<server-ip>:8000`.
+- A domain (`<domain>` below) with an `A` record, plus `AAAA` for IPv6 pointing at the server.
+- Ports `80` and `443` open, and forwarded on your router if the server is at home.
+- A [TLS certificate](../ssl-certificates.md) for the domain. Caddy, Traefik and Nginx Proxy Manager issue their own.
+- The proxy installed on the same machine, or running in Docker (see [Proxies Running in Docker](#proxies-running-in-docker)).
 
 ::: warning
-A broken proxy configuration makes the Panel unreachable until it is fixed, so keep a terminal open and know how to roll back. Nothing in this guide touches the Panel's data.
+A broken proxy configuration makes the Panel unreachable until it's fixed, so keep a terminal open. Nothing in this guide touches the Panel's data.
 :::
 
 ## Step 1: Prepare the Panel
@@ -81,8 +77,6 @@ The variable takes a comma-separated list of IPs or CIDR ranges. Only list addre
 
 When a request arrives from anywhere else, all three are ignored and the connecting address and the `Host` header are used instead. Trusting too much lets a visitor spoof their IP by sending the header themselves.
 
-`X-Forwarded-Proto`, `X-Forwarded-Port` and the RFC 7239 `Forwarded` header are ignored either way. The Panel takes its scheme from the URL in [Step 3](#step-3-set-the-panel-url).
-
 ### Apply the Changes
 
 ```bash
@@ -113,8 +107,6 @@ Every configuration below does the same things. If you use a proxy that isn't li
 | No CORS headers and no `Content-Security-Policy` | The Panel sends its own CSP, `X-Frame-Options` and `X-Content-Type-Options`, and sandboxes the file previews it serves. A copy from the proxy either overrides that or makes the browser reject the response |
 | No `X-Robots-Tag` | Indexing is [**Allow Search Engine Indexing**](../../panel/features/admin/settings.md#metadata) under Admin → Settings → Metadata. The header overrides that setting instead of following it, because crawlers apply whichever of the header and the page's `<meta name="robots">` tag is stricter |
 
-`X-Forwarded-Proto` is in the examples for the sake of other software behind the same proxy, not for the Panel.
-
 Pick the proxy you use:
 
 ::::tabs
@@ -133,7 +125,7 @@ This sends `Connection: upgrade` only on requests that actually ask for a WebSoc
 <<< @/snippets/reverse-proxies/panel/nginx.conf{nginx} [Without SSL]
 :::
 
-The `upstream` block names the Panel once, and `keepalive 16` lets each nginx worker keep up to 16 idle connections to it open for reuse instead of opening a new one for every request. Settings shared by every path sit at the server level; each `location` lists only what differs.
+The `upstream` block names the Panel once, and `keepalive 16` lets each Nginx worker keep up to 16 idle connections to it open for reuse instead of opening a new one for every request. Settings shared by every path sit at the server level; each `location` lists only what differs.
 
 ::: details Why is there a "Without SSL" variant at all?
 Only for testing on a network you trust, or when TLS is terminated somewhere in front of Nginx (a load balancer or Cloudflare with "Flexible" mode). Passkeys, secure cookies and the browser's clipboard access all need HTTPS, so do not run a real installation this way.
@@ -172,8 +164,6 @@ On RHEL-based systems the modules are compiled in or loaded already; you can ski
 <<< @/snippets/reverse-proxies/panel/apache-ssl.conf{apache} [With SSL]
 <<< @/snippets/reverse-proxies/panel/apache.conf{apache} [Without SSL]
 :::
-
-`ProxyTimeout` only takes effect in server or virtual host context, so moving it into a `<Location>` is a configuration error.
 
 ::: details Apache older than 2.4.47
 Check with `apache2 -v` (or `httpd -v`). Older releases don't understand the `upgrade=websocket` parameter and reject the configuration. Remove `upgrade=websocket` from the `ProxyPass` line and add these lines above it to route WebSocket requests through `mod_proxy_wstunnel` instead:
@@ -239,15 +229,13 @@ Nginx Proxy Manager runs as a container, so it reaches the Panel over a shared D
 
 5. Save.
 
-Nginx Proxy Manager sets `X-Forwarded-For`, `X-Real-IP` and `X-Forwarded-Proto` on its own, and allows request bodies up to 2000 MB. Wings sends its backup requests through the first block above, which lifts that limit for them. The second is only reached on the All-in-One image or with Wings Proxy Mode. Both raise Nginx Proxy Manager's `90s` `proxy_read_timeout` and `proxy_send_timeout`, and turn off its response buffering, which otherwise reads ahead of the client onto the container's disk. For a lower limit everywhere else, add `client_max_body_size 128M;` there as well.
+Nginx Proxy Manager sets `X-Forwarded-For`, `X-Real-IP` and `X-Forwarded-Proto` on its own. The first block lifts its 2000 MB body limit for the backup requests Wings sends; the second is only reached on the All-in-One image or with Wings Proxy Mode. Both raise its `90s` timeouts and turn off its response buffering. For a lower limit everywhere else, add `client_max_body_size 128M;` there as well.
 
 Use `$http_connection`, not the `$connection_upgrade` map from the Nginx tab: Nginx Proxy Manager never defines that map. The `include` lines reuse the forward host, port and headers from the **Details** tab.
 
 ::::
 
 ## Step 3: Set the Panel URL
-
-Do this before the checks in Step 4, which depend on it.
 
 The Panel builds links from a URL you configure, not from the address a visitor happened to use. Go to **Admin → Settings → Application**, set **URL** to `https://<domain>`, and save. Email links, OAuth callbacks, node connections and the generated Wings configuration all use this value, so it has to match the address the proxy serves.
 
@@ -339,8 +327,8 @@ Cloudflare also caps the size of a single request per plan (100 MB on Free), and
 | Symptom | Fix |
 | --- | --- |
 | 502 Bad Gateway, or the proxy's own error page | The proxy can't reach the Panel. Check that the container is running with `docker compose ps`, and that `curl -I http://127.0.0.1:8000` answers on the host. If the proxy runs in Docker, make sure both containers are on the same network and the forward target is the service name, not `127.0.0.1`. |
-| The page loads, but the console stays on "connecting" and statistics never appear | The console WebSocket goes to the node's **Public URL**, so first check whether that address is the Panel (All-in-One or Wings Proxy Mode) or the node itself. If it is the Panel, WebSocket upgrades aren't getting through: on Nginx, confirm the `map` block exists in `nginx.conf` and both `Upgrade` and `Connection` headers are set on `location /wings-proxy/` as well as `location /`; on Apache, check the version note above; on Nginx Proxy Manager, enable **Websockets Support**. If it is the node, the [Wings guide](./wings.md#troubleshooting) has the same table. |
-| Database instance consoles, or the admin node statistics and log views, stay empty | Those WebSockets are the Panel's own, under `/api`, so the `Upgrade` and `Connection` headers have to be set on `location /` as well, not only on `/wings-proxy/`. |
+| The page loads, but the console stays on "connecting" and statistics never appear | The console WebSocket goes to the node's **Public URL**. If that's the node itself, see the [Wings guide](./wings.md#troubleshooting). If it's the Panel (All-in-One or Wings Proxy Mode), WebSocket upgrades aren't getting through: on Nginx, confirm the `map` block exists in `nginx.conf` and the `Upgrade` and `Connection` headers are set; on Apache, check the version note above; on Nginx Proxy Manager, enable **Websockets Support**. |
+| Database instance consoles, or the admin node statistics and log views, stay empty | Those WebSockets are the Panel's own, under `/api`, and go through `location /`. The `Upgrade` and `Connection` headers have to apply there too, which the examples do by setting them at the server level. |
 | Uploads fail with `413 Request Entity Too Large` | Raise the body limit (`client_max_body_size`, `LimitRequestBody`, `max_size`) to at least `100 MiB`. On Caddy, check you wrote `128MiB` and not `100MB`. |
 | Large uploads or backup downloads through the Panel die partway through, always after about the same time | A timeout on `/wings-proxy/`. Raise `proxy_read_timeout`, `proxy_send_timeout` and `send_timeout` on Nginx, `ProxyTimeout` on Apache, or `respondingTimeouts.readTimeout` on the Traefik entrypoint. |
 | Backup downloads through the Panel fill the proxy's disk with temporary files | Response buffering is on for `/wings-proxy/`. Set `proxy_buffering off` there on Nginx or Nginx Proxy Manager. Caddy and Traefik stream by default. |
