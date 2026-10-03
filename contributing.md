@@ -54,7 +54,7 @@ If a reviewer can tell a page was AI-generated without checking git blame, it ne
 - Match the existing tone: direct, practical, no fluff.
 - Don't touch commands, config values, or code blocks during a wording or formatting pass. Technical content stays byte-for-byte correct.
 - More than one method in a guide? Use the existing `:::: tabs` / `=== Method` pattern instead of stacking headings.
-- The proxy configurations in the reverse proxy guides are files in `web/snippets/reverse-proxies/`, pulled into the pages with VitePress' [`<<<` snippet import](https://vitepress.dev/guide/markdown#import-code-snippets). Edit the file, not the page. The raw markdown served at `.md` URLs and in `llms.txt` inlines them through `.vitepress/lib/snippet-imports.ts`.
+- Long code blocks, like full proxy configurations, go in a file under `web/snippets/` and get included with a [snippet import](https://vitepress.dev/guide/markdown#import-code-snippets), the way the reverse proxy guides do it: `<<< @/snippets/reverse-proxies/panel/nginx.conf{nginx}`
 
 ### Sidebar
 
