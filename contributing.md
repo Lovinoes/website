@@ -103,6 +103,7 @@ Run the same checks CI runs:
 ```bash
 pnpm docs:build
 pnpm exec biome check
+pnpm run typecheck
 ```
 
 If `biome check` reports dozens of unrelated files needing reformatting, it's almost certainly CRLF line endings from a Windows checkout, not a real issue. A `.gitattributes` in the repo root forces LF on checkout, but it only applies to files checked out *after* it's in place. If you cloned before it existed, run `git add --renormalize .` once (and `git config core.autocrlf false` if you have it set globally), then re-run the check.

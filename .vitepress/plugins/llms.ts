@@ -2,8 +2,8 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import type { SiteConfig } from 'vitepress';
 import { featureCategories } from '../data/features.ts';
-import { expandSnippetImports } from '../lib/snippet-imports.ts';
 import { BENCHMARKS_PAGE, expandBenchmarksMarkdown } from './benchmarks.ts';
+import { expandSnippetImports } from './snippet-imports.ts';
 
 interface SidebarNode {
   text?: string;

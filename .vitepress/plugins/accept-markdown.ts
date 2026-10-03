@@ -2,8 +2,8 @@ import { readFile } from 'node:fs/promises';
 import { join, sep } from 'node:path';
 import type { PluginOption } from 'vite';
 import { markdownCandidates } from '../lib/markdown-candidates.ts';
-import { expandSnippetImports } from '../lib/snippet-imports.ts';
 import { BENCHMARKS_PAGE, expandBenchmarksMarkdown } from './benchmarks.ts';
+import { expandSnippetImports } from './snippet-imports.ts';
 
 interface MiddlewareRequest {
   method?: string;
