@@ -26,17 +26,21 @@ Switch to the **Grouped Servers** tab and click **Create Group** at the bottom. 
 
 ### The Group Header
 
-Each group's header holds a search box that filters the servers inside it, followed by four controls:
+Each group's header holds a search box that filters the servers inside it, alongside selection and group controls:
 
 | Control | Does |
 | --- | --- |
 | **Group Actions** (the three dots) | **Start**, **Restart**, or **Stop** every server in the group at once |
-| **Add Server to Group** (plus) | Search for and pick a server to add |
+| **Add Servers to Group** (plus) | Search for and select several servers to add together; existing members are excluded |
 | **Edit** (pencil) | Rename the group via the **Edit Server Group** modal |
 | **Delete** (trash) | Remove the group after a **Confirm Server Group Deletion** prompt |
 
 
 Deleting a group never deletes the servers inside it, it just ungroups them.
+
+The add-server picker lets administrators include other users' servers with its visibility switch. Selected servers are appended to the group in selection order.
+
+<img src="./images/servers/add-servers.webp" width="220" alt="Adding several servers to a group" />
 
 ### Inside a Group
 
@@ -46,6 +50,8 @@ Dragging also works *between* groups: drop a server onto another group to move i
 
 ![](./images/servers/group-collapsed.webp)
 ![](./images/servers/group-expanded.webp)
+
+Use the select-all control in **All Servers** for the current page, or the control in a group header for that group's displayed servers. It does not add servers on other pages or in other groups, but earlier selections there remain selected and still count toward bulk actions.
 
 Hold **S** and click servers (or click the check icon on a card) to select them; a plain click opens the server instead. An action bar appears with **Start**, **Restart**, and **Stop** for the whole selection, each showing how many servers it applies to, plus **Cancel**. Removing a server from a group is separate: the red minus icon on its card (the server itself is never deleted).
 

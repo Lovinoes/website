@@ -74,6 +74,33 @@ journalctl -u wings -n 50 --no-pager
 
 On Alpine/OpenRC, check it with `rc-service wings status`; if the pairing code is not visible in service logs, configure it using the enrollment command before starting the service.
 
+## Optional LXCFS
+
+LXCFS makes selected `/proc` and `/sys` files inside server containers reflect their resource limits. It runs as a separate service on the container host; Wings bind-mounts its files read-only into game server containers. Installer containers do not use these mounts.
+
+Install your distribution's `lxcfs` package first. To create a dedicated service, run as root:
+
+```bash
+wings service-install --lxcfs
+```
+
+This installs, enables, and starts **wings-lxcfs** using systemd or OpenRC, with CPU quota awareness (`--enable-cfs`). It installs the lxcfs service only; install the Wings service separately as shown above. If you use a custom Wings configuration path, pass it with `wings --config /path/to/config.yml service-install --lxcfs`.
+
+When a Wings configuration is loaded, the command saves:
+
+```yaml
+docker:
+  lxcfs:
+    enabled: true
+    directory: /var/lib/calagopus-wings/lxcfs
+```
+
+Without a loaded configuration, add these settings once Wings has been configured. Restart Wings, then restart each server to recreate its container with the mounts. On systemd, check the separate service with `systemctl status wings-lxcfs`; on OpenRC, use `rc-service wings-lxcfs status`.
+
+You can also use an existing host lxcfs service: enable [`docker.lxcfs.enabled`](../configuration.md#docker-lxcfs-enabled) and set `docker.lxcfs.directory` to its mount directory, usually `/var/lib/lxcfs`. That is the configuration default, which differs from the dedicated service's path. Set the directory in the local Wings config; the Panel cannot change it.
+
+If lxcfs stops, existing containers can report `Transport endpoint is not connected` when reading its files. Restore the lxcfs service, then restart affected servers to remount it. Restarting Wings alone does not repair those mounts. When native Wings cannot find a valid lxcfs mount during container creation, it logs a warning and continues without the integration.
+
 ## Next Steps
 
 With Wings running, the next step is to set up allocations - the IP and port combinations you can assign to servers. See [Setting up Allocations](../next-steps/setting-up-allocations.md).

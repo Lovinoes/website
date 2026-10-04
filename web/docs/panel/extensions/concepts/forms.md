@@ -91,7 +91,7 @@ Don't change the `name` of an existing field (it's the key the form values are b
 
 ### `zodShape`
 
-A record mapping field names to Zod types. The Panel **deep-merges** this into the form's Zod schema so that your new fields participate in validation. Because the merge is deep, you can extend nested objects without replacing the core validation for their existing keys. The merge is deep between your slot and the core schema only: the shapes of several slots on the same form are combined by a plain spread first, so two extensions that both declare `featureLimits: z.object({...})` overwrite each other's nested keys instead of combining them.
+A record mapping field names to Zod types. The Panel **deep-merges** this into the form's Zod schema so that your new fields participate in validation. Because the merge is deep, you can extend nested objects without replacing the core validation for their existing keys. The registered slot schemas are also deep-merged with one another, so two extensions can add different keys under `featureLimits` without dropping each other's fields. Avoid defining the same leaf key in multiple extensions.
 
 ```ts
 zodShape: {
@@ -104,11 +104,13 @@ zodShape: {
 
 `zodShape` also drives **payload serialization**: the core API endpoints pass the registered shapes to `serializeForApi` (via `formExtensionSchemas(formId)`), so only fields declared here make it into the submitted request body. A field that exists only in your `transform` renders and can be typed into, but its value never leaves the browser. Declare every field you add.
 
+Forms using `useFormEngine` validate while you edit and parse submitted values through the merged schema, applying its transforms and defaults before the submit handler runs.
+
 Only provide entries for **new fields your extension adds**. To prevent conflicts, don't overwrite built-in field names.
 
 ### `initialValues`
 
-The initial (empty-state) values for the fields in your `zodShape` - the type is inferred from the shape, so every declared field needs a default of the right type. These get deep-merged into the form's initial state, so the form doesn't start with `undefined` for your new fields (and nested defaults extend the core defaults instead of replacing them):
+The initial (empty-state) values for the fields in your `zodShape` - the type is inferred from the shape, so every declared field needs a default of the right type. Defaults from all registered slots are deep-merged with one another and into the form's initial state, so the form doesn't start with `undefined` for your new fields (and nested defaults extend the core defaults instead of replacing them):
 
 ```ts
 initialValues: {

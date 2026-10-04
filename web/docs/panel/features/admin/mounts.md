@@ -33,7 +33,7 @@ Mounts are a powerful and potentially dangerous feature. A badly chosen source p
 Finish with **Save**, or **Save & Stay** to keep creating.
 
 ::: warning
-Defining a mount in the panel is not enough on its own: Wings refuses any mount whose source is not whitelisted in the node's [`allowed_mounts`](../../../wings/configuration.md#allowed_mounts) setting. Add the source path there on every node that should serve the mount.
+Defining a mount in the panel is not enough on its own: Wings refuses any mount whose source is not whitelisted in the node's [`allowed_mounts`](../../../wings/configuration.md#allowed-mounts) setting. Add the source path there on every node that should serve the mount.
 :::
 
 ## Eggs, Nodes, and Servers
@@ -57,3 +57,9 @@ Opening a mount shows four tabs: **General** (the edit form, plus **Duplicate** 
 For a mount to show up on a server's user-facing [Mounts page](../server/mounts.md), all three must be true: **User Mountable** is on, the server's node is assigned, and the server's egg is assigned. Mounts that are not user mountable can still be attached by an admin from the server's **Mounts** tab in the admin server view, as long as the node and egg are eligible.
 
 Managing mounts requires the `mounts.create`, `mounts.update`, and `mounts.delete` admin permissions; the egg and node assignment tabs use `eggs.mounts` and `nodes.mounts`. See the [Permissions Reference](../dashboard/permissions.md).
+
+## Node Allowlist Feedback
+
+Node assignment views show **Checking...** while reading the node configuration and **Not Allowed** when the mount source does not match Wings' `allowed_mounts` entries. Update that node's local allowlist before expecting the attachment to work. Assignment dialogs also warn about rejected sources.
+
+This check compares configured paths. It does not resolve symlinks on the node or prove that the source exists; an absent warning is not a host filesystem check.

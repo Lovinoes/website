@@ -129,6 +129,8 @@ The server's backup limit is a hard cap that groups don't raise; retention only 
 
 Every automatic deletion shows up in the server's [Activity](./activity.md) log with the rule and the group that caused it.
 
+If an automatic backup needs to free a slot but cannot remove the old backups, creation is refused with the reason, including backup-storage maintenance or a deletion failure.
+
 ### Deleting a Group
 
 Click the trash icon in the group header and type the group's name to confirm. The backups inside are not deleted, they become ungrouped, so no retention rule applies to them and they only go if the server reaches its backup limit. A **Lock backups** switch locks all backups in the group first, so they cannot be deleted automatically afterwards.

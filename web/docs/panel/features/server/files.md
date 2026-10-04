@@ -22,6 +22,7 @@ The gear next to the page title opens the file manager settings:
 | Setting | Effect |
 |---|---|
 | **Click once to open file or folder** | Single-click opens entries instead of selecting them. |
+| **Always overwrite existing files** | Skips upload conflict choices and defaults file-copy operations to overwriting existing files. Off by default. |
 | **Show physical size instead of logical size** | The Size column shows actual disk usage rather than file length. |
 | **VS Code URI Scheme** | Which editor the **via VS Code** connect option launches (`vscode` by default, e.g. `vscodium` or `cursor` for forks). |
 
@@ -90,7 +91,9 @@ How much the node will read for previews is capped by [`api.file_search_context`
 
 ### Analyzing Disk Usage
 
-The chart icon next to **Search** ("Analyze directory sizes") opens **Largest Directories**, a treemap of which directories eat your disk. Click a directory in the map to jump into it.
+The chart icon next to **Search** ("Analyze directory sizes") opens **Largest Directories**, a treemap of which directories eat your disk. Click a directory in the map to zoom into its contents; use the breadcrumbs to step back. **Open Folder** opens the selected directory in the file manager. The map also accounts for files, grouped smaller folders, and inaccessible space, so hidden content still contributes to disk usage without exposing its names.
+
+![Directory-size analyzer with breadcrumbs and Open Folder](./images/files/directory-sizes.webp)
 
 ### Browsing Backups
 
@@ -187,7 +190,7 @@ The maximum size per uploaded file is set by the Wings option [`api.upload_limit
 
 ### Upload Conflicts
 
-Before anything is sent, the panel checks whether the names you are uploading already exist in the target directory. If some do, a **Resolve Upload Conflicts** modal lists them next to the existing entries, and you pick one of three actions per item:
+With **Always overwrite existing files** off, the panel checks whether the names you are uploading already exist in the target directory before sending anything. If matching names exist, a **Resolve Upload Conflicts** modal lists them next to the existing entries, and you pick one of three actions per item:
 
 ![](./images/files/upload-conflicts-modal.webp)
 
@@ -198,6 +201,8 @@ Before anything is sent, the panel checks whether the names you are uploading al
 | **Rename** | Uploads under a different name, prefilled as `name copy.ext`. The name cannot be empty or contain `/`. |
 
 **Skip all** and **Overwrite all** set every row at once. Files without a conflict are uploaded either way, and the modal says how many. The upload button stays disabled while every row is on **Skip**, so **Close** is how you back out, and it skips every conflicting item. Folders are compared by their top-level name only, and an upload of more than 1000 loose files skips the check for those files. If the check itself fails, the panel warns "Could not check for existing files; uploading anyway." and uploads everything as before.
+
+Enable **Always overwrite existing files** in the file-manager settings to skip this dialog and overwrite matching files automatically.
 
 ### Shared Upload State
 

@@ -1201,6 +1201,20 @@ export const wingsConfigDoc: ConfigDoc = {
           default: 3,
         },
         {
+          key: 'docker.lxcfs.enabled',
+          description:
+            'Bind host lxcfs files into server containers so software reading `/proc` and `/sys` can see container resource limits. Requires lxcfs to be running on the container host; Wings does not start it itself. Installer containers are unaffected. Restart Wings and then each server after changing this setting. See [LXCFS Setup](./installation/binary.md#optional-lxcfs).',
+          default: false,
+          platforms: ['unix'],
+        },
+        {
+          key: 'docker.lxcfs.directory',
+          description:
+            'The lxcfs mount directory on the container host. An existing distribution service commonly uses `/var/lib/lxcfs`; `wings service-install --lxcfs` creates a separate service at `/var/lib/calagopus-wings/lxcfs` and saves that path when a Wings configuration is loaded. Change this path locally, because configuration patches from the Panel cannot alter it.',
+          default: '/var/lib/lxcfs',
+          platforms: ['unix'],
+        },
+        {
           key: 'docker.installer_limits.timeout',
           description:
             'The maximum time (in seconds) allowed for an installation container to run before it is considered failed (`0` = no limit).',
@@ -1429,7 +1443,7 @@ export const wingsConfigDoc: ConfigDoc = {
             {
               type: 'info',
               title: 'Options the panel can never change',
-              body: 'Even with panel config updates enabled, a set of paths is stripped out of every patch the panel sends, so change them locally in `config.yml` or through environment overrides:\n\n- Node identity: `uuid`, `token`, `token_id`, `remote`, `remote_headers`\n- Paths: `system.root_directory`, `system.log_directory`, `system.data`, `system.diffs_directory`, `system.vmount_directory`, `system.archive_directory`, `system.backup_directory`, `system.tmp_directory`, `system.passwd.directory`, `system.backups.restic.repository`, `system.backups.restic.password_file`, `system.backups.mounting.path`, `tundra.data_directory`, `tundra.binary`\n- Host access: `system.username`, `system.user`, `system.passwd`, `docker.socket`, `tundra.image`, `tundra.source_image`, `allowed_mounts`, `allowed_devices`\n- Listener and egress: `api.host`, `api.port`, `api.ssl`, `api.trusted_proxies`, `api.disable_remote_download`, `api.remote_download_blocked_cidrs`, `api.schedule.steps.http_request`\n- The flags themselves: `ignore_panel_config_updates`, `ignore_panel_wings_upgrades`\n\nThe rest of the patch still applies, the forbidden keys are dropped silently rather than failing the whole update.',
+              body: 'Even with panel config updates enabled, a set of paths is stripped out of every patch the panel sends, so change them locally in `config.yml` or through environment overrides:\n\n- Node identity: `uuid`, `token`, `token_id`, `remote`, `remote_headers`\n- Paths: `system.root_directory`, `system.log_directory`, `system.data`, `system.diffs_directory`, `system.vmount_directory`, `system.archive_directory`, `system.backup_directory`, `system.tmp_directory`, `system.passwd.directory`, `system.backups.restic.repository`, `system.backups.restic.password_file`, `system.backups.mounting.path`, `docker.lxcfs.directory`, `tundra.data_directory`, `tundra.binary`\n- Host access: `system.username`, `system.user`, `system.passwd`, `docker.socket`, `tundra.image`, `tundra.source_image`, `allowed_mounts`, `allowed_devices`\n- Listener and egress: `api.host`, `api.port`, `api.ssl`, `api.trusted_proxies`, `api.disable_remote_download`, `api.remote_download_blocked_cidrs`, `api.schedule.steps.http_request`\n- The flags themselves: `ignore_panel_config_updates`, `ignore_panel_wings_upgrades`\n\nThe rest of the patch still applies, the forbidden keys are dropped silently rather than failing the whole update.',
             },
           ],
         },

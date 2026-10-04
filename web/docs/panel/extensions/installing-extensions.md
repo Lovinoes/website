@@ -16,6 +16,8 @@ Installing extensions requires the Panel to compile new code (yours, plus whatev
 If you're not on the heavy docker image already, switch to the heavy variant first. See [Switching to the heavy image](./switching-to-the-heavy-image.md).
 :::
 
+Web installation, removal, and rebuild controls are unavailable when [`APP_DISABLE_EXTENSION_MANAGEMENT`](../environment.md#app-disable-extension-management) is enabled, even in the heavy image. Installed extensions still run and can be toggled; the extension CLI remains available.
+
 ## Install an Extension
 
 The steps depend on which environment you're running. Pick the matching tab:

@@ -1,5 +1,5 @@
 export const POLICY_VERSION = 3;
-export const SERVED_POLICY_VERSIONS = [2, POLICY_VERSION];
+export const SERVED_POLICY_VERSIONS = [POLICY_VERSION];
 
 const DAY = 86_400;
 const HOUR = 3_600;

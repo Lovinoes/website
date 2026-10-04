@@ -52,6 +52,18 @@ While **Enable Password Login** is off in [Settings](./settings.md#application),
 ![Configured provider with censored credentials](./images/oauth-providers/general.webp)
 
 
+## Import from OpenID Discovery
+
+On the creation page, **Import from OpenID Discovery** fills the form from a provider's discovery document. Enter its issuer/base URL, such as `https://auth.example.com/realms/example`, or the complete URL ending in `/.well-known/openid-configuration`.
+
+<img src="./images/oauth-providers/discovery.webp" width="220" alt="OpenID Discovery import dialog" />
+
+The import fills endpoints, scopes, profile paths, and supported authentication options. It enables PKCE automatically when the document advertises `S256`. A UserInfo endpoint is required: the Panel reads the profile from that endpoint and does not use an ID token in its place.
+
+Review the result, supply your **Client Id** and **Client Secret** where required, and save the provider. Discovery does not create a provider by itself or keep its settings synchronized later. Claims and scopes are taken from the document when listed; when those lists are absent, the form uses common OIDC defaults. Check that your provider actually returns every configured profile field, especially email and username.
+
+Discovery requests follow [`APP_BLOCKED_CIDRS`](../../environment.md#app-blocked-cidrs), which blocks private and loopback addresses by default. A provider reachable from your browser may still be blocked from the Panel host.
+
 ## Avatars
 
 **Avatar URL Template** pulls the user's profile picture from the provider. Leave it empty and the panel never touches avatars. Fill it in and every login or link through the provider imports the picture it points at. The download runs in the background, so a slow or unreachable image host never holds up the login.

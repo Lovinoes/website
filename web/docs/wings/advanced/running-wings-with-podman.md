@@ -220,3 +220,7 @@ chcon -R -t container_file_t -l s0 ./wings/data
 ::: warning
 Also make sure `WINGS_UID` and `WINGS_GID` match the user the Wings container runs as. Wings takes its ownership settings from those environment variables when containerized, and if they disagree with the actual process UID, every chown is refused.
 :::
+
+## LXCFS
+
+The optional [LXCFS integration](../installation/binary.md#optional-lxcfs) also uses host bind mounts with Podman. Run lxcfs as a separate host service and make its mount directory accessible to the account running the Podman engine. Restart affected servers after enabling it or restarting lxcfs.

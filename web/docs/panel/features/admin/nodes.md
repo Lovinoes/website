@@ -145,13 +145,15 @@ Select allocations (drag, checkboxes, or `Ctrl+A`) for the action bar: **Update*
 
 ## Mounts
 
-Which admin-defined [mounts](../server/mounts.md) are usable on this node (requires `nodes.mounts`). **Add** attaches an existing mount; removing a row only detaches it from the node. Wings must also allow the source path via [`allowed_mounts`](../../../wings/configuration.md#allowed_mounts).
+Which admin-defined [mounts](../server/mounts.md) are usable on this node (requires `nodes.mounts`). **Add** attaches an existing mount; removing a row only detaches it from the node. Wings must also allow the source path via [`allowed_mounts`](../../../wings/configuration.md#allowed-mounts).
 
 ![](./images/nodes/mounts.webp)
 
 ## Devices
 
 The **Devices** tab assigns admin-defined [devices](./devices.md) to this node (requires `nodes.devices`). **Add** makes a device available here; removing it detaches its node assignment. The server's egg must also allow it, and Wings must allow its source in [`allowed_devices`](../../../wings/configuration.md#allowed-devices).
+
+The mount and device assignment lists flag sources that are **Not Allowed** by the node's configured allowlist. These checks compare paths only; see [mount feedback](./mounts.md#node-allowlist-feedback) and [device feedback](./devices.md#node-allowlist-feedback) for their limits.
 
 ## Database Hosts
 

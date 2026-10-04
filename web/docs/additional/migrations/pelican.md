@@ -5,9 +5,9 @@ description: How to migrate from Pelican to Calagopus. The built-in importer cop
 
 # Migrating from Pelican
 
-Calagopus includes an importer that reads a Pelican database and writes equivalent records into a fresh Calagopus database. After the import, users log in with the same credentials and all servers, nodes, and eggs are intact.
+Calagopus includes an importer that reads a Pelican database and writes equivalent records into a fresh Calagopus database. The import plan includes users, servers, nodes, and eggs. Review any repaired or skipped records before writing it; users whose accounts import successfully can sign in with their existing credentials.
 
-The one thing that does not migrate is API keys. Pelican stores them as hashes using a different algorithm than Calagopus, so the values cannot be carried over. This is also not a practical concern - the Calagopus API is not compatible with Pelican's, so any external scripts using Pelican's API need to be updated for Calagopus regardless. Generate new keys after migration and update your integrations.
+API keys and active login sessions do not migrate. Users need to sign in again. Generate new API keys and update your integrations: the Calagopus API differs from Pelican's, so existing API scripts also need changes.
 
 This guide covers the panel database migration only. Wings also needs to be updated to point at the new panel. See [Wings Updating](../../wings/updating.md) for that step.
 
@@ -24,6 +24,26 @@ Pelican running inside Docker containers, with a `docker-compose.yml` somewhere.
 ::::
 
 If you're not sure which setup you're using, run `docker compose ps` in your Pelican directory. If it shows a running panel/web container, you're using Docker. Otherwise, you're using Standalone. A `docker-compose.yml` file alone doesn't indicate a Docker setup.
+
+## Import Options
+
+The importer reads the source, validates an import plan, and reports problems before writing records. Start with `--dry-run --on-invalid=abort` to inspect that plan. Add the options below to the import command in your installation guide; keep its `--environment` path and Docker prefix where applicable.
+
+| Option | Behavior |
+| --- | --- |
+| `--dry-run` | Validates and reports without writing imported records or applying the imported Panel settings. |
+| `--on-invalid=ask` | Default. Prompts for decisions in a terminal; aborts on unresolved problems when no terminal is attached. |
+| `--on-invalid=abort` | Reports validation problems and stops without importing if any are found. |
+| `--on-invalid=fix` | Applies suggested repairs where available and skips rows that cannot be repaired. Review the report and planned counts before writing. |
+| `--on-invalid=skip` | Skips rows with validation problems. Dependent records may also need to be skipped. |
+| `--report /path/report.json` | Writes problems, fixes, and skipped rows to a JSON file on the machine or container running the command. |
+| `--unlimited-as 100` | Converts unlimited source database, allocation, and backup limits to this value. Defaults to `100`. |
+| `--force` | Allows an occupied target and checks imported rows against its existing records. It does not clear the target or overwrite conflicting records automatically. |
+| `--yes` / `-y` | Skips the final confirmation before writing. It does not choose a policy for invalid rows. |
+
+For example, after reviewing an initial report, `--dry-run --on-invalid=fix` previews the proposed repairs and skipped rows. Remove `--dry-run` only when that result is acceptable. For unattended imports, choose an explicit invalid-row policy instead of relying on interactive prompts.
+
+A failed data write rolls back the import. Panel settings are saved after the data commits: if only that step fails, the importer tells you to set the URL, name, and mail settings in the admin area. Keep the imported records and repair those settings rather than running the import again.
 
 ## Troubleshooting
 

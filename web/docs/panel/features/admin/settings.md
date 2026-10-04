@@ -7,6 +7,8 @@ description: Every panel-wide setting in the Calagopus admin area, from applicat
 
 Everything panel-wide that isn't its own admin page lives under `/admin/settings`, split into eleven category tabs. Saving any category requires the `settings.update` permission.
 
+Unsaved changes stay in the form while you switch between settings tabs. Leaving settings with a draft prompts you to confirm. These drafts live only in the current page session; save each tab to keep its changes after a reload.
+
 ::: info
 The **Application** tab has an **Advanced mode** toggle in the top right. It reveals the fields marked *advanced* below, and the preference is saved to your account, so it follows you to other devices.
 :::
@@ -145,9 +147,18 @@ Captcha protection for the panel; set this up before you [enable registration](#
 | --- | --- |
 | **None** | No captcha |
 | **Turnstile** | **Site Key**, **Secret Key** |
-| **reCAPTCHA** | **Site Key**, **Secret Key**, and a **V3** toggle |
+| **reCAPTCHA** | **Site Key**, **Secret Key**, a **V3** toggle, and **Score Threshold** when V3 is on |
 | **hCaptcha** | **Site Key**, **Secret Key** |
 | **Friendly Captcha** | **Site Key**, **API Key** |
+| **Cap** | **Instance URL**, **Site Key**, **Secret Key** |
+
+For **Cap**, enter the **Instance URL** of your Cap server, such as `https://cap.example.com`, and its site and secret keys. The URL must use HTTP or HTTPS and cannot contain embedded credentials, a query string, or a fragment.
+
+![Cap settings with instance URL and key fields](./images/settings/cap.webp)
+
+For **reCAPTCHA V3**, **Score Threshold** is the minimum accepted score, from `0` to `1`, with a default of `0.5`. Scores below it are rejected; increasing it makes the check stricter. It does not affect reCAPTCHA V2.
+
+![reCAPTCHA V3 score threshold](./images/settings/recaptcha-v3.webp)
 
 ## Webauthn
 

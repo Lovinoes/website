@@ -28,6 +28,12 @@ DB Agent uses Docker to run and isolate database containers. Docker must be inst
 
 Only Linux is officially supported, due to reliance on Unix-specific features.
 
+## MariaDB/MySQL Client Compatibility
+
+The proxy sends its server greeting before it knows which instance you will connect to. It advertises the lowest MariaDB version detected on the agent, falling back to `5.5.5-10.6.0-MariaDB` until one is available. A database client may therefore display a different version from your instance. Run `SELECT VERSION()` after connecting to check the database server itself.
+
+The proxy also passes through the client's `CLIENT_FOUND_ROWS` setting, preserving the requested matched-row behavior for affected-row counts. Neither behavior needs a configuration option.
+
 ## Volumes
 
 DB Agent uses several directories on the host. Knowing where each one is matters for troubleshooting, backups, and disk management.

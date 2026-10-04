@@ -44,6 +44,12 @@ Arrow Up and Arrow Down cycle through your last commands (up to 32, kept per ser
 
 Typing `!` suggests your [Command Snippets](../dashboard/command-snippets.md); picking one pastes its full command into the input.
 
+### Command Prefix
+
+Click the terminal icon in the command input to set a **Command Prefix** of up to 64 characters. The prefix is prepended exactly as entered to commands sent from this input, so include a trailing space if the command needs one, for example `say `. Clear it with the clear button. The prefix lasts while this console view is open; it is not a saved server setting.
+
+![Console command prefix](./images/console/command-prefix.webp)
+
 ### Command History
 
 **Command History** opens a drawer of every command sent to this server, pulled from the [Activity](./activity.md) log (so it needs the `activity.read` permission). Click an entry to see the full command, who sent it (a user, a schedule, or the system), and when. From there, **Send Command** runs it again and **Copy Command** copies it.

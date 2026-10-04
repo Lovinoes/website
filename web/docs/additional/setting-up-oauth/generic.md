@@ -17,6 +17,12 @@ Both presets import the user's profile picture from the provider's `picture` cla
 
 If your provider isn't listed here, you may have to follow the steps below to adapt to your setup.
 
+## Import from OpenID Discovery
+
+In **Admin → OAuth Providers → Create**, click **Import from OpenID Discovery** and enter your provider's issuer URL or its complete `/.well-known/openid-configuration` URL. The Panel fills the endpoints and suggested profile settings for you. Review them, enter your client credentials, then save. See [OpenID Discovery](../../panel/features/admin/oauth-providers.md#import-from-openid-discovery) for the requirements and outbound-network restrictions.
+
+If discovery is unavailable, fill the same fields manually using the steps below.
+
 ### Find the required identifiers
 Most OIDC providers (hosted or self-hosted) expose a standard "well-known" URL. Depending on your provider, it is typically available at `/.well-known/openid-configuration` and returns a JSON object containing the 3 URLs needed below.
 

@@ -148,6 +148,15 @@ Default:
 APP_DISABLE_FRONTEND=false
 ```
 
+## APP_DISABLE_EXTENSION_MANAGEMENT
+
+When enabled, the Panel no longer lets admins install, remove or rebuild extensions from the web interface in the heavy image, and the extensions page hides the management controls. Installed extensions keep running and can still be turned on or off. The `panel-rs extensions` CLI inside the container still works, so use this if extension changes should only happen through shell access. The regular images never offer web management, so the variable does nothing there.
+
+Default:
+```plaintext
+APP_DISABLE_EXTENSION_MANAGEMENT=false
+```
+
 ## APP_USE_DECRYPTION_CACHE
 
 When enabled, decrypted secrets are kept in the Panel process memory for 30 seconds so repeated reads skip the decryption step. They are never written to Redis. Improves performance but means decrypted values stay in memory longer - evaluate against your threat model before enabling.
@@ -176,7 +185,7 @@ APP_TRUSTED_PROXIES=192.168.178.0/24,10.0.0.0/8
 
 ## APP_BLOCKED_CIDRS
 
-Comma-separated list of IP ranges the Panel refuses to connect to when it fetches a URL someone supplied through the UI, such as importing an egg from a URL or syncing an egg repository over git. Hostnames are resolved first and every resulting address is checked, so a name pointing at an internal address is rejected too. This keeps an administrator from using the Panel as a proxy to reach services on its own network.
+Comma-separated list of IP ranges the Panel refuses to connect to when it fetches a URL someone supplied through the UI, such as importing an egg from a URL, discovering an OpenID provider, or syncing an egg repository over git. Hostnames are resolved first and every resulting address is checked, so a name pointing at an internal address is rejected too. This keeps an administrator from using the Panel as a proxy to reach services on its own network.
 
 The default blocks the unspecified and loopback addresses, the private ranges, carrier-grade NAT, link-local, IETF-reserved and benchmarking ranges, multicast, 6to4 and the remaining reserved space:
 

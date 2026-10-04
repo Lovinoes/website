@@ -69,3 +69,9 @@ Both the server's node and egg must be assigned before it is eligible. These ass
 Restart a running server after attaching, detaching, or changing its device mappings so the container picks up the change. If the Panel shows it as attached but the device is missing inside the container, check the Wings allowlist, host device path, and Wings logs.
 
 Admin definitions use `devices.create`, `devices.read`, `devices.update`, and `devices.delete`. Assignments use `eggs.devices`, `nodes.devices`, and `servers.devices`. User access has separate [server permissions](../dashboard/permissions.md#devices).
+
+## Node Allowlist Feedback
+
+Node assignment views show **Checking...** while reading the node configuration and **Not Allowed** when the device source does not match Wings' `allowed_devices` entries. Update that node's local allowlist before expecting the attachment to work. Assignment dialogs also warn about rejected sources.
+
+This check compares configured paths. It does not resolve symlinks on the node or prove that the source exists or is a usable device; an absent warning is not a host filesystem check.

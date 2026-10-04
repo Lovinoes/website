@@ -24,12 +24,12 @@ Before you start, you'll want:
 If you haven't installed Calagopus yet, follow the [installation guide](../../../panel/installation/index.md). Once you reach the OOBE screen, **stop**. Don't click through it, don't create the admin user. Just leave it there and come back here.
 
 ::: warning Don't click through the OOBE
-The importer needs an empty Calagopus database to write into. The OOBE creates initial records (admin user, default settings) that would conflict with what the importer is trying to do.
+This guide uses a fresh Calagopus database. By default, the importer refuses a target that already has users, nodes, servers, nests, or locations. If you already completed the OOBE and need to keep its data, review [`--force`](../pterodactyl.md#import-options) and run a dry run against the occupied target first.
 
 ![Calagopus Panel OOBE](../../../panel/oobe.webp)
 
-::: details Already clicked through? Here's how to undo it
-You'll need to drop and recreate the database. Pick the tab that matches how Calagopus is installed:
+::: details Resetting a disposable target
+Only use these steps if you want to discard everything in the Calagopus database and start fresh. They are not needed after a failed import that reports a rollback. Pick the tab that matches how Calagopus is installed:
 
 ::::tabs
 === Docker
@@ -122,18 +122,24 @@ Copy it into the Calagopus container:
 docker compose cp /tmp/pterodactyl.env web:/.env
 ```
 
-Run the importer:
+First validate without importing records:
+
+```bash
+docker compose exec web calagopus-panel import pterodactyl --environment /.env --dry-run --on-invalid=abort --report /tmp/pterodactyl-import-report.json
+```
+
+Read the reported problems before continuing. With Docker, the report is inside the `web` container; copy it out with `docker compose cp web:/tmp/pterodactyl-import-report.json ./pterodactyl-import-report.json` if needed. Review the [import options](../pterodactyl.md#import-options) to choose fixes or skipped rows. Then run the import interactively:
 
 ```bash
 docker compose exec web calagopus-panel import pterodactyl --environment /.env
 ```
 
-This walks through users, servers, nodes, allocations, eggs, and everything else. Small installs finish in seconds, larger ones take longer. Progress is logged to stdout.
+This walks through users, servers, nodes, allocations, eggs, and everything else. Small installs finish in seconds, larger ones take longer. The terminal shows validation findings and the planned record counts before the import writes data.
 
 ::: warning If the import errors out with a connection or auth error
 If it fails immediately with something like *"Host 'X' is not allowed to connect"* or *"Access denied for user"*, that's MySQL/MariaDB's host-based access control blocking the connection. See [Allowing the Database User to Connect from Docker](#allowing-the-database-user-to-connect-from-docker) below.
 
-If it fails partway through with a different error, treat the database as poisoned. A partial import leaves Calagopus in an inconsistent state. Drop the Postgres data (steps in the OOBE warning above), let Calagopus recreate it empty, and re-run the import.
+Validation errors stop the import before it writes data. If the write phase fails, the importer rolls back the imported records; fix the reported problem and retry. If it says the data was imported but Panel settings could not be saved, keep the imported data and set the URL, name, and mail settings in the admin area. Do not rerun a successful data import just to repair settings.
 :::
 
 When the import finishes, restart the stack:
@@ -186,22 +192,24 @@ Go to the directory with your Calagopus `.env` (defaults to `/etc/calagopus` on 
 cd /etc/calagopus
 ```
 
-Run the importer pointing at Pterodactyl's `.env`. If Pterodactyl is at the default location, `/var/www/pterodactyl`, the importer finds it automatically:
+Point the importer at Pterodactyl's `.env`, normally `/var/www/pterodactyl/.env`, and validate without importing records:
 
 ```bash
-calagopus-panel import pterodactyl
+calagopus-panel import pterodactyl --environment /var/www/pterodactyl/.env --dry-run --on-invalid=abort --report /tmp/pterodactyl-import-report.json
 ```
 
-If Pterodactyl is somewhere else, point the importer at its `.env` directly:
+Read the reported problems before continuing. Review the [import options](../pterodactyl.md#import-options) to choose fixes or skipped rows. Then run the import interactively:
 
 ```bash
-calagopus-panel import pterodactyl --environment /path/to/pterodactyl/.env
+calagopus-panel import pterodactyl --environment /var/www/pterodactyl/.env
 ```
 
-This walks through users, servers, nodes, allocations, eggs, and everything else. Small installs finish in seconds, larger ones take longer. Progress is logged to stdout.
+If Pterodactyl is somewhere else, replace `/var/www/pterodactyl/.env` with the correct path in both commands.
+
+This walks through users, servers, nodes, allocations, eggs, and everything else. Small installs finish in seconds, larger ones take longer. The terminal shows validation findings and the planned record counts before the import writes data.
 
 ::: warning If the import errors out
-Treat the database as poisoned. A partial import leaves Calagopus in an inconsistent state. Drop the Postgres database (steps in the OOBE warning above), recreate it, and re-run.
+Validation errors stop the import before it writes data. If the write phase fails, the importer rolls back the imported records; fix the reported problem and retry. If it says the data was imported but Panel settings could not be saved, keep the imported data and set the URL, name, and mail settings in the admin area. Do not rerun a successful data import just to repair settings.
 :::
 
 When the import finishes, restart Calagopus:

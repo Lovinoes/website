@@ -26,9 +26,9 @@ Everything you've selected shows up on the right under **Selected Permissions**,
 
 Once you're happy with the selection, scroll down and hit **Save**, or **Close** to back out without creating anything. The full key value is shown exactly once, in an **API Key Created** modal: "Make sure to copy it now, as it will not be shown again."
 
-## Editing, Recreating, and Removing
+## Editing, Duplicating, Recreating, and Removing
 
-Right-click a key (or open the menu at the end of its row) for **Edit**, **Disable** (or **Enable**), **Recreate**, or **Remove**.
+Right-click a key (or open the menu at the end of its row) for **Edit**, **Disable** (or **Enable**), **Duplicate**, **Recreate**, or **Remove**.
 
 **Disable** switches the key off without deleting it: it keeps its name, permissions and value, but every request made with it is refused with "api key is disabled" until you enable it again. Use it when you suspect a key is being misused but aren't ready to invalidate it; unlike **Remove**, it can be undone. A key cannot disable itself, so you can't lock yourself out through the API with the very key you're calling with.
 
@@ -36,6 +36,8 @@ Right-click a key (or open the menu at the end of its row) for **Edit**, **Disab
 **Edit** opens the same form as creating one, letting you change the name, expiry, allowed IPs, and permissions.
 
 ![](./images/api-keys/edit-form.webp)
+
+**Duplicate** creates a separate key and shows its new token once. It copies the original's permissions, allowed IPs, enabled state, and expiry without invalidating the original. It needs permission to create keys and room under your account's key limit.
 
 **Recreate** issues a new key value with the same name and permissions, immediately invalidating the old value; the new one appears once in an **API Key Recreated** modal. Use this if a key may have leaked. **Remove** deletes the key outright.
 
