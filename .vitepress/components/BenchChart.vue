@@ -26,6 +26,8 @@ use([
 const props = defineProps({
   option: { type: Object, required: true },
   height: { type: String, default: '320px' },
+  categoryLabel: { type: String, default: 'System' },
+  active: { type: Boolean, default: true },
 });
 
 const isDark = ref(false);
@@ -64,6 +66,7 @@ const themedOption = computed(() => {
     legend: base.legend ? { ...base.legend, textStyle: { color: text, fontFamily: 'inherit' } } : undefined,
     xAxis: applyAxisTheme(base.xAxis, text, muted, grid),
     yAxis: applyAxisTheme(base.yAxis, text, muted, grid),
+    series: (base.series ?? []).map((s) => (s.label ? { ...s, label: { color: muted, ...s.label } } : s)),
   };
 });
 
@@ -72,7 +75,7 @@ function applyAxisTheme(axis, text, muted, grid) {
   if (Array.isArray(axis)) return axis.map((a) => applyAxisTheme(a, text, muted, grid));
   return {
     ...axis,
-    axisLabel: { color: muted, fontFamily: 'inherit', ...(axis.axisLabel || {}) },
+    axisLabel: { color: muted, fontFamily: 'inherit', hideOverlap: true, ...(axis.axisLabel || {}) },
     nameTextStyle: { color: muted, fontFamily: 'inherit', ...(axis.nameTextStyle || {}) },
     axisLine: { lineStyle: { color: grid }, ...(axis.axisLine || {}) },
     splitLine: { lineStyle: { color: grid, type: 'dashed' }, ...(axis.splitLine || {}) },
@@ -94,23 +97,26 @@ const dataTable = computed(() => {
   return { categories, series, unit: (horizontal ? xAxis?.name : yAxis?.name) ?? '' };
 });
 
+// cpu-ms values are fractions of a millisecond, so a flat toFixed(1) collapses every compiled
+// target to "0.0" in the table search engines and LLM consumers actually read.
 const fmtCell = (v) => {
   if (typeof v !== 'number') return 'no data';
-  return Number.isInteger(v) ? v.toLocaleString('en-US') : v.toFixed(1);
+  if (Number.isInteger(v)) return v.toLocaleString('en-US');
+  return Math.abs(v) < 1 ? v.toPrecision(3) : v.toFixed(1);
 };
 </script>
 
 <template>
-  <div class="bench-chart" :style="{ height }">
+  <div v-if="active" class="bench-chart" :style="{ height }">
     <v-chart :option="themedOption" :update-options="{ notMerge: true }" autoresize />
   </div>
-  <details v-if="dataTable" class="bench-data">
+  <details v-if="dataTable" v-show="active" class="bench-data">
     <summary>View this chart's data as a table</summary>
     <div class="bench-data-scroll">
       <table>
         <thead>
           <tr>
-            <th scope="col">System</th>
+            <th scope="col">{{ categoryLabel }}</th>
             <th v-for="s in dataTable.series" :key="s.name" scope="col">
               {{ s.name }}<template v-if="dataTable.unit"> ({{ dataTable.unit }})</template>
             </th>

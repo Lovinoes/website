@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { join, sep } from 'node:path';
 import type { PluginOption } from 'vite';
 import { markdownCandidates } from '../lib/markdown-candidates.ts';
-import { BENCHMARKS_PAGE, expandBenchmarksMarkdown } from './benchmarks.ts';
+import { MARKDOWN_EXPANDERS } from './benchmarks.ts';
 
 interface MiddlewareRequest {
   method?: string;
@@ -67,10 +67,8 @@ export function acceptMarkdownPlugin(): PluginOption {
         if (body === null) return next();
 
         const page = pathname.replace(/^\/+/, '').replace(/\/+$/, '').replace(/\.md$/, '');
-        const output =
-          page === BENCHMARKS_PAGE.replace(/\.md$/, '')
-            ? expandBenchmarksMarkdown(body, { keepFrontmatter: true })
-            : body;
+        const expand = MARKDOWN_EXPANDERS[`${page}.md`];
+        const output = expand ? expand(body, { keepFrontmatter: true }) : body;
 
         res.setHeader('Content-Type', 'text/markdown; charset=utf-8');
         res.end(output);

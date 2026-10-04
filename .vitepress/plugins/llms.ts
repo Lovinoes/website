@@ -2,7 +2,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import type { SiteConfig } from 'vitepress';
 import { featureCategories } from '../data/features.ts';
-import { BENCHMARKS_PAGE, expandBenchmarksMarkdown } from './benchmarks.ts';
+import { MARKDOWN_EXPANDERS } from './benchmarks.ts';
 
 interface SidebarNode {
   text?: string;
@@ -89,7 +89,8 @@ function absoluteLinks(markdown: string, page: string): string {
 }
 
 function cleanMarkdownExport(source: string, page: string): string {
-  if (page === BENCHMARKS_PAGE) return absoluteLinks(expandBenchmarksMarkdown(source), page);
+  const expand = MARKDOWN_EXPANDERS[page];
+  if (expand) return absoluteLinks(expand(source), page);
 
   const body = source
     .replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n+/, '')
