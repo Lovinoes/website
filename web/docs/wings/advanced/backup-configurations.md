@@ -28,7 +28,7 @@ When you create a backup configuration, you pick a **backup disk** - the backend
 | **Zfs** | A ZFS snapshot on the Wings node | None (host filesystem must be ZFS) |
 | **S3** | An S3 (or S3-compatible) bucket | S3 credentials and bucket details |
 | **Restic** | A [restic](https://restic.net) repository (any backend restic supports) | Restic repository URL, password, and any backend-specific environment variables |
-| **Proxmox Backup Server** | A [Proxmox Backup Server](https://www.proxmox.com/en/products/proxmox-backup-server) datastore | PBS server URL, datastore, API token, and optionally a server fingerprint |
+| **Proxmox Backup Server** | A [Proxmox Backup Server](https://www.proxmox.com/en/products/proxmox-backup-server/overview) datastore | PBS server URL, datastore, API token, and optionally a server fingerprint |
 | **Kopia** | A [Kopia](https://kopia.io) repository, via a running Kopia repository server | Kopia server URL, username, repository password, and optionally a server fingerprint |
 
 The four node-local options (**Local**, **DdupBak**, **Btrfs**, **Zfs**) don't require credentials on the Panel side. [`system.backup_directory`](../configuration.md#system-backup-directory) controls the backup storage directory, with a default of `{root_directory}/backups`: `/var/lib/calagopus-wings/backups` on a fresh Linux installation (migrated or custom configurations may use another path). ZFS snapshots remain attached to the server's dataset, with backup metadata stored in the backup directory.

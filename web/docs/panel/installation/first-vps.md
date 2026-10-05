@@ -143,6 +143,8 @@ Docker's published ports [bypass UFW rules](https://docs.docker.com/engine/netwo
 
 ::::
 
+On **Oracle Cloud**, ports have to be opened in two places: the subnet's security list in the Cloud Console, and the instance's own `iptables` rules, which Oracle's images ship with and `ufw status` doesn't show. [Opening Up Ports on Oracle Cloud](https://github.com/mochman/Bypass_CGNAT/wiki/Oracle-Cloud--(Opening-Up-Ports)) walks through both.
+
 ## 3. Install Docker
 
 Install the tools used below:
