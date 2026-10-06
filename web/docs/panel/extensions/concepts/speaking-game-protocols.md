@@ -9,7 +9,7 @@ Most of what an extension does to a server goes through the high-level Wings API
 
 The problem is that the game server's port lives on the node, behind whatever firewall the operator set up, and your extension runs inside the Panel - which may be on a completely different machine. You can't just `TcpStream::connect` to it. That's what **query tunnels** are for: you ask Wings to open a socket to one of the server's ports *from the node's side*, and Wings proxies the bytes back to you over a WebSocket. From your extension's perspective you get a normal async socket; the fact that it's tunnelled through Wings is invisible.
 
-This page covers the tunnel API and walks through two complete examples - a Minecraft Server List Ping over TCP, and a GameSpy query over UDP.
+This page covers the tunnel API and walks through three examples - a Minecraft Server List Ping over TCP, a GameSpy query over UDP, and talking to a unix socket the game exposes inside the server's files.
 
 ## The Tunnel API
 
@@ -24,16 +24,17 @@ let client = server
     .await?;
 ```
 
-The client exposes two methods, one per transport:
+The client exposes one method per transport:
 
 | Method | Returns | Shape |
 | ------ | ------- | ----- |
-| `open_tunnel_tcp(server, port)` | `QueryTcpTunnel` | Implements `AsyncRead` + `AsyncWrite` - use it like any `tokio` socket |
+| `open_tunnel_tcp(server, port)` | `QueryStreamTunnel` | Implements `AsyncRead` + `AsyncWrite` - use it like any `tokio` socket |
 | `open_tunnel_udp(server, port)` | `QueryUdpTunnel` | A datagram socket with `send(&[u8])` / `recv(&mut [u8])` |
+| `open_tunnel_unix(server, path, ignored)` | `QueryStreamTunnel` | Same stream as TCP, connected to a unix socket file in the server's files - see [below](#example-talking-to-a-unix-socket) |
 
-Both return `Result<_, ApiHttpError>`. `ApiHttpError` converts into `anyhow::Error` but doesn't implement `std::error::Error` itself, which is why the examples below detour through `anyhow::Error::from` when mapping it into an `std::io::Error` (add `anyhow = { workspace = true }` to your dependencies if you follow that pattern).
+All three return `Result<_, ApiHttpError>`. `ApiHttpError` converts into `anyhow::Error` but doesn't implement `std::error::Error` itself, which is why the examples below detour through `anyhow::Error::from` when mapping it into an `std::io::Error` (add `anyhow = { workspace = true }` to your dependencies if you follow that pattern). When Wings refuses to open the tunnel at all, the server is offline, the socket file doesn't exist, you get `ApiHttpError::Http(status, error)` with Wings' status code and message, the same shape as any other Wings API call.
 
-Both take the server's `uuid` and a `u16` port. **The port is the port the game is listening on inside the container** - in almost every case that's the server's primary allocation, which you can read off the server model:
+The TCP and UDP methods take the server's `uuid` and a `u16` port. **The port is the port the game is listening on inside the container** - in almost every case that's the server's primary allocation, which you can read off the server model:
 
 ```rs
 let allocation = server
@@ -243,6 +244,66 @@ Notes specific to the GameSpy flow:
 - **The challenge token must be echoed as a big-endian `i32`.** The server sends it back as an ASCII *string* in the handshake response (e.g. `"9513307"`), and you parse it to an integer and re-encode it as four bytes. Forgetting the string→int→bytes round-trip is the single most common mistake here.
 - **Lean on the built-in timeout.** Notice there's no `tokio::time::timeout` wrapping these `recv` calls - the UDP tunnel already gives up after 5 seconds and hands you a `TimedOut`. For a query that's the right behavior: a server that doesn't answer in 5 seconds isn't going to.
 - **The "basic" stat only gives you a handful of fields.** MOTD, game type, map, player count, max players, and host. There's also a "full" stat (send `0x00` followed by four extra `0x00` padding bytes) that returns a richer key/value section plus the player list - same tunnel, just a longer request and a more involved parse.
+
+## Example: Talking to a Unix Socket
+
+Not every game listens on a network port for its control traffic. Plenty of servers and wrappers expose an admin or RCON-style interface as a **unix socket file** instead - something like `/home/container/control.sock` - which only processes inside the container can reach. `open_tunnel_unix` connects to that file *from the node's side* and hands you the same `QueryStreamTunnel` the TCP tunnel uses, so everything above about `AsyncRead` / `AsyncWrite` and framing applies unchanged.
+
+```rs
+use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
+use wings_api::client::{ApiHttpError, WingsClient};
+
+/// Sends one line to a line-based control socket and returns the first line of the reply.
+pub async fn send_control_command(
+    client: &WingsClient,
+    server: &shared::models::server::Server,
+    command: &str,
+) -> std::io::Result<String> {
+    let tunnel = client
+        .open_tunnel_unix(
+            server.uuid,
+            "control.sock",
+            server.subuser_ignored_files.as_deref().unwrap_or(&[]),
+        )
+        .await
+        .map_err(|err| match err {
+            ApiHttpError::Http(status, error) if status.as_u16() == 409 => {
+                std::io::Error::new(std::io::ErrorKind::ConnectionRefused, error.error.to_string())
+            }
+            err => std::io::Error::other(anyhow::Error::from(err)),
+        })?;
+
+    let mut tunnel = BufReader::new(tunnel);
+    tunnel.write_all(command.as_bytes()).await?;
+    tunnel.write_all(b"\n").await?;
+    tunnel.flush().await?;
+
+    let mut reply = String::new();
+    tunnel.read_line(&mut reply).await?;
+
+    Ok(reply.trim_end().to_string())
+}
+```
+
+How the path and errors work:
+
+- **The path is relative to the server's root**, the same root the file manager shows. `control.sock`, `/control.sock` and `plugins/../control.sock` all point at the same file. Wings resolves it inside the server's directory and refuses anything - `..`, absolute symlinks, relative symlinks - that would land outside it, so a server owner can't point a symlink at the node's Docker socket and have you connect to it.
+- **Pass the subuser's ignored files.** The third argument is the same denylist the file routes take. Wings checks it, and the egg's own file denylist, against both the path you asked for and where the socket really is after symlinks. A denied socket looks exactly like a missing one. If the request isn't on behalf of a subuser, pass `&[]`.
+- **Errors come back before the tunnel opens**, as `ApiHttpError::Http`:
+
+| Status | Meaning |
+| ------ | ------- |
+| `404` | No such file, or it's hidden from this user |
+| `409` | The socket file exists but nothing is listening - typically a stale socket left behind by a stopped server |
+| `417` | The path isn't a socket, or it's a datagram/seqpacket socket - only stream sockets are supported |
+| `501` | The node isn't running on Linux, where unix socket tunnels aren't available |
+
+- **Only stream sockets.** `SOCK_DGRAM` and `SOCK_SEQPACKET` sockets are rejected with `417`; there's no unix equivalent of the UDP tunnel.
+- **No server-state check.** Unlike the TCP tunnel, Wings doesn't look at whether the container is running - it just tries to connect. A stopped server usually shows up as `409` (stale socket) or `404` (the game cleaned the file up on exit).
+
+::: warning
+The socket path is exactly as dangerous as the port is for TCP. A control socket usually accepts privileged commands, so gate the route on a permission that already implies that power (such as `control.console`), and never let the request pick an arbitrary path - hard-code the socket your extension knows about.
+:::
 
 ## Wiring It Into a Route
 
