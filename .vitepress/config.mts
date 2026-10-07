@@ -577,6 +577,12 @@ export default withMermaid({
               { text: 'Package Manager', link: '/docs/db-agent/installation/pkgmanager' },
             ],
           },
+          {
+            text: 'Advanced',
+            link: '/docs/db-agent/advanced/',
+            collapsed: true,
+            items: [{ text: 'Running DB Agent Rootless', link: '/docs/db-agent/advanced/running-db-agent-rootless' }],
+          },
           { text: 'Updating', link: '/docs/db-agent/updating' },
         ],
       },

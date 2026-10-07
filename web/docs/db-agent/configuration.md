@@ -320,7 +320,7 @@ background_refresh: false
 ```
 
 ### docker.rootless.enabled
-Enables rootless container execution. When enabled, each database container is started with a `keep-id` user namespace mapping derived from that database's own image UID/GID, so it maps correctly to the unprivileged user running DB Agent. `chown` on the database's host data directories is still attempted, but a refusal from the rootless engine is absorbed instead of failing the start, the files are already owned by the mapped user in that case, and every later `chown` is skipped.
+Enables rootless container execution. When enabled, each database container is started with a `keep-id` user namespace mapping derived from that database's own image UID/GID, so it maps correctly to the unprivileged user running DB Agent. `chown` on the database's host data directories is still attempted, but a refusal from the rootless engine is absorbed instead of failing the start, the files are already owned by the mapped user in that case, and every later `chown` is skipped. See [Running DB Agent Rootless](./advanced/running-db-agent-rootless.md) for a full setup.
 
 Default value:
 ```yaml

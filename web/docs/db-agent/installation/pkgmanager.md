@@ -61,7 +61,7 @@ ln -s $(whereis -b calagopus-db-agent | awk '{print $2}') /usr/local/bin/db-agen
 DB Agent needs either Docker or Podman installed and running. RHEL-family distributions ship Podman by default, so you may already have it.
 
 ::: info Already have Podman?
-You can keep it. Skip ahead to [Add the Repository](#add-the-repository-1). After DB Agent is installed, point `docker.socket` in your `config.yml` at the Podman socket instead of Docker's.
+You can keep it. Skip ahead to [Add the Repository](#add-the-repository-1). After DB Agent is installed, point `docker.socket` in your `config.yml` at the Podman socket instead of Docker's. For a rootless setup, see [Running DB Agent Rootless](../advanced/running-db-agent-rootless.md).
 :::
 
 To use Docker instead, remove Podman first:

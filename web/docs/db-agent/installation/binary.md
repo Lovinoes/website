@@ -28,7 +28,7 @@ Otherwise refer to the [official Docker installation guide](https://docs.docker.
 
 === Podman
 
-Podman is supported as a drop-in alternative. Install it via your distribution's package manager (e.g. `apt install podman` or `dnf install podman`), then point `docker.socket` in your `config.yml` at the Podman socket.
+Podman is supported as a drop-in alternative. Install it via your distribution's package manager (e.g. `apt install podman` or `dnf install podman`), then point `docker.socket` in your `config.yml` at the Podman socket. To run DB Agent as a normal user under rootless Podman, follow [Running DB Agent Rootless](../advanced/running-db-agent-rootless.md) instead.
 
 ::::
 
