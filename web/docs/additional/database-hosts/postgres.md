@@ -170,7 +170,7 @@ Each database the panel creates is owned by its own role, and the panel revokes 
 | **Username** | `calagopus` |
 | **Password** | The password you set above |
 
-![](./files/postgres.webp)
+![Create Database Host form with PostgreSQL type, username, password, host, and port fields](./files/postgres.webp)
 
 4. Click **Save**. You will be able to verify the connection afterwards.
 
@@ -182,7 +182,7 @@ By default, new database hosts are not visible to any client API endpoints. To f
 2. Click the **Database Hosts** tab at the top.
 3. Click **Add** and select the database host you just created from the dropdown, then submit.
 
-![](./files/location.webp)
+![Create Location Database Host dialog with a Database Host dropdown over the location's database host list](./files/location.webp)
 
 ::: info
 For further reference on PostgreSQL configuration, see the [official PostgreSQL documentation](https://www.postgresql.org/docs/).

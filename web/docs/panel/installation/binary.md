@@ -110,7 +110,7 @@ sudo -u postgres psql
 === Windows
 Open the SQL Shell by searching for `psql` in the Start menu. Press Enter through the server, port, and username prompts to accept the defaults, then enter the password you set during installation:
 ![psql Shell](./images/psqlshell.webp)
-![](./images/auth.webp)
+![SQL Shell (psql) with default prompts accepted and a postgres=# prompt after login](./images/auth.webp)
 ::::
 
 Then create the user and database:
@@ -138,8 +138,8 @@ ls -lha # should show you the .env file
 Windows has no `/etc` folder, so place the `.env` file in the same directory as the executable. If the executable is at `C:\bin\calagopus-panel.exe`, the `.env` belongs at `C:\bin\.env`.
 
 Paste the contents of [`.env.example`](https://github.com/calagopus/panel/blob/main/.env.example) into the file:
-![](./images/dotenv.webp)
-![](./images/contents.webp)
+![Windows Explorer C:\bin folder with panel.exe and a .env file, noting hidden files may need enabling](./images/dotenv.webp)
+![Notepad showing a .env file with Redis and PostgreSQL URLs, port 8000, and APP_ENCRYPTION_KEY set to CHANGEME](./images/contents.webp)
 ::::
 
 Open the `.env` in your preferred editor and configure the variables. See the [Environment Configuration](../environment.md) reference for details on each one. At minimum set these:
@@ -193,14 +193,14 @@ If everything went well, the panel is available at `http://<your-server-ip>:8000
 ![Calagopus Panel OOBE](../oobe.webp)
 === Windows
 Download [NSSM](https://github.com/dkxce/NSSM/releases/download/v2.25/NSSM_v2.25.zip) and extract the `nssm.exe` for your architecture (win32 for x86, win64 for x64) into the same folder as the panel executable.
-![](./images/nssm.webp)
+![Explorer copying nssm.exe from the win64 folder into the folder with the panel executable](./images/nssm.webp)
 
 Install and start the service:
 ```powershell
 nssm install "Calagopus Panel" "C:\bin\calagopus-panel.exe"
 nssm start "Calagopus Panel"
 ```
-![](./images/nssmcli.webp)
+![PowerShell running nssm install and nssm start for the Calagopus Panel service, both succeeding](./images/nssmcli.webp)
 
 The panel is now available at `http://<your-server-ip>:8000` and will show the OOBE setup screen.
 

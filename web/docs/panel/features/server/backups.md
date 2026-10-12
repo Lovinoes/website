@@ -9,7 +9,7 @@ The Backups page lists every backup of your server, with a counter like "2 of 15
 
 There are two kinds of backup: a **Server** backup is an archive of the server's files, and a **Database** backup is a dump of one of the server's [managed databases](./databases/managed.md). Both count toward the same limit, which is part of the server's [feature limits](../admin/servers.md#feature-limits). As soon as a database backup exists the counter splits, as in "11 of 15 maximum backups created (9 server, 2 database)." Once you hit the limit, the create option is disabled with the tooltip "This server is limited to 15 backups."
 
-![](./images/backups/list.webp)
+![Backups page with a Daily Backups group showing retention badges and an Ungrouped section of server and database backups](./images/backups/list.webp)
 
 | Column | Shows |
 | --- | --- |
@@ -28,7 +28,7 @@ A backup that's still running shows a progress bar instead of these columns; a f
 
 Click **Create** in the top right. If backup groups are available, the button opens a menu instead, with **Create Backup** and **Create Backup Group**.
 
-![](./images/backups/create-modal.webp)
+![Create Backup dialog with name, source, backup group, and ignored files fields](./images/backups/create-modal.webp)
 
 The form has four fields:
 
@@ -115,7 +115,7 @@ Retention is evaluated when a backup finishes, when you move one between groups,
 
 Pick **Create Backup Group** from the **Create** menu. Give it a name and fill in whichever rules you want; **Retention** has a helper popover describing them.
 
-![](./images/backups/group-edit-modal.webp)
+![Edit Backup Group dialog with name and keep latest, daily, weekly, monthly, and yearly retention fields](./images/backups/group-edit-modal.webp)
 
 Leave them all empty and the modal tells you what that means: "With no retention set, this group is just a label and never deletes successful backups automatically." Use the pencil icon in a group's header to edit it later. There is also a panel-wide limit on groups per server, set under [Settings > Server](../admin/settings.md#server); the **Create Backup Group** option disappears once you reach it.
 
@@ -164,13 +164,13 @@ Selecting needs `backups.update` or `backups.delete`. Each action reports how ma
 
 Right-click a backup (or use the menu at the end of the row) for its actions.
 
-![](./images/backups/context-menu.webp)
+![Backup row menu with Edit, Download, Restore, Export to Files, Backup Metadata, and Delete](./images/backups/context-menu.webp)
 
 ### Edit
 
 Rename the backup, move it to another group, or toggle **Locked**. A locked backup cannot be deleted, and retention never removes it or evicts it to make room at the backup limit.
 
-![](./images/backups/edit-modal.webp)
+![Edit Backup dialog with name, backup group, and Locked toggle](./images/backups/edit-modal.webp)
 
 ### Browse
 
@@ -189,13 +189,13 @@ Restores the backup onto the server. Two switches control how:
 
 The server switches into a restoring state and you're taken back to the console while it runs. A progress toast showing the bytes and files restored so far stays in the corner on every page of the server until the restore finishes.
 
-![](./images/backups/restore-modal.webp)
+![Restore Backup dialog with toggles to delete existing files and restore startup settings](./images/backups/restore-modal.webp)
 
 For a database backup, **Restore** opens **Restore Database Backup** instead. Pick the **Target Managed Database**; the list only offers managed databases running the same engine as the dump, with the one the backup was taken from preselected, so a dump from a deleted database can be restored into a new one.
 
 The modal spells out what happens: "Existing tables and collections carried by the dump are replaced, and power actions are blocked until the restore finishes." The target has to be running, and only one restore can run into a given database at a time.
 
-![](./images/databases/instance-restore-backup-modal.webp)
+![Restore Database Backup dialog with a target managed database selector and an overwrite warning](./images/databases/instance-restore-backup-modal.webp)
 
 The restore itself runs in the background. While it runs, the database's page shows a **Restoring backup** badge and a progress banner, and its power buttons are disabled. A toast tells you when it completes or fails. See [The Instance Page](./databases/managed.md#the-instance-page).
 
@@ -203,13 +203,13 @@ The restore itself runs in the background. While it runs, the database's page sh
 
 Server backups only. Writes the backup as an archive file into the server's own file area. Pick a destination directory, file name, and archive format (fixed for backups whose stored format can't be converted); the modal shows the resulting path under `/home/container/` before you hit **Export**.
 
-![](./images/backups/export-modal.webp)
+![Export Backup to Files dialog with a folder browser, destination directory, file name, and format](./images/backups/export-modal.webp)
 
 ### Backup Metadata
 
 Shown only for server backups that captured metadata (startup command, image, variables); opens a JSON view of it.
 
-![](./images/backups/metadata-modal.webp)
+![Backup Metadata dialog showing JSON with the image, startup command, and variables](./images/backups/metadata-modal.webp)
 
 ### Delete
 

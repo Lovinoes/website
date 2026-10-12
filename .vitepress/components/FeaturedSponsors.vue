@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { data as featured, type SponsorSection } from '../data/sponsor-sections.data.mts';
+import Card from './ui/Card.vue';
 
 // A tier only ever hands out the fields it pays for, and the bot refuses a submission that is
 // missing them, so what a sponsor has decides the row they get.
@@ -24,8 +25,7 @@ const markLogoFailed = (section: SponsorSection): void => {
 
     <div class="featured-groups">
       <div v-if="large.length || small.length" class="featured-rows">
-        <component
-          :is="section.link ? 'a' : 'div'"
+        <Card
           v-for="section in large"
           :key="section.id"
           class="featured-card featured-card-large"
@@ -47,10 +47,9 @@ const markLogoFailed = (section: SponsorSection): void => {
             <strong>{{ section.name }}</strong>
             <span v-if="section.description">{{ section.description }}</span>
           </span>
-        </component>
+        </Card>
 
-        <component
-          :is="section.link ? 'a' : 'div'"
+        <Card
           v-for="section in small"
           :key="section.id"
           class="featured-card featured-card-small"
@@ -62,12 +61,11 @@ const markLogoFailed = (section: SponsorSection): void => {
             <strong>{{ section.name }}</strong>
             <span v-if="section.description">{{ section.description }}</span>
           </span>
-        </component>
+        </Card>
       </div>
 
       <div v-if="names.length" class="featured-pairs">
-        <component
-          :is="section.link ? 'a' : 'div'"
+        <Card
           v-for="section in names"
           :key="section.id"
           class="featured-card featured-card-small"
@@ -78,7 +76,7 @@ const markLogoFailed = (section: SponsorSection): void => {
           <span class="featured-text">
             <strong>{{ section.name }}</strong>
           </span>
-        </component>
+        </Card>
       </div>
     </div>
 
@@ -134,17 +132,8 @@ const markLogoFailed = (section: SponsorSection): void => {
 }
 
 .featured-card {
-  display: flex;
+  flex-direction: row;
   align-items: center;
-  border-radius: 12px;
-  background-color: var(--vp-c-bg-soft);
-  border: 1px solid var(--vp-c-bg-soft);
-  transition: border-color 0.25s;
-  text-decoration: none;
-}
-
-a.featured-card:hover {
-  border-color: var(--vp-c-brand-1);
 }
 
 .featured-card-large {

@@ -20,7 +20,7 @@ location:create      nest:create           egg-configuration:update
 extension:upload     extension:toggle      system-backup-policy:create
 ```
 
-<img src="./images/activity/details.webp" width="310" alt="" />
+<img src="./images/activity/details.webp" width="310" alt="Activity Details dialog showing the JSON data of a mount activity entry" />
 
 Per-account activity lives on each user's [Activity tab](./users.md#activity), and per-server activity on each server's [Activity page](../server/activity.md).
 

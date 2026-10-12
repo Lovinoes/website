@@ -9,6 +9,8 @@ import {
   faRocket,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import Card from './ui/Card.vue';
+import ThemeIcon from './ui/ThemeIcon.vue';
 
 const features = [
   {
@@ -81,14 +83,16 @@ const features = [
   >
     <h2 id="features-heading" class="section-heading">Why Calagopus?</h2>
     <div class="custom-features-grid">
-      <article
+      <Card
         v-for="feature in features"
         :key="feature.title"
+        component="article"
         class="feature-card"
+        padding="lg"
       >
-        <div class="icon-box" aria-hidden="true">
+        <ThemeIcon size="xl" variant="light" class="feature-icon" aria-hidden="true">
           <FontAwesomeIcon :icon="feature.icon" class="fa-icon" />
-        </div>
+        </ThemeIcon>
         <h3 class="title">{{ feature.title }}</h3>
         <p class="details">{{ feature.details }}</p>
         <a
@@ -99,7 +103,7 @@ const features = [
           <FontAwesomeIcon :icon="faCircleInfo" class="fa-icon" aria-hidden="true" />
           {{ feature.link.label }}
         </a>
-      </article>
+      </Card>
     </div>
   </section>
 </template>
@@ -140,34 +144,15 @@ const features = [
 }
 
 .feature-card {
-  display: flex;
-  flex-direction: column;
-  padding: 24px;
-  border-radius: 12px;
-  background-color: var(--vp-c-bg-soft);
-  border: 1px solid var(--vp-c-bg-soft);
-  transition: border-color 0.25s, background-color 0.25s;
   height: 100%;
 }
 
-.feature-card:hover {
-  border-color: var(--vp-c-brand-1);
-}
-
-.icon-box {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 20px;
-  border-radius: 6px;
-  background-color: var(--vp-c-default-soft);
-  width: 48px;
-  height: 48px;
+.feature-icon {
+  margin-bottom: var(--mantine-spacing-md);
 }
 
 .fa-icon {
-  font-size: 24px;
-  color: var(--vp-c-brand-1);
+  font-size: 20px;
   transition: transform 0.25s ease;
 }
 
@@ -177,8 +162,8 @@ const features = [
 
 .title {
   margin: 0;
-  line-height: 24px;
-  font-size: 16px;
+  line-height: var(--mantine-h5-line-height);
+  font-size: var(--mantine-h5-font-size);
   font-weight: 600;
   color: var(--vp-c-text-1);
   border: none;
@@ -187,10 +172,9 @@ const features = [
 
 .details {
   margin: 0;
-  padding-top: 8px;
-  line-height: 24px;
-  font-size: 14px;
-  font-weight: 500;
+  padding-top: var(--mantine-spacing-xs);
+  line-height: var(--mantine-line-height-sm);
+  font-size: var(--mantine-font-size-sm);
   color: var(--vp-c-text-2);
   flex-grow: 1;
 }

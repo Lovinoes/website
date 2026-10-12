@@ -194,7 +194,7 @@ mongodb://calagopus:<strong-password>@<host>:27017/?authSource=admin
 
 Replace `<strong-password>` with the password you set and `<host>` with the IP address or hostname of the database server.
 
-![](./files/mongodb.webp)
+![Create Database Host form with MongoDB type and a connection string credential field](./files/mongodb.webp)
 
 4. Click **Save**. You will be able to verify the connection afterwards.
 
@@ -206,7 +206,7 @@ By default, new database hosts are not visible to any client API endpoints. To f
 2. Click the **Database Hosts** tab at the top.
 3. Click **Add** and select the database host you just created from the dropdown, then submit.
 
-![](./files/location.webp)
+![Create Location Database Host dialog with a Database Host dropdown over the location's database host list](./files/location.webp)
 
 ::: info
 For further reference on MongoDB configuration and user management, see the [official MongoDB documentation](https://www.mongodb.com/docs/).

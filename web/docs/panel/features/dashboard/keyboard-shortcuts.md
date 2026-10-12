@@ -7,7 +7,7 @@ description: View and rebind keyboard shortcuts for navigating and interacting w
 
 Keyboard shortcuts let you navigate and interact with the panel without reaching for the mouse, grouped by where they apply: general, the file manager, the server console, and table navigation.
 
-![](./images/keyboard-shortcuts/overview.webp)
+![Keyboard Shortcuts page with File Manager, General, Server Console, and Table Navigation shortcut groups](./images/keyboard-shortcuts/overview.webp)
 
 The panel detects whether you're on Windows/Linux or macOS and shows the matching modifier keys automatically.
 
@@ -58,7 +58,7 @@ Each shortcut has three buttons next to it. The pencil rebinds: click it and pre
 
 The toolbar at the top shows which layout was detected ("Windows/Linux detected" or "macOS detected") next to three actions and a scope button:
 
-![](./images/keyboard-shortcuts/toolbar.webp)
+![Toolbar with Copy All, Paste, Reset All, and the detected Windows/Linux platform buttons](./images/keyboard-shortcuts/toolbar.webp)
 
 - **Copy All** copies every current binding as text, in a format you can edit directly and paste back in to apply changes. It's also the easiest way to carry your keybinds over to another Calagopus panel: copy from one, paste into the other.
 - **Paste** applies a previously copied (and optionally edited) set of bindings.

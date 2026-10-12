@@ -14,7 +14,7 @@ Every key is documented in the [Permissions Reference](../dashboard/permissions.
 
 The list shows each role's ID, Name, Server Permissions and Admin Permissions (as counts), and Created date. **Create** requires `roles.create`.
 
-![](./images/roles/list.webp)
+![Admin role list with the Admin role, its server and admin permission counts, and a Create button](./images/roles/list.webp)
 
 ## Creating and Editing a Role
 
@@ -26,7 +26,7 @@ The form is the same for creating and updating:
 | **Description** | Optional. |
 | **Require Two Factor** | "Require users with this role to use two factor authentication." Enforced hard: holders without 2FA are blocked from everything except setting up 2FA on their [Account page](../dashboard/account.md) and logging out. |
 
-![](./images/roles/create-form.webp)
+![Create Role form with name, description, Require Two Factor toggle, and grouped server permissions](./images/roles/create-form.webp)
 
 Below that sit the two permission pickers, **Server Permissions** and **Admin Permissions**: expandable categories where you tick individual permissions or toggle a whole category at once, with copy and paste for moving a selection between roles. It's the same picker used when scoping [API keys](../dashboard/api-keys.md).
 
@@ -37,7 +37,7 @@ Finish with **Save** (or **Save & Stay** when creating). An existing role also o
 ::: warning
 Selecting `users.impersonate` shows a warning for good reason: it lets holders of this role impersonate other users. Be cautious assigning it to roles with less trusted users, see [Impersonation](./users.md#impersonation) for the exact rules.
 
-![](./images/roles/impersonate-warning.webp)
+![Warning that the users.impersonate permission lets a role impersonate any user, including administrators](./images/roles/impersonate-warning.webp)
 
 :::
 
@@ -45,4 +45,4 @@ Selecting `users.impersonate` shows a warning for good reason: it lets holders o
 
 A role's view has a **Users** tab (requires `users.read`) listing every user currently holding the role, with the same columns as the [Users](./users.md) list. Role-based admins get the same crown marker there as root admins.
 
-![](./images/roles/users.webp)
+![Admin role Users tab listing the users assigned to the role](./images/roles/users.webp)

@@ -29,11 +29,11 @@ Panel users are linked by the external ID `fb-<client id>` and servers by `fb-<o
 
 Clients see a server card on their order page. It shows the server's state, its address with a **Copy** button, the location and uptime, live memory, disk and CPU usage against the plan's limits, and the databases, backups, ports and schedules the plan includes. **Open Panel** takes the client straight to the server on your panel.
 
-![](./images/fossbilling/client-area.webp)
+![FOSSBilling client server card with Offline state, address, memory, disk, CPU, and Open Panel button](./images/fossbilling/client-area.webp)
 
 The admin order page gets a **Service Management** tab with the same live details plus the server UUID, external ID, node and owner, an **Open in Panel** button and **Sync with Panel**.
 
-![](./images/fossbilling/admin-service.webp)
+![FOSSBilling admin Calagopus Server panel with server UUID, external ID, node, owner, and Open in Panel and Sync with Panel buttons](./images/fossbilling/admin-service.webp)
 
 ## Requirements
 
@@ -61,7 +61,7 @@ The admin order page gets a **Service Management** tab with the same live detail
 
 4. Click **Update Settings**. The connection is verified before anything is saved, and **Test Connection** checks it again at any time.
 
-![](./images/fossbilling/settings.webp)
+![FOSSBilling Panel Connection settings with Panel URL, API Key, Test Connection and Update Settings buttons](./images/fossbilling/settings.webp)
 
 ::: info
 The saved API key is only reused for the same panel. If you change the **Panel URL**, enter the API key again.
@@ -71,7 +71,7 @@ The saved API key is only reused for the same panel. If you change the **Panel U
 
 Create a product with the type **Calagopus**, then open its **Configuration** tab. The tab loads eggs, nodes, locations and backup configurations from your panel, so you pick them from lists instead of entering UUIDs.
 
-![](./images/fossbilling/product-config.webp)
+![FOSSBilling Calagopus product Server Type and Resource Limits fields for egg, node, locations, memory, disk, and CPU](./images/fossbilling/product-config.webp)
 
 ### Server type
 
@@ -124,7 +124,7 @@ Create a form under **System → Settings → Form Builder**, then select it as 
 - **Egg variables:** a field named after the variable in lowercase, e.g. `minecraft_version` for `MINECRAFT_VERSION`. Text fields only work for variables the egg marks as user editable; dropdown and radio fields work for any variable.
 - **Server name:** any field named `server_name` (3 to 255 characters).
 
-![](./images/fossbilling/order-form.webp)
+![FOSSBilling order form with Memory, Minecraft Version, and Server Name fields and a Next button](./images/fossbilling/order-form.webp)
 
 The module only reads the product's own form, and free-text fields never overwrite resource or placement settings. Form fields don't change the price, so sell priced tiers as separate products.
 
@@ -161,7 +161,7 @@ When a client's first order activates, the module looks up the panel user with t
 
 If you sold servers through the community FOSSBilling Pterodactyl module (`Servicepterodactyl`) and have migrated your panel to Calagopus, the module can move those products and orders over. The **Import from Pterodactyl** section appears on the module settings page while Pterodactyl products or orders exist.
 
-![](./images/fossbilling/pterodactyl-import.webp)
+![FOSSBilling Import from Pterodactyl section with Pterodactyl panel URL and application API key fields](./images/fossbilling/pterodactyl-import.webp)
 
 Before importing:
 

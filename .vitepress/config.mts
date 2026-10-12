@@ -100,10 +100,18 @@ export default withMermaid({
       assetsInlineLimit: (filePath) => (imageMime(filePath) === undefined ? undefined : false),
     },
     optimizeDeps: {
-      // mermaid is only imported behind a <ClientOnly> component, so Vite's
-      // dependency scanner never discovers it and its CJS deps (e.g. fastdom)
-      // get served unbundled, which breaks on their missing default export.
-      include: ['mermaid'],
+      include: [
+        'mermaid',
+        '@unhead/vue/client',
+        'vitepress-plugin-tabs/client',
+        '@fortawesome/vue-fontawesome',
+        '@fortawesome/free-solid-svg-icons',
+        'echarts/core',
+        'echarts/charts',
+        'echarts/components',
+        'echarts/renderers',
+        'vue-echarts',
+      ],
     },
     server: {
       allowedHosts: true,
@@ -126,6 +134,9 @@ export default withMermaid({
     image: { lazyLoad: true },
     config(md) {
       md.use(tabsMarkdownPlugin);
+
+      md.renderer.rules.table_open = () => '<div class="m-table"><table>\n';
+      md.renderer.rules.table_close = () => '</table></div>\n';
 
       const defaultCodeInline = md.renderer.rules.code_inline!;
       md.renderer.rules.code_inline = (tokens, idx, options, env, self) => {

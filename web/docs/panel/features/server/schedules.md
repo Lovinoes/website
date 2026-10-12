@@ -7,13 +7,13 @@ description: Automate your Calagopus server with schedules, combining cron and e
 
 Schedules automate work on your server. Each schedule combines **triggers** (when it fires), an optional **pre-condition** (checked right before it runs), and an ordered list of **actions** (what it actually does). The subtitle shows your usage against the server's [feature limit](../admin/servers.md#feature-limits), e.g. "1 of 15 maximum schedules created."
 
-![](./images/schedules/list.webp)
+![Schedules page listing a Daily Backups schedule with last run, status, and the Create button](./images/schedules/list.webp)
 
 The list shows each schedule's name, **Last Run**, **Last Failure**, **Status** (**Active** or **Inactive**), and **Created** timestamps. Click a row to open the schedule, or right-click it for **Run Now**, **Export**, **Duplicate**, and **Delete**. **Duplicate** is disabled once the server has reached its schedule limit.
 
 **View Calendar** opens the **Upcoming Runs Calendar**, which plots upcoming cron runs in a day, week, or month view. Click an entry to jump to its schedule.
 
-![](./images/schedules/calendar.webp)
+![Upcoming Runs Calendar in week view with Daily Backups runs shown across several days](./images/schedules/calendar.webp)
 
 ::: info
 What a subuser can do here is controlled by the `schedules` permission group. See the [Permissions Reference](../dashboard/permissions.md#schedules).
@@ -23,7 +23,7 @@ What a subuser can do here is controlled by the `schedules` permission group. Se
 
 Click **Create**. A schedule starts with a **Schedule Name**, an **Enabled** toggle, and any number of triggers added via **Add Trigger**. Saving takes you straight to the schedule's page, where you add actions. The same form opens later via **Edit** on the schedule's page.
 
-![](./images/schedules/create-form.webp)
+![Create Schedule dialog with name, Enabled toggle, and an Add Trigger button](./images/schedules/create-form.webp)
 
 A disabled schedule ignores its triggers and can't be run manually until re-enabled.
 
@@ -73,7 +73,7 @@ Opening a schedule shows its name with an **Active**/**Inactive** badge, a **Run
 
 **Run Now** offers two modes: **Run now (check conditions first)** and **Run now (ignore conditions)**. The button is disabled while the schedule itself is disabled ("Cannot run a disabled schedule").
 
-![](./images/schedules/actions.webp)
+![Schedule page Actions tab showing a Delete Files step for logs/ with Run Now and Edit buttons](./images/schedules/actions.webp)
 
 ### Actions
 
@@ -83,7 +83,7 @@ Each step's menu offers **Edit**, **Duplicate**, and **Delete**. **Duplicate** i
 
 Steps are picked from a searchable **Action Type** list, organized into five groups.
 
-![](./images/schedules/step-picker.webp)
+![Create Schedule Step dialog with the Action Type dropdown open showing server actions](./images/schedules/step-picker.webp)
 
 Most steps have an **Ignore Failure** switch to let the schedule carry on if that step fails. Long-running operations (backups, file copies, archives) additionally have **Run in Foreground**, which makes the schedule wait for the operation to finish before moving on.
 
@@ -180,7 +180,7 @@ For admins: HTTP Request steps are sent from the node, and Wings enforces node-l
 
 The **Schedule Pre-Conditions** tab defines a condition checked before the schedule runs (unless triggered with **Run now (ignore conditions)**). Build it with the **Condition Type** select; the combinators **AND (All must be true)**, **OR (Any must be true)**, and **NOT (Must not be true)** nest further conditions via **Add Condition**, up to three levels deep.
 
-![](./images/schedules/conditions.webp)
+![Schedule Conditions tab with a Resource Usage pre-condition for disk usage at or above 40 GiB](./images/schedules/conditions.webp)
 
 | Condition | Checks |
 | --- | --- |

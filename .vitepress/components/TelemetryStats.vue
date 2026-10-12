@@ -2,6 +2,8 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { formatCount } from '../lib/format.ts';
 import BenchChart from './BenchChart.vue';
+import Card from './ui/Card.vue';
+import SegmentedControl from './ui/SegmentedControl.vue';
 
 interface DayPoint {
   day: string;
@@ -174,10 +176,10 @@ const historyOption = computed(() => {
 
     <template v-else>
       <div class="tiles">
-        <div v-for="tile in tiles" :key="tile.label" class="tile">
+        <Card v-for="tile in tiles" :key="tile.label">
           <div class="tile-value">{{ tile.value }}</div>
           <div class="tile-label">{{ tile.label }}</div>
-        </div>
+        </Card>
       </div>
 
       <p class="generated">
@@ -185,30 +187,17 @@ const historyOption = computed(() => {
       </p>
 
       <div class="filters">
-        <div class="filter-group" role="group" aria-label="Metric">
-          <button
-            v-for="entry in METRICS"
-            :key="entry.id"
-            type="button"
-            class="chip"
-            :class="{ active: metric === entry.id }"
-            @click="metric = entry.id"
-          >
-            {{ entry.label }}
-          </button>
-        </div>
-        <div class="filter-group" role="group" aria-label="Time range">
-          <button
-            v-for="entry in RANGES"
-            :key="entry.id"
-            type="button"
-            class="chip"
-            :class="{ active: range === entry.id }"
-            @click="selectRange(entry.id)"
-          >
-            {{ entry.label }}
-          </button>
-        </div>
+        <SegmentedControl
+          v-model="metric"
+          :data="METRICS.map((entry) => ({ value: entry.id, label: entry.label }))"
+          aria-label="Metric"
+        />
+        <SegmentedControl
+          :model-value="range"
+          :data="RANGES.map((entry) => ({ value: entry.id, label: entry.label }))"
+          aria-label="Time range"
+          @update:model-value="selectRange"
+        />
       </div>
 
       <p class="chart-title">{{ activeMetric.label }}, daily</p>
@@ -238,12 +227,6 @@ const historyOption = computed(() => {
   }
 }
 
-.tile {
-  border: 1px solid var(--vp-c-divider);
-  border-radius: 8px;
-  padding: 16px;
-}
-
 .tile-value {
   font-size: 28px;
   font-weight: 700;
@@ -268,33 +251,6 @@ const historyOption = computed(() => {
   flex-wrap: wrap;
   gap: 16px;
   margin: 24px 0 16px;
-}
-
-.filter-group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.chip {
-  border: 1px solid var(--vp-c-divider);
-  border-radius: 6px;
-  padding: 4px 10px;
-  font-size: 13px;
-  color: var(--vp-c-text-2);
-  background: transparent;
-  cursor: pointer;
-}
-
-.chip:hover {
-  border-color: var(--vp-c-brand-1);
-  color: var(--vp-c-text-1);
-}
-
-.chip.active {
-  border-color: var(--vp-c-brand-1);
-  color: var(--vp-c-brand-1);
-  font-weight: 600;
 }
 
 .chart-title {

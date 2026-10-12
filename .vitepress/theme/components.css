@@ -1,0 +1,404 @@
+:root {
+  --collapsible-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 448 512'%3E%3Cpath d='M201.4 406.6c12.5 12.5 32.8 12.5 45.3 0l192-192c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 338.7 54.6 169.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l192 192z'/%3E%3C/svg%3E");
+}
+
+.m-collapsible,
+.vp-doc .custom-block.details {
+  interpolate-size: allow-keywords;
+  margin: 1rem 0;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--mantine-color-default-border);
+  border-radius: var(--mantine-radius-md);
+  background-color: transparent;
+  color: var(--mantine-color-text);
+  transition: background-color 150ms ease;
+}
+
+.m-collapsible[open],
+.vp-doc .custom-block.details[open] {
+  background-color: var(--mantine-color-default);
+}
+
+.m-collapsible::details-content,
+.vp-doc .custom-block.details::details-content {
+  block-size: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition:
+    block-size 200ms ease,
+    opacity 200ms ease,
+    content-visibility 200ms allow-discrete;
+}
+
+.m-collapsible[open]::details-content,
+.vp-doc .custom-block.details[open]::details-content {
+  block-size: auto;
+  opacity: 1;
+}
+
+.m-collapsible > summary,
+.vp-doc .custom-block.details > summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 10px 14px;
+  font-size: var(--mantine-font-size-sm);
+  font-weight: 500;
+  line-height: var(--mantine-line-height);
+  color: var(--mantine-color-dimmed);
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+  transition: color 150ms ease;
+}
+
+.m-collapsible[open] > summary,
+.vp-doc .custom-block.details[open] > summary {
+  color: var(--mantine-color-text);
+}
+
+.m-collapsible > summary::-webkit-details-marker,
+.vp-doc .custom-block.details > summary::-webkit-details-marker {
+  display: none;
+}
+
+.m-collapsible > summary::after,
+.vp-doc .custom-block.details > summary::after {
+  content: "";
+  flex-shrink: 0;
+  width: 0.75em;
+  height: 0.75em;
+  margin-inline-start: auto;
+  background-color: var(--mantine-color-gray-6);
+  mask: var(--collapsible-chevron) center / contain no-repeat;
+  transform: rotate(-90deg);
+  transition: transform 150ms ease;
+}
+
+.m-collapsible[open] > summary::after,
+.vp-doc .custom-block.details[open] > summary::after {
+  transform: rotate(0deg);
+}
+
+.m-collapsible-icon {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background-color: var(--mantine-color-default-hover);
+  color: var(--mantine-color-gray-5);
+  transition: background 150ms ease;
+}
+
+.m-collapsible[open] .m-collapsible-icon {
+  background-color: var(--mantine-color-blue-9);
+  color: var(--mantine-color-blue-2);
+}
+
+.m-collapsible-body {
+  padding: 4px var(--mantine-spacing-sm) var(--mantine-spacing-sm);
+}
+
+.vp-doc .custom-block.details > :not(summary) {
+  margin-inline: var(--mantine-spacing-sm);
+}
+
+.vp-doc .custom-block.details > summary + * {
+  margin-top: 4px;
+}
+
+.vp-doc .custom-block.details > :last-child:not(summary) {
+  margin-bottom: var(--mantine-spacing-sm);
+}
+
+/* Markdown tables, wrapped in .m-table by the markdown renderer (config.mts). */
+
+.m-table {
+  --table-border-color: var(--mantine-color-gray-3);
+  --table-hover-color: var(--mantine-color-gray-1);
+
+  margin: 1.25rem 0;
+  overflow-x: auto;
+  border: 1px solid var(--mantine-color-default-border);
+  border-radius: var(--mantine-radius-md);
+  background-color: var(--mantine-color-default);
+}
+
+.m-table[data-flush] {
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  background-color: transparent;
+}
+
+.dark .m-table {
+  --table-border-color: var(--mantine-color-dark-4);
+  --table-hover-color: var(--mantine-color-dark-5);
+}
+
+.vp-doc .m-table table {
+  display: table;
+  width: 100%;
+  margin: 0;
+  overflow: visible;
+  border-collapse: collapse;
+  font-size: var(--mantine-font-size-sm);
+  line-height: var(--mantine-line-height);
+}
+
+.vp-doc .m-table tr,
+.vp-doc .m-table tr:nth-child(2n) {
+  border-top: none;
+  border-bottom: 1px solid var(--table-border-color);
+  background-color: transparent;
+  transition: none;
+}
+
+.vp-doc .m-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+@media (hover: hover) {
+  .vp-doc .m-table tbody tr:hover {
+    background-color: var(--table-hover-color);
+  }
+}
+
+.vp-doc .m-table th,
+.vp-doc .m-table td {
+  padding: 7px var(--mantine-spacing-xs);
+  border: none;
+  font-size: var(--mantine-font-size-sm);
+}
+
+.vp-doc .m-table th {
+  font-weight: 700;
+  color: var(--mantine-color-text);
+  background-color: transparent;
+}
+
+/* VitePress custom blocks as Mantine light Alerts, matching ui/Alert.vue. */
+
+:root {
+  --vp-custom-block-info-bg: var(--mantine-color-gray-light);
+  --vp-custom-block-note-bg: var(--mantine-color-blue-light);
+  --vp-custom-block-tip-bg: var(--mantine-color-blue-light);
+  --vp-custom-block-important-bg: var(--mantine-color-violet-light);
+  --vp-custom-block-warning-bg: var(--mantine-color-yellow-light);
+  --vp-custom-block-caution-bg: var(--mantine-color-orange-light);
+  --vp-custom-block-danger-bg: var(--mantine-color-red-light);
+}
+
+.vp-doc .custom-block:not(.details) {
+  --alert-color: var(--mantine-color-gray-light-color);
+
+  padding: var(--mantine-spacing-md);
+  border: 1px solid transparent;
+  border-radius: var(--mantine-radius-default);
+  font-size: var(--mantine-font-size-sm);
+  line-height: var(--mantine-line-height);
+  color: var(--mantine-color-bright);
+}
+
+.vp-doc .custom-block.note,
+.vp-doc .custom-block.tip {
+  --alert-color: var(--mantine-color-blue-light-color);
+}
+
+.vp-doc .custom-block.important {
+  --alert-color: var(--mantine-color-violet-light-color);
+}
+
+.vp-doc .custom-block.warning {
+  --alert-color: var(--mantine-color-yellow-light-color);
+}
+
+.vp-doc .custom-block.caution {
+  --alert-color: var(--mantine-color-orange-light-color);
+}
+
+.vp-doc .custom-block.danger {
+  --alert-color: var(--mantine-color-red-light-color);
+}
+
+.vp-doc .custom-block:not(.details) .custom-block-title {
+  margin: 0 0 var(--mantine-spacing-xs);
+  font-weight: var(--mantine-font-weight-bold);
+  color: var(--alert-color);
+}
+
+.vp-doc .custom-block:not(.details) > :first-child {
+  margin-top: 0;
+}
+
+.vp-doc .custom-block:not(.details) > :last-child {
+  margin-bottom: 0;
+}
+
+.vp-doc .custom-block:not(.details) code {
+  background-color: var(--vp-code-bg);
+}
+
+/* vitepress-plugin-tabs and `::: code-group` as Mantine default-variant Tabs. */
+
+:root {
+  --tab-border-color: var(--mantine-color-gray-3);
+  --tab-hover-color: var(--mantine-color-gray-0);
+}
+
+.dark {
+  --tab-border-color: var(--mantine-color-dark-4);
+  --tab-hover-color: var(--mantine-color-dark-6);
+}
+
+.vp-doc .plugin-tabs {
+  background-color: transparent;
+  border-radius: 0;
+}
+
+.vp-doc .plugin-tabs .plugin-tabs--tab-list,
+.vp-doc .vp-code-group .tabs {
+  display: flex;
+  flex-wrap: wrap;
+  overflow: visible;
+}
+
+.vp-doc .plugin-tabs .plugin-tabs--tab-list {
+  padding: 0;
+}
+
+.vp-doc .plugin-tabs .plugin-tabs--tab-list::after {
+  height: 2px;
+  background-color: var(--tab-border-color);
+}
+
+.vp-doc .plugin-tabs .plugin-tabs--tab,
+.vp-doc .vp-code-group .tabs label {
+  padding: var(--mantine-spacing-xs) var(--mantine-spacing-md);
+  border-bottom: none;
+  border-radius: var(--mantine-radius-default) var(--mantine-radius-default) 0 0;
+  font-size: var(--mantine-font-size-sm);
+  font-weight: var(--mantine-font-weight-regular);
+  line-height: 1;
+  color: var(--mantine-color-text);
+}
+
+.vp-doc .plugin-tabs .plugin-tabs--tab::after,
+.vp-doc .vp-code-group .tabs label::after {
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  border-radius: 0;
+  transition: none;
+}
+
+.vp-doc .plugin-tabs .plugin-tabs--tab[aria-selected="true"]::after,
+.vp-doc .vp-code-group .tabs input:checked + label::after {
+  background-color: var(--mantine-primary-color-filled);
+}
+
+@media (hover: hover) {
+  .vp-doc .plugin-tabs .plugin-tabs--tab:hover,
+  .vp-doc .vp-code-group .tabs label:hover {
+    background-color: var(--tab-hover-color);
+    color: var(--mantine-color-text);
+  }
+
+  .vp-doc .plugin-tabs .plugin-tabs--tab:not([aria-selected="true"]):hover::after,
+  .vp-doc .vp-code-group .tabs input:not(:checked) + label:hover::after {
+    background-color: var(--tab-border-color);
+  }
+}
+
+.vp-doc .plugin-tabs .plugin-tabs--content {
+  padding: var(--mantine-spacing-md) 0 0;
+}
+
+.vp-doc .vp-code-group .tabs {
+  padding: 0;
+  box-shadow: inset 0 -2px var(--tab-border-color);
+}
+
+.vp-doc .vp-code-group .tabs label {
+  color: var(--vp-code-tab-text-color);
+}
+
+.vp-doc .vp-code-group .tabs input:checked + label {
+  color: var(--vp-code-tab-active-text-color);
+}
+
+/* The plugin repaints light-mode code blocks in its tabs with the page background, which is grey here. */
+:root:not(.dark)
+  .vp-doc
+  .plugin-tabs:not([data-variant="code"])
+  .plugin-tabs--content.plugin-tabs--content
+  div[class*="language-"] {
+  background-color: var(--vp-code-block-bg);
+}
+
+/* VitePress <Badge> as a Mantine light/outline Badge (used e.g. for Required/Optional field headings). */
+
+.vp-doc .VPBadge,
+.VPBadge {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  margin-left: var(--mantine-spacing-xs);
+  padding: 0 10px;
+  border: 1px solid transparent;
+  border-radius: 1000px;
+  font-size: 11px;
+  font-weight: var(--mantine-font-weight-medium);
+  line-height: 18px;
+  letter-spacing: 0.25px;
+  text-transform: uppercase;
+  vertical-align: middle;
+  transform: none;
+}
+
+.vp-doc :is(h1, h2, h3, h4, h5, h6):has(> .VPBadge) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: var(--mantine-spacing-xs);
+}
+
+.vp-doc :is(h1, h2, h3, h4, h5, h6) > .VPBadge {
+  margin: 0;
+  padding: 0 10px;
+  line-height: 18px;
+}
+
+.VPBadge.tip,
+.VPBadge.note {
+  background-color: var(--mantine-color-blue-light);
+  color: var(--mantine-color-blue-light-color);
+}
+
+.VPBadge.info {
+  border-color: var(--mantine-color-gray-outline);
+  background-color: transparent;
+  color: var(--mantine-color-gray-outline);
+}
+
+.VPBadge.warning {
+  background-color: var(--mantine-color-yellow-light);
+  color: var(--mantine-color-yellow-light-color);
+}
+
+.VPBadge.danger,
+.VPBadge.caution {
+  background-color: var(--mantine-color-red-light);
+  color: var(--mantine-color-red-light-color);
+}
+
+.VPBadge.important {
+  background-color: var(--mantine-color-violet-light);
+  color: var(--mantine-color-violet-light-color);
+}

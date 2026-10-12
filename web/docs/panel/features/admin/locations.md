@@ -15,7 +15,7 @@ You need at least one location before you can create nodes; the Nodes page promp
 
 The list shows each location's ID, Name (with its flag, if set), Backup Configuration, and Created timestamp. Click an ID to open the location.
 
-![](./images/locations/list.webp)
+![Admin location list with Frankfurt and Vienna, their flags, backup configuration, and a Create button](./images/locations/list.webp)
 
 ## Creating a Location
 
@@ -28,7 +28,7 @@ Click **Create** in the top right (requires `locations.create`).
 | **Description** | Optional notes. |
 | **Flag** | Optional country flag shown next to the name across the admin area. |
 
-<img src="./images/locations/flags.webp" width="399" alt="" />
+<img src="./images/locations/flags.webp" width="399" alt="Flag dropdown open with Germany selected and a scrollable list of country flags" />
 
 Hit **Save**, or **Save & Stay** to keep the form open for creating another.
 
@@ -42,7 +42,7 @@ Opening a location shows four tabs: **General**, **Database Hosts**, **Database 
 
 ### General
 
-![](./images/locations/general.webp)
+![Frankfurt location General tab with the Update Location form, Save, Duplicate, and Delete buttons](./images/locations/general.webp)
 
 The same form as creating, plus:
 
@@ -53,7 +53,7 @@ The same form as creating, plus:
 
 Database hosts attached here are offered to every node in the location. Click **Add** and pick a host from the list (grouped by type). Deleting a row only detaches the host from the location, the host itself keeps existing.
 
-![](./images/locations/database-hosts.webp)
+![Location Database Hosts tab listing a MariaDB and a PostgreSQL host with an Add button](./images/locations/database-hosts.webp)
 
 See [Setting up Database Hosts](../../../additional/database-hosts/index.md) for creating the hosts themselves.
 
@@ -61,10 +61,10 @@ See [Setting up Database Hosts](../../../additional/database-hosts/index.md) for
 
 Same pattern for [database agent](../../../db-agent/index.md) hosts: **Add** attaches an existing agent host to the location, deleting a row detaches it.
 
-![](./images/locations/database-agent-hosts.webp)
+![Location Database Agent Hosts tab listing one Local agent host with an Add button](./images/locations/database-agent-hosts.webp)
 
 ### Nodes
 
 A read-only list of the nodes assigned to this location, in the same format as the main [Nodes](./nodes.md) list.
 
-![](./images/locations/nodes.webp)
+![Location Nodes tab listing four nodes with health, deployment status, and location](./images/locations/nodes.webp)

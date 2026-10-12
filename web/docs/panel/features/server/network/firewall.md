@@ -21,7 +21,7 @@ Anything that matches no rule at all is **allowed**. The page warns about this:
 
 The **Deny Everything Else** button next to that warning appends a deny rule with no protocols, no sources and no ports, so it matches everything the rules above it didn't. Put your allow rules above it and the server is closed by default.
 
-![](./images/firewall/rules.webp)
+![Firewall tab with two Allow rules and a final Deny rule, plus the Add Rule button](./images/firewall/rules.webp)
 
 The ruleset above does exactly that: one rule allowing whatever a source file lists, one allowing a single address, and a catch-all deny beneath them.
 
@@ -39,7 +39,7 @@ The ruleset above does exactly that: one rule allowing whatever a source file li
 
 Each rule card summarizes itself in the form *protocols* from *sources* to *ports*, falling back to "TCP & UDP", "any source" and "all allocations" for the empty cases. A source file shows up in that summary as *file firewall/allowed.txt*. Right-click a rule to edit, or use its card menu to remove it.
 
-<img src="./images/firewall/rule-form.webp" width="220" alt="" />
+<img src="./images/firewall/rule-form.webp" width="220" alt="Create Firewall Rule dialog with action, protocols, sources, source file, and ports fields" />
 
 ## Source Files
 

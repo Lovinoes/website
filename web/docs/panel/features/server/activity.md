@@ -7,7 +7,7 @@ description: The audit log for a single Calagopus server, covering who did what,
 
 Activity is the audit log for this server: every action, who performed it, the IP it came from, and when. Like most tables in the panel, it's paginated and searchable. Viewing it requires the `activity.read` permission; for the account-wide log, see the dashboard's [Activity](../dashboard/activity.md) page.
 
-![](./images/activity/list.webp)
+![Activity page listing actors, event names, IP addresses, and timestamps with detail buttons](./images/activity/list.webp)
 
 Events are namespaced keys, which makes them easy to search: `server:power.restart`, `server:console.command`, `server:file.write`, `server:allocation.update`, `server:database.update`, `server:subuser.create`, and so on. Everything from power actions down to individual file reads gets a row.
 
@@ -21,7 +21,7 @@ Click an actor's username to filter the log to just that user; a **Clear User Fi
 
 The **IP** column shows the address the request came from; seeing it needs the extra `activity.read-ip` permission, without which every row reads "N/A" (as do events that never had an IP). An administrator can also hide addresses from everyone but the user who made the request, with [Hide Server Activity IPs](../admin/settings.md#activity). Rows with extra metadata have an info button at the end that opens an **Activity Details** modal with the raw JSON, and `server:file.write` rows link straight to that revision in the file editor's diff view.
 
-<img src="./images/activity/details-modal.webp" width="310" alt="" />
+<img src="./images/activity/details-modal.webp" width="310" alt="Activity Details dialog showing a JSON payload for a database instance start" />
 
 ::: info
 Server activity is pruned automatically. Retention defaults to 90 days; instance administrators can change it, cap the number of entries kept, and toggle whether admin and schedule actions are logged at all under [Settings > Activity](../admin/settings.md#activity).

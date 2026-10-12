@@ -6,6 +6,10 @@ description: Performance benchmarks comparing the Calagopus daemon with Pterodac
 <script setup>
 import { computed, ref } from 'vue'
 import BenchChart from '../../../.vitepress/components/BenchChart.vue'
+import Alert from '../../../.vitepress/components/ui/Alert.vue'
+import Badge from '../../../.vitepress/components/ui/Badge.vue'
+import Card from '../../../.vitepress/components/ui/Card.vue'
+import SegmentedControl from '../../../.vitepress/components/ui/SegmentedControl.vue'
 import {
   daemonChartSystems,
   daemonCpuOptions,
@@ -143,60 +147,35 @@ For the web panel and its API, see [panel benchmarks](./benchmarks.md).
 <div class="toolbar">
   <div class="toolbar-row">
     <div class="filter-chips">
-      <span v-for="id in daemonIds" :key="id" class="filter-chip static">
-        <span class="chip-dot" :style="{ background: daemons[id].color }"></span>
-        <span class="chip-name">{{ daemons[id].name }}</span>
-      </span>
+      <Badge v-for="id in daemonIds" :key="id" variant="dot" size="lg" :dot-color="daemons[id].color">{{ daemons[id].name }}</Badge>
     </div>
-    <div class="segmented" role="group" aria-label="CPU limit">
+    <div class="segmented">
       <span class="segmented-label">CPU limit</span>
-      <button
-        v-for="c in daemonCpuOptions"
-        :key="c"
-        type="button"
-        class="segment"
-        :class="{ active: selectedCpus === c }"
-        :aria-pressed="selectedCpus === c"
-        @click="selectedCpus = c"
-      >{{ c }}</button>
+      <SegmentedControl v-model="selectedCpus" :data="daemonCpuOptions" size="xs" aria-label="CPU limit" />
     </div>
   </div>
 </div>
 <p class="panel-hint lead-hint">Archive and file work comes first, since those are the operations users wait on. Dots match the bar colours. <a href="#test-setup">How this was measured</a></p>
 
-<div v-if="daemonPendingSystems.length" class="pending-note">
-  <strong>Re-run in progress.</strong>
+<Alert v-if="daemonPendingSystems.length" title="Re-run in progress" class="pending-note">
   {{ daemonPendingSystems.map((s) => s.name).join(', ') }}
   {{ daemonPendingSystems.length === 1 ? 'has' : 'have' }} not been re-measured on this run yet and
   {{ daemonPendingSystems.length === 1 ? 'is' : 'are' }} not charted below.
-</div>
+</Alert>
 
 ## Archive performance
 
-<div class="chart-card">
+<Card class="chart-card">
   <div class="chart-cap">
-    <div class="segmented" role="group" aria-label="Archive statistic">
-      <button type="button" class="segment" :class="{ active: archiveStat === 'median' }" :aria-pressed="archiveStat === 'median'" @click="archiveStat = 'median'">wall clock</button>
-      <button type="button" class="segment" :class="{ active: archiveStat === 'rate' }" :aria-pressed="archiveStat === 'rate'" @click="archiveStat = 'rate'">throughput</button>
-    </div>
-    <div class="segmented" role="group" aria-label="Scenario">
-      <button
-        v-for="s in archiveScenarios"
-        :key="s.name"
-        type="button"
-        class="segment"
-        :class="{ active: selectedArchive === s.name }"
-        :aria-pressed="selectedArchive === s.name"
-        @click="selectedArchive = s.name"
-      >{{ s.name }}</button>
-    </div>
+    <SegmentedControl v-model="archiveStat" :data="[{ value: 'median', label: 'wall clock' }, { value: 'rate', label: 'throughput' }]" size="xs" aria-label="Archive statistic" />
+    <SegmentedControl v-model="selectedArchive" :data="archiveScenarios.map((s) => s.name)" size="xs" aria-label="Scenario" />
   </div>
   <p class="chart-sub">{{ archiveStat === 'median' ? '↓ Lower is better - median wall clock for one run.' : '↑ Higher is better - bytes processed per second.' }}</p>
   <template v-for="s in archiveCharts" :key="`arc-${s.name}`">
     <BenchChart :option="s.median" :height="chartHeight" :active="s.name === selectedArchive && archiveStat === 'median'" />
     <BenchChart :option="s.rate" :height="chartHeight" :active="s.name === selectedArchive && archiveStat === 'rate'" />
   </template>
-</div>
+</Card>
 
 ::: tip Where the archive difference comes from
 Mostly the deflate implementation: Calagopus uses zlib-ng and splits the work across a small thread pool (`api.file_compression_threads`), where both Wings builds run pgzip on one thread.
@@ -206,22 +185,12 @@ Mostly the deflate implementation: Calagopus uses zlib-ng and splits the work ac
 
 <div class="table-controls">
   <p class="panel-hint">Every task scenario, timed one at a time. Median wall clock, with transfer rate, CPU cost per run and peak memory underneath.</p>
-  <div class="segmented" role="group" aria-label="System">
-    <button
-      v-for="(sys, i) in daemonChartSystems"
-      :key="sys.id"
-      type="button"
-      class="segment"
-      :class="{ active: selectedSystem === i }"
-      :aria-pressed="selectedSystem === i"
-      @click="selectedSystem = i"
-    >{{ sys.shortName }}</button>
-  </div>
+  <SegmentedControl v-model="selectedSystem" :data="daemonChartSystems.map((sys, i) => ({ value: i, label: sys.shortName }))" size="xs" aria-label="System" />
 </div>
 
 <div class="task-family" v-for="family in taskTables" :key="family.label">
   <p class="caveat-head">{{ family.label }}</p>
-  <div class="task-scroll">
+  <div class="m-table">
     <table class="task-table">
       <thead>
         <tr>
@@ -244,30 +213,20 @@ Mostly the deflate implementation: Calagopus uses zlib-ng and splits the work ac
 
 ## Memory
 
-<div class="chart-card">
+<Card class="chart-card">
   <div class="chart-cap"><span>Resting (idle)</span></div>
   <p class="chart-sub">↓ Lower is better - footprint with no traffic, sampled before the run.</p>
   <BenchChart :option="idleMem" :height="chartHeight" />
-</div>
+</Card>
 
-<div class="chart-card">
+<Card class="chart-card">
   <div class="chart-cap">
     <span>Peak while serving</span>
-    <div class="segmented" role="group" aria-label="Scenario">
-      <button
-        v-for="s in loadScenarios"
-        :key="s.name"
-        type="button"
-        class="segment"
-        :class="{ active: selectedLoad === s.name }"
-        :aria-pressed="selectedLoad === s.name"
-        @click="selectedLoad = s.name"
-      >{{ s.name }}</button>
-    </div>
+    <SegmentedControl v-model="selectedLoad" :data="loadScenarios.map((s) => s.name)" size="xs" aria-label="Scenario" />
   </div>
   <p class="chart-sub">↓ Lower is better - peak footprint while serving this scenario.</p>
   <BenchChart v-for="s in loadCharts" :key="`mem-${s.name}`" :option="s.peakMem" :height="chartHeight" :active="s.name === selectedLoad" />
-</div>
+</Card>
 
 ## Request scenarios
 
@@ -277,66 +236,36 @@ The daemon competes with your game servers for the same CPU. A game server that 
 
 ### Throughput
 
-<div class="chart-card">
+<Card class="chart-card">
   <div class="chart-cap">
     <span>Requests per second</span>
-    <div class="segmented" role="group" aria-label="Scenario">
-      <button
-        v-for="s in loadScenarios"
-        :key="s.name"
-        type="button"
-        class="segment"
-        :class="{ active: selectedLoad === s.name }"
-        :aria-pressed="selectedLoad === s.name"
-        @click="selectedLoad = s.name"
-      >{{ s.name }}</button>
-    </div>
+    <SegmentedControl v-model="selectedLoad" :data="loadScenarios.map((s) => s.name)" size="xs" aria-label="Scenario" />
   </div>
   <p class="chart-sub">↑ Higher is better - more requests served per second.</p>
   <BenchChart v-for="s in loadCharts" :key="`rps-${s.name}`" :option="s.rps" :height="chartHeight" :active="s.name === selectedLoad" />
-</div>
+</Card>
 
 ### Average latency
 
-<div class="chart-card">
+<Card class="chart-card">
   <div class="chart-cap">
     <span>Mean response time</span>
-    <div class="segmented" role="group" aria-label="Scenario">
-      <button
-        v-for="s in loadScenarios"
-        :key="s.name"
-        type="button"
-        class="segment"
-        :class="{ active: selectedLoad === s.name }"
-        :aria-pressed="selectedLoad === s.name"
-        @click="selectedLoad = s.name"
-      >{{ s.name }}</button>
-    </div>
+    <SegmentedControl v-model="selectedLoad" :data="loadScenarios.map((s) => s.name)" size="xs" aria-label="Scenario" />
   </div>
   <p class="chart-sub">↓ Lower is better - faster average response.</p>
   <BenchChart v-for="s in loadCharts" :key="`lat-${s.name}`" :option="s.latMean" :height="chartHeight" :active="s.name === selectedLoad" />
-</div>
+</Card>
 
 ### CPU cost per request
 
-<div class="chart-card">
+<Card class="chart-card">
   <div class="chart-cap">
     <span>CPU time per response</span>
-    <div class="segmented" role="group" aria-label="Scenario">
-      <button
-        v-for="s in loadScenarios"
-        :key="s.name"
-        type="button"
-        class="segment"
-        :class="{ active: selectedLoad === s.name }"
-        :aria-pressed="selectedLoad === s.name"
-        @click="selectedLoad = s.name"
-      >{{ s.name }}</button>
-    </div>
+    <SegmentedControl v-model="selectedLoad" :data="loadScenarios.map((s) => s.name)" size="xs" aria-label="Scenario" />
   </div>
   <p class="chart-sub">↓ Lower is better - less CPU burned per response, with the idle floor removed.</p>
   <BenchChart v-for="s in loadCharts" :key="`cpu-${s.name}`" :option="s.cpuCost" :height="chartHeight" :active="s.name === selectedLoad" />
-</div>
+</Card>
 
 ## Test setup
 
@@ -351,21 +280,21 @@ Memory is `anon + shmem`, excluding page cache and slab. `cpu-ms` is CPU time pe
 ### Daemons tested
 
 <div class="panel-strip wide">
-  <div v-for="id in daemonIds" :key="id" class="panel-chip">
+  <Card v-for="id in daemonIds" :key="id" padding="xs" class="panel-chip">
     <span class="chip-dot" :style="{ background: daemons[id].color }"></span>
     <img :src="daemons[id].icon" :alt="''" height="16" />
     <span class="chip-name">{{ daemons[id].name }}</span>
     <code v-if="daemonVersions[id]" class="chip-version">{{ daemonVersions[id] }}</code>
-  </div>
+  </Card>
 </div>
 
-<div v-if="gaps.length" class="caveats">
+<Card v-if="gaps.length" class="caveats">
   <p class="caveat-head">Capability gaps</p>
   <p class="caveat">Where a daemon cannot perform a scenario the suite skips it rather than recording a zero, so these are missing features, not missing measurements.</p>
   <p v-for="gap in gaps" :key="gap.name" class="caveat">
     <code>{{ gap.name }}</code> is not supported by {{ gap.who }}
   </p>
-</div>
+</Card>
 
 ## Data
 
@@ -393,18 +322,6 @@ Every figure here comes from the suite's JSON reports (`pnpm run bench <target> 
 .toolbar-row {
   flex-wrap: wrap;
   margin-top: 0;
-}
-
-.filter-chip.static {
-  cursor: default;
-}
-
-.filter-chip.static:hover {
-  border-color: var(--vp-c-divider);
-}
-
-.filter-chip.static:active {
-  transform: none;
 }
 
 .lead-hint {
@@ -436,20 +353,8 @@ Every figure here comes from the suite's JSON reports (`pnpm run bench <target> 
   margin: 1.4rem 0;
 }
 
-.task-scroll {
-  overflow-x: auto;
-}
-
-.task-table {
-  border-collapse: collapse;
-  width: 100%;
-  font-size: 0.8rem;
-}
-
 .task-table th,
 .task-table td {
-  padding: 0.45rem 0.7rem;
-  border: 1px solid var(--vp-c-divider);
   text-align: right;
   white-space: nowrap;
   font-feature-settings: 'tnum';

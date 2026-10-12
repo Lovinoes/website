@@ -9,7 +9,7 @@ An egg configuration is a named bundle of optional behavior plus a matcher that 
 
 The list shows ID, **Order**, Name, **Applies To** (a summary of the matcher, such as `Eggs (3)`), and Created. Use the search box to filter.
 
-![](./images/egg-configurations/list.webp)
+![Admin egg configuration list with order, name, and Applies To columns and a Create button](./images/egg-configurations/list.webp)
 
 ## How Configurations Stack
 
@@ -23,7 +23,7 @@ If no configuration defines a section, the built-in defaults apply: self-assign 
 
 Click **Create**, or open a configuration's ID to edit it. The base fields are **Name**, **Order**, **Description**, and **Applies To**, the matcher described below.
 
-![](./images/egg-configurations/create-form.webp)
+![Create Egg Configuration form with name, order, Eggs matcher, and collapsed configuration sections](./images/egg-configurations/create-form.webp)
 
 ### Applies To
 
@@ -41,7 +41,7 @@ Pick a **Matcher Type**:
 | **Nodes** | The server runs on one of the selected nodes | nodes |
 | **Locations** | The server's node is in one of the selected locations | locations |
 
-![](./images/egg-configurations/matcher.webp)
+![Applies To section with an AND matcher combining a Nests matcher and a Locations matcher](./images/egg-configurations/matcher.webp)
 
 New configurations start with an empty **Eggs** matcher. Each list holds up to 100 entries, and AND, OR and NOT groups nest at most three levels deep. If your panel has no eggs yet, an **Eggs** or **Nests** matcher shows a warning that there is nothing to select until a nest and egg exist.
 
@@ -51,7 +51,7 @@ Below are four collapsible sections. Each has an enable toggle; a disabled secti
 
 ### Allocation Configuration
 
-![](./images/egg-configurations/allocation-config.webp)
+![Allocation Configuration section with self-assign, primary allocation, port range, and Additional Ports settings](./images/egg-configurations/allocation-config.webp)
 
 The top half controls what users can do on their server's [Network page](../server/network/index.md):
 
@@ -64,13 +64,13 @@ The **Deployment** half controls automatic allocation assignment when servers ar
 - **Primary Allocation**: pick the primary port from a **Primary Start Port** / **Primary End Port** range, with an optional **Assign to Variable** (e.g. `SERVER_PORT`) that receives the assigned port as an environment variable.
 - **Additional Ports**: extra allocation rules, added with **Add Rule**. Each rule has a type: **Random**, **Port Range** (start/end), or one derived from the primary port, **Add to Primary**, **Subtract from Primary**, **Multiply Primary**, **Divide Primary** (each with a **Value**). Every rule also takes its own optional **Assign to Variable**.
 
-![](./images/egg-configurations/add-rule.webp)
+![Additional Ports rule with a Random type and an optional variable to assign the port to](./images/egg-configurations/add-rule.webp)
 
 ### Feature Configuration
 
 Turns server features on or off for the matched servers. Each feature is a three-way choice: **Inherit**, **Enabled** or **Disabled**.
 
-![](./images/egg-configurations/features.webp)
+![Feature Configuration section with Inherit, Enabled, and Disabled choices for Firewall and Private Network](./images/egg-configurations/features.webp)
 
 Unlike the other sections, this one merges per feature. A feature left on **Inherit** keeps whatever a lower-order configuration set, so a broad configuration can disable a feature without every narrower one repeating it. A feature that no matching configuration sets stays enabled.
 
@@ -83,13 +83,13 @@ Changes take effect right away for running servers: when a configuration is save
 
 One switch: **Allow Custom Startup Command**. When off, users on the server's [Startup page](../server/startup.md) can only pick between the egg's predefined startup commands; when on, they can write their own.
 
-![](./images/egg-configurations/startup-config.webp)
+![Startup Configuration section with the Allow Custom Startup Command toggle](./images/egg-configurations/startup-config.webp)
 
 ### Route Configuration
 
 Reorders the server sidebar for affected servers. Each entry shows its path and has a remove button; drag entries to reorder. The bottom row adds entries by type: **Route** picks a page, **Divider** (optionally named) groups them, **Redirect** (a name plus a destination URL) adds an external link. Divider and redirect names are translatable per language.
 
-![](./images/egg-configurations/route-config.webp)
+![Route Configuration section listing server routes from Console to Activity with a route picker](./images/egg-configurations/route-config.webp)
 
 
 ::: warning
@@ -100,7 +100,7 @@ Pages left out of the list are not just hidden from the sidebar, they become ina
 
 When editing, **Duplicate** copies the whole configuration under a new name and **Delete** removes it (servers and eggs are untouched, only the layered behavior disappears).
 
-![](./images/egg-configurations/general.webp)
+![Update Egg Configuration form for Standard, matching the Minecraft nest, with Save, Duplicate, and Delete buttons](./images/egg-configurations/general.webp)
 
 ::: info
 These actions map to the `egg-configurations.*` admin permissions; see the [Permissions Reference](../dashboard/permissions.md).

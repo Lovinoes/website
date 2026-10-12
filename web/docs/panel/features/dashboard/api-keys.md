@@ -9,13 +9,13 @@ API keys are personal access tokens for the [API](https://demo.calagopus.com/api
 
 The list shows each key's name, the beginning of its key value, how many user/server/admin permissions it has, a **Status** badge reading **Enabled** or **Disabled**, and its last used, expiry, and created timestamps. A counter reads "N of M maximum api keys created.", and **API Documentation** in the top right opens your panel's `/api` reference.
 
-![](./images/api-keys/list.webp)
+![API Keys page listing a vscode key with permission counts, Enabled status, and a Create button](./images/api-keys/list.webp)
 
 ## Creating a Key
 
 Click **Create** in the top right. Give it a name, optionally an expiry date, and optionally a list of IPs it's allowed to be used from (leave empty to allow any IP).
 
-![](./images/api-keys/create-form.webp)
+![Create API Key dialog with name, expiry, allowed IPs, and grouped user permission checkboxes](./images/api-keys/create-form.webp)
 
 Expiry uses a calendar picker with an optional time:
 
@@ -35,7 +35,7 @@ Right-click a key (or open the menu at the end of its row) for **Edit**, **Disab
 
 **Edit** opens the same form as creating one, letting you change the name, expiry, allowed IPs, and permissions.
 
-![](./images/api-keys/edit-form.webp)
+![Update API Key dialog for the vscode key with all permissions selected](./images/api-keys/edit-form.webp)
 
 **Duplicate** creates a separate key and shows its new token once. It copies the original's permissions, allowed IPs, enabled state, and expiry without invalidating the original. It needs permission to create keys and room under your account's key limit.
 

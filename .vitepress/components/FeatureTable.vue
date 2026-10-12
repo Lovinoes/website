@@ -19,7 +19,7 @@ function icon(value: boolean | null) {
   <div v-if="category" class="feature-category">
     <p v-if="category.description" class="feature-category-description">{{ category.description }}</p>
 
-    <div v-if="category.rows?.length" class="feature-table-scroll">
+    <div v-if="category.rows?.length" class="m-table">
       <table class="feature-table">
         <thead>
           <tr>
@@ -71,28 +71,8 @@ function icon(value: boolean | null) {
   color: var(--vp-c-text-2);
 }
 
-.feature-table-scroll {
-  overflow-x: auto;
-  border: 1px solid var(--vp-c-divider);
-  border-radius: 12px;
-}
-
-.feature-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
-  display: table;
-}
-
 .feature-table thead th {
-  position: sticky;
-  top: 0;
-  background-color: var(--vp-c-bg-soft);
-  color: var(--vp-c-text-1);
-  font-weight: 600;
   text-align: center;
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--vp-c-divider);
   white-space: nowrap;
 }
 
@@ -103,16 +83,6 @@ function icon(value: boolean | null) {
 
 .feature-table tbody td {
   text-align: center;
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--vp-c-divider);
-}
-
-.feature-table tbody tr:last-child td {
-  border-bottom: none;
-}
-
-.feature-table tbody tr:hover {
-  background-color: var(--vp-c-bg-soft);
 }
 
 .feature-table td.feature-col-name {

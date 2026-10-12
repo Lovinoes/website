@@ -9,17 +9,17 @@ Egg repositories connect Git repositories containing egg definitions to your pan
 
 The list shows ID, Name, Description, **Git Repository**, and Created. Repositories you selected during the panel's first-time setup appear here already; use the search box to filter.
 
-![](./images/egg-repositories/list.webp)
+![Admin egg repository list showing three Pterodactyl repositories with their Git URLs and a Create button](./images/egg-repositories/list.webp)
 
 ## Creating and Editing
 
 Click **Create** and fill in **Name**, **Git Repository** (the repository URL), and an optional **Description**. Opening an existing repository shows the same form on its **General** tab, next to the [Eggs](#eggs-tab) tab, with **Sync** and **Delete** alongside **Save**.
 
-![](./images/egg-repositories/general.webp)
+![Update Egg Repository form for Pterodactyl Game Eggs with Save, Sync, and Delete buttons](./images/egg-repositories/general.webp)
 
 For private repositories, enable the **Repository Credentials** section and pick a **Credential Type**: **None**, **Password** (a **Username** plus a **Password or Access Token**), or **Private Key** (a **Username** plus an SSH **Private Key** with optional **Passphrase**). Password credentials work with both `https` and `ssh` repository URLs; private keys require an `ssh` one.
 
-![](./images/egg-repositories/repository-credentials.webp)
+![Repository Credentials section expanded with the Credential Type set to None](./images/egg-repositories/repository-credentials.webp)
 
 ## Syncing
 
@@ -31,9 +31,9 @@ The **Eggs** tab lists everything found by the last sync (Path, Name, Author, De
 
 ![Repository egg selected with the Install control](./images/egg-repositories/eggs-selection.webp)
 
-![](./images/egg-repositories/eggs.webp)
+![Egg Repository Eggs tab listing 253 eggs with path, name, and author, paginated](./images/egg-repositories/eggs.webp)
 
-![](./images/egg-repositories/readme-drawer.webp)
+![Egg README drawer for ARK: Survival Ascended with an Install button](./images/egg-repositories/readme-drawer.webp)
 
 ::: info
 Actions here map to the `egg-repositories.*` admin permissions (syncing needs `egg-repositories.sync`); see the [Permissions Reference](../dashboard/permissions.md).

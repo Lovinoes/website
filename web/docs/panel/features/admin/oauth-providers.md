@@ -109,7 +109,7 @@ Exports never contain the client credentials. An imported provider comes in with
 
 The **Mappings** tab automates access: whenever a user logs in through this provider, every mapping whose matcher applies takes effect. Adding one requires `oauth-providers.update`; the table shows ID, Type, Target, Matcher, and Created.
 
-![](./images/oauth-providers/mappings.webp)
+![GitHub OAuth provider Mappings tab with an empty mappings table and an Add button](./images/oauth-providers/mappings.webp)
 
 **Add** opens the mapping form:
 
@@ -122,7 +122,7 @@ The **Mappings** tab automates access: whenever a user logs in through this prov
 You cannot create a mapping that grants more than you hold yourself. A mapping whose role or subuser permissions exceed your own is rejected with `permissions: more permissions than self`. The same guard applies when editing a role that already grants permissions you lack, and when linking an OAuth account to a user whose role outranks yours.
 :::
 
-<img src="./images/oauth-providers/add-mapping.webp" width="310" alt="" />
+<img src="./images/oauth-providers/add-mapping.webp" width="310" alt="Add OAuth Provider Mapping dialog with Role type and a Field Equals matcher on the emails source" />
 
 ### Matchers
 
@@ -150,5 +150,5 @@ The **Source** select only shows up once the provider has [Additional Info URLs]
 
 The **Users** tab (requires `oauth-providers.read`) lists every account linked to this provider: ID, User, Identifier, Last Used, and Created. **Find by Identifier** looks up which panel user owns a given provider-side identifier, useful when all you have is, for example, a Discord user ID.
 
-![](./images/oauth-providers/users.webp)
+![GitHub OAuth provider Users tab listing a linked user with its identifier](./images/oauth-providers/users.webp)
 

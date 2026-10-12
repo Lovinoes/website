@@ -163,7 +163,7 @@ FLUSH PRIVILEGES;
 | **Username** | `calagopus` |
 | **Password** | The password you set above |
 
-![](./files/mysql.webp)
+![Create Database Host form with MySQL type, username, password, host, and port 3306 fields](./files/mysql.webp)
 
 4. Click **Save**. You will be able to verify the connection afterwards.
 
@@ -175,7 +175,7 @@ By default, new database hosts are not visible to any client API endpoints. To f
 2. Click the **Database Hosts** tab at the top.
 3. Click **Add** and select the database host you just created from the dropdown, then submit.
 
-![](./files/location.webp)
+![Create Location Database Host dialog with a Database Host dropdown over the location's database host list](./files/location.webp)
 
 ::: info
 For further reference on MariaDB configuration, see the [official MariaDB documentation](https://mariadb.com/kb/en/documentation/).

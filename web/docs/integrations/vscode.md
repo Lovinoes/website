@@ -46,13 +46,13 @@ VSCodium, code-server, and most other forks are wired to the [Open VSX Registry]
 
 ::::
 
-![](./images/vscode/extensions-view.webp)
+![VS Code extensions view with calagopus searched and the Calagopus extension selected](./images/vscode/extensions-view.webp)
 
 ## Connecting from the panel
 
 The quickest way to get started is straight from your server's file manager. Open the **Files** tab for any server, then click the **Connect** dropdown in the toolbar and choose **Connect via VS Code**.
 
-![](./images/vscode/connect-dropdown.webp)
+![File manager Connect dropdown with via SFTP and via VSCode options](./images/vscode/connect-dropdown.webp)
 
 Your editor opens, mounts the server's files as a workspace folder, and attaches to the console automatically. The same **Connect** dropdown is available in the header while editing a file, which will open that exact file in your editor once the server is mounted.
 
@@ -80,7 +80,7 @@ You can also drive everything from the editor using the Command Palette (`Ctrl`/
 | `Calagopus: Enable File Collaboration` | Turn on real-time collaborative editing (see [Real-time collaboration](#real-time-collaboration)). |
 | `Calagopus: Disable File Collaboration` | Turn off real-time collaborative editing. |
 
-![](./images/vscode/command-palette.webp)
+![VS Code command palette listing Calagopus commands such as Open Server Files, Sign In, and Server Power Action](./images/vscode/command-palette.webp)
 
 ::: info
 A few more commands are contributed only where they make sense and are hidden from the palette: the revision actions on **File History** items, the run/edit/delete actions on **Command Snippets** items, and the archive and permission actions in the Explorer's right-click menu. They are covered in the sections below.
@@ -112,7 +112,7 @@ Attach to your server's console as an integrated terminal. Output streams in rea
 
 Besides **Calagopus: Open Server Console**, the extension registers a **Calagopus Console** terminal profile - pick it from the dropdown next to the terminal's `+` button to choose a mounted server and attach.
 
-![](./images/vscode/integrated-terminal.webp)
+![VS Code integrated terminal attached to a Minecraft server console with a status bar server item](./images/vscode/integrated-terminal.webp)
 
 ### Command snippets
 
@@ -180,7 +180,7 @@ The list follows the active editor and refreshes as you work; use the refresh bu
 
 The current server's power state is shown in the status bar. Use the **Calagopus: Server Power Action** command (or the status bar item) to **start**, **stop**, **restart**, or **kill** the server without switching back to the panel.
 
-![](./images/vscode/status-bar.webp)
+![VS Code status bar tooltip showing a running server's CPU, memory, disk, network, and uptime](./images/vscode/status-bar.webp)
 
 ## Deep links
 
@@ -201,7 +201,7 @@ vscode://calagopus.calagopus/open?origin=<panel-url>&server=<server-uuid>
 ::: warning
 A `vscode://` link is the canonical scheme for Visual Studio Code. Some forks register a different scheme (for example, `vscodium://` or `codium://`) - if a link does not open in your editor, click the settings icon in the top left of the file manager and change the VS Code URI scheme to match your editor's registered scheme.
 
-![](./images/vscode/uri-scheme-setting.webp)
+![Files tab settings popover with a VSCode URI Scheme field set to vscode](./images/vscode/uri-scheme-setting.webp)
 :::
 
 ## Authentication
@@ -240,7 +240,7 @@ Deep links that include an `apiKey` parameter open an **ephemeral** session - th
 
 | Symptom | Fix |
 | --- | --- |
-| The deep link does not open my editor | Your editor may register a URI scheme other than `vscode://`. Click the settings icon in the top left of the file manager and change the VS Code URI scheme to match your editor's registered scheme (for example, `vscodium://` or `codium://`). ![](./images/vscode/uri-scheme-setting.webp) |
+| The deep link does not open my editor | Your editor may register a URI scheme other than `vscode://`. Click the settings icon in the top left of the file manager and change the VS Code URI scheme to match your editor's registered scheme (for example, `vscodium://` or `codium://`). ![Files tab settings popover with a VSCode URI Scheme field set to vscode](./images/vscode/uri-scheme-setting.webp) |
 | File search returns no results | Search relies on proposed editor APIs that are not enabled in every build. File **editing** still works without them, only name/content search across server files is affected. |
 | I don't see other people's cursors | Real-time collaboration must be enabled on both ends (it's on by default). Check that `calagopus.collaboration.enabled` is set to `true`, or run **Calagopus: Enable File Collaboration**. Presence and cursors only appear once more than one person has the same file open. |
 | The File History view is empty | The **File History** view only appears when a server is mounted, and it tracks the file that's currently active in the editor, so open a server file to populate it. A file that has never been changed through the panel will not have any revisions yet. |

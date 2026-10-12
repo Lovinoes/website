@@ -45,66 +45,66 @@ Copy the Redirect URL provided by the panel and proceed to the next step.
 
 #### Select or create a Google Cloud project
 Go to [Google Cloud console](http://console.cloud.google.com), for example, by clicking Console on [Google Cloud landing page](https://cloud.google.com/).
-![](./files/images/google/image-1.webp)
+![Google Cloud landing page with the Console link highlighted in the top navigation](./files/images/google/image-1.webp)
 
 Once there, select a project that you want to use for the Google OAuth app.
-![](./files/images/google/image-2.webp)
+![Google Cloud console with the Select a project button and the Calagopus project highlighted](./files/images/google/image-2.webp)
 
 ::: details How to create a project in Google Cloud?
 In the `Select a project` pop-up, click `New project`.
-![](./files/images/google/image-3.webp)
+![Select a project dialog with no projects listed and the New project button highlighted](./files/images/google/image-3.webp)
 
 Pick a name for the project, in this case Calagopus. The organisation field can be left to no organization.
-![](./files/images/google/image-4.webp)
+![Google Cloud New Project form with the project name Calagopus, no organization, and Create button](./files/images/google/image-4.webp)
 
 Once the project has been created, wait for all the other steps to complete and then select the project.
-![](./files/images/google/image-5.webp)
+![Google Cloud notification for the created Calagopus project with a Select Project link](./files/images/google/image-5.webp)
 :::
 
 #### Register the OAuth application
 In the search bar, search for `APIs & Services`.
-![](./files/images/google/image-6.webp)
+![Google Cloud search box with APIs & Services highlighted in the top results](./files/images/google/image-6.webp)
 
 Then in the left sidebar, pick `OAuth consent screen` to begin the OAuth application registration.
-![](./files/images/google/image-7.webp)
+![APIs & Services sidebar with OAuth consent screen highlighted](./files/images/google/image-7.webp)
 
 Then, on the `Google Auth Platform not configured yet` page, click on the `Get started` button.
-![](./files/images/google/image-8.webp)
+![Google Auth Platform not configured yet page with the Get started button highlighted](./files/images/google/image-8.webp)
 
 On the next screen, pick the name of the application to show on the login page and add your contact information. Then, click on `Next`.
-![](./files/images/google/image-9.webp)
+![Google Auth Platform App Information step with app name Calagopus, support email, and Next button](./files/images/google/image-9.webp)
 
 Choose `External` for the application type and then click `Next`.
-![](./files/images/google/image-10.webp)
+![Google Auth Platform Audience step with External selected and the Next button highlighted](./files/images/google/image-10.webp)
 
 Add your contact information again, and then click `Next`.
-![](./files/images/google/image-11.webp)
+![Google Auth Platform Contact Information step with an email address entered and a Next button](./files/images/google/image-11.webp)
 
 Accept the Google API Services: User Data Policy, and then click `Continue`, and then finally `Create`.
-![](./files/images/google/image-12.webp)
+![Google Auth Platform Finish step with the User Data Policy checkbox ticked, plus Continue and Create buttons](./files/images/google/image-12.webp)
 
 Go back to the `Branding` tab at the left sidebar, and scroll down until you find `Authorized domains`. Add a new domain, and enter the top private domain your Calagopus Panel is located on. For example, if your panel is `test.example.com`, you would put `example.com`. Finally, click the `Save` button.
-![](./files/images/google/image-13.webp)
+![Google Auth Platform Branding page with an Authorized domain entered and the Save button highlighted](./files/images/google/image-13.webp)
 
 ::: warning
 Do NOT fill out the `App logo` field, as this will require getting your app verified, which can take some time.
 :::
 
 Next, go to the `Audience` tab, and publish the application.
-![](./files/images/google/image-14.webp)
+![Google Auth Platform Audience page with Publish app and the Push to production Confirm dialog highlighted](./files/images/google/image-14.webp)
 
 #### Issue an OAuth client and key for that application
 Go back to the `APIs & Services` page. To do so, search for `APIs & Services` in the search bar.
-![](./files/images/google/image-6.webp)
+![Google Cloud search box with APIs & Services highlighted in the top results](./files/images/google/image-6.webp)
 
 Pick `Credentials` in the sidebar. Click `+ Create credentials` dropdown and select `OAuth client ID`.
-![](./files/images/google/image-15.webp)
+![Google Cloud Credentials page with the Create credentials menu open and OAuth client ID highlighted](./files/images/google/image-15.webp)
 
 Pick `Web application` for the application type, type the name for the client, and add the redirect URL. Then, create the OAuth Client ID by clicking the `Create` button.
-![](./files/images/google/image-16.webp)
+![Create OAuth client ID form with Web application type, a client name, and an authorized redirect URI](./files/images/google/image-16.webp)
 
 Copy both your Client ID and your Client secret, and then you can close Google Cloud. You will need those for the next step.
-![](./files/images/google/image-17.webp)
+![Google Cloud OAuth client created dialog showing the Client ID and Client secret](./files/images/google/image-17.webp)
 
 ### Configuring the OAuth Provider
 Back in the panel, enter the Client ID and Client Secret you copied from Google Cloud.

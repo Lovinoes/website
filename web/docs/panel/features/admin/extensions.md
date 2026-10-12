@@ -17,7 +17,7 @@ Web installation, removal, rebuild, restart, and build log controls are unavaila
 
 Each installed extension gets a card with its name, package name, **Version**, **Authors**, and description. Badges flag incomplete states:
 
-![](./images/extensions/frontend-missing.webp) ![](./images/extensions/backend-missing.webp) ![](./images/extensions/pending-build.webp) ![](./images/extensions/pending-removal.webp)
+![Red Frontend missing status badge](./images/extensions/frontend-missing.webp) ![Red Backend missing status badge](./images/extensions/backend-missing.webp) ![Yellow Pending build status badge](./images/extensions/pending-build.webp) ![Yellow Pending removal status badge](./images/extensions/pending-removal.webp)
 
 ![Extensions page](./images/extensions/list.webp)
 
@@ -29,9 +29,9 @@ Flipping it back on restores the extension as it was. See [Disabling Extensions]
 
 The trash icon removes an extension entirely, with a switch to also remove and roll back its database migrations. The code stops being included on the next rebuild, but the migration rollback happens immediately.
 
-![](./images/extensions/configure-example.webp)
+![Configure page for the custom footer extension with status, format, font size, color, and footer HTML fields](./images/extensions/configure-example.webp)
 
-<img src="./images/extensions/remove-extension.webp" width="220" alt="" />
+<img src="./images/extensions/remove-extension.webp" width="220" alt="Remove extension dialog with a toggle to roll back database migrations and a Delete button" />
 
 ::: info
 The extension pictured across this page is [Custom Footer](https://www.sourcexchange.net/products/custom-footer-for-calagopus) by mrbeenopro, available on SourceXchange and [GitHub](https://github.com/mrbeeenopro/custom-footer-for-calagopus).
@@ -44,7 +44,7 @@ The extension pictured across this page is [Custom Footer](https://www.sourcexch
 - The version the next build targets is the one the extension supervisor reports, which is not always the version currently running, for example while the panel has not yet restarted into a newer build. When the two differ, the page shows "The panel is serving a build for a different version" with both versions, and new extensions have to support the target one.
 - **View build logs** opens the log of the current or last build. If a build fails, an alert shows the reason and the **Rebuild** button becomes **Retry build**.
 
-<img src="./images/extensions/build-logs.webp" width="311" alt="" />
+<img src="./images/extensions/build-logs.webp" width="311" alt="Build Logs dialog showing frontend build output and the backend compile steps" />
 
 ::: warning
 Extensions can only be built when the panel runs the heavy Docker image and its extension supervisor is reachable; the page warns you when either is missing. See [Installing Extensions](../../extensions/installing-extensions.md).

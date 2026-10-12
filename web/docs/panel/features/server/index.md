@@ -46,7 +46,7 @@ The sidebar stays the same on every tab. Above it, the [Quick actions](../dashbo
 
 Below that sit quick power buttons: **Start** while the server is offline, **Stop** while it runs, and a restart button. While the server is stopping, the button becomes **Kill**, with the same force-stop confirmation as on the [Console](./console.md).
 
-![](./images/index/status-card.webp)
+![Server status card showing a Minecraft server in the Stopping state with a Kill button](./images/index/status-card.webp)
 
 Above the tabs, **Servers** takes you back to the dashboard.
 

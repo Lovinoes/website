@@ -140,25 +140,25 @@ Changing the **Owner** hands the server to another user.
 
 Unsaved edits here survive switching to another tab of the server view and back. Leaving the server view with them still unsaved asks you to confirm first.
 
-![](./images/servers/general.webp)
+![Update Server form with basic information, assignment, resource limits, server configuration, and feature limits](./images/servers/general.webp)
 
 ### Allocations
 
 The server's allocations: primary marker, IP, IP Alias, Port, Notes, and Created. Notes are edited inline in the table and save automatically. **Add** opens a modal to attach free allocations from the server's node (multi-select). Right-click a row for **Set Primary** / **Unset Primary** and **Remove**. The owner-facing equivalent is the [Network](../server/network/index.md) page.
 
-![](./images/servers/allocations.webp)
+![Server Allocations tab listing two allocations with IP, port, and notes, and an Add button](./images/servers/allocations.webp)
 
 ### Variables
 
 The same variable grid as the client [Startup](../server/startup.md) page, but every variable is editable regardless of its user-editable flag; variables users can't touch just carry a **Read-Only** badge here. Edit values and hit **Save** (Ctrl+S also works). Navigating away with unsaved values, including to another tab, asks you to confirm first.
 
-![](./images/servers/variables.webp)
+![Server Variables tab showing four egg variable cards, one marked read-only](./images/servers/variables.webp)
 
 ### Mounts
 
 Mounts attached to this server: ID, Name, Source, Target, and Added. **Add** attaches one of the mounts available to this server from the admin **Mounts** area; right-click for **Remove**. A mount whose source the node's `allowed_mounts` doesn't cover carries a **Not Allowed on Node** badge, since Wings will skip it; see [node allowlist feedback](./mounts.md#node-allowlist-feedback). The owner sees and toggles these on their [Mounts](../server/mounts.md) page.
 
-![](./images/servers/mounts.webp)
+![Server Mounts tab listing the Minecraft Plugins mount with an Add button](./images/servers/mounts.webp)
 
 ### Devices
 
@@ -179,19 +179,19 @@ Right-click a completed backup for **Download** (with a format submenu for strea
 
 When there are failed backups, a **Delete Failed** button appears above the table (requires `nodes.backups`), showing how many it would remove. It asks for confirmation, keeps locked backups and any whose configuration is in maintenance, and runs in the background. A **Force** switch removes them even when the configuration is missing or the remote storage is unreachable, at the risk of leaving orphaned files behind.
 
-![](./images/servers/backups.webp)
+![Server Backups tab listing backups with node, checksum, size, and file count](./images/servers/backups.webp)
 
 ### Databases
 
 Two tables. **Classic Databases** lists databases on [database hosts](../../../additional/database-hosts/index.md) (name, host, type, address, username, size, created; right-click to **Delete**). **Managed Databases** lists instances provisioned through the [Database Agent](../../../db-agent/index.md), shown when you have `database-agent-hosts.read`. The client view is the [Databases](../server/databases/) page.
 
-![](./images/servers/databases.webp)
+![Server Databases tab with classic and managed database tables](./images/servers/databases.webp)
 
 ### Logs
 
 Fetch the server's recent **Console** or **Install** logs: pick the **Log Type**, how many **Lines** (default 1000), and hit **Load Logs**. Output opens in a read-only viewer with ANSI colors stripped. Handy for diagnosing a failed install without leaving the admin area.
 
-![](./images/servers/logs.webp)
+![Server Logs tab with the Log Type dropdown open showing Console and Install, above install output](./images/servers/logs.webp)
 
 ### Management
 

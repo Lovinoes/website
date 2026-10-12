@@ -7,7 +7,7 @@ description: The Calagopus login flow, identifier first, then password, passkey,
 
 Logging in at `/auth/login` is a two-step flow: the panel first asks who you are, then how you want to prove it.
 
-![](./images/login/step-username.webp)
+![Login page with a Username/Email field, Continue button, passkey, Google, and Paymenter options](./images/login/step-username.webp)
 
 ## Step 1: Username or Email
 
@@ -28,7 +28,7 @@ If security keys are off too, the identifier field disappears entirely and the O
 
 If your account has [security keys](../dashboard/security-keys.md) registered and passkeys are enabled panel-wide, **Continue** takes you to **Authenticate with Passkey** first ("We found a passkey associated with `<username>`"). **Use Passkey** triggers the browser's passkey prompt and logs you in on success; **Use Password** and **Back** below the separator let you fall back to the normal flow.
 
-![](./images/login/step-passkey.webp)
+![Authenticate with Passkey step offering Use Passkey, Use Password, and Back buttons](./images/login/step-passkey.webp)
 
 **Use Password** is hidden when password login is off panel-wide, leaving the passkey and **Back**.
 
@@ -56,7 +56,7 @@ Accounts with [two-factor authentication](../dashboard/account.md) get one more 
 
 The checkpoint stays valid for five minutes after the password step; take longer and login fails with "invalid confirmation token" and starts over. Each code works only once; if your device's clock is more than a few seconds off, a warning appears (on the login page too), since TOTP codes and passkeys depend on correct time.
 
-![](./images/login/checkpoint.webp)
+![Two-Factor Authentication step with a 6-digit code entry, Verify Code, and Use Recovery Code buttons](./images/login/checkpoint.webp)
 
 Lost the authenticator? **Use Recovery Code** switches the form to a **Recovery Code** field. Recovery codes are ten characters and single-use, each one is deleted the moment it's accepted. **Use TOTP** switches back.
 

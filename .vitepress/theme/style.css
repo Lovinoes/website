@@ -5,11 +5,41 @@
 
 html {
   scrollbar-gutter: stable;
+  scrollbar-color: var(--mantine-color-default-border) var(--vp-c-bg);
+}
+
+body * {
+  scrollbar-color: var(--mantine-color-default-border) transparent;
 }
 
 :root {
-  /* Docsearch */
-  --docsearch-search-button-background: var(--mantine-color-gray-0) !important;
+  /* Brand */
+  --vp-c-brand-1: var(--mantine-color-blue-8);
+  --vp-c-brand-2: var(--mantine-color-blue-7);
+  --vp-c-brand-3: var(--mantine-color-blue-6);
+  --vp-c-brand-soft: var(--mantine-color-blue-light);
+
+  /* Background */
+  --vp-c-bg: var(--mantine-color-body);
+  --vp-c-bg-alt: var(--mantine-color-white);
+  --vp-c-bg-elv: var(--mantine-color-white);
+  --vp-c-bg-soft: var(--mantine-color-white);
+
+  /* Border */
+  --vp-c-border: var(--mantine-color-default-border);
+  --vp-c-divider: var(--mantine-color-gray-3);
+
+  /* Text */
+  --vp-c-text-1: var(--mantine-color-text);
+  --vp-c-text-2: var(--mantine-color-gray-7);
+  --vp-c-text-3: var(--mantine-color-dimmed);
+
+  /* Button */
+  --vp-button-brand-bg: var(--mantine-primary-color-filled);
+  --vp-button-brand-hover-bg: var(--mantine-primary-color-filled-hover);
+
+  /* Sidebar */
+  --vp-sidebar-bg-color: var(--vp-c-bg);
 }
 
 .dark {
@@ -20,18 +50,43 @@ html {
   --vp-c-brand-soft: var(--mantine-color-blue-6);
 
   /* Background */
-  --vp-c-bg: var(--mantine-color-dark-85);
+  --vp-c-bg: var(--mantine-color-body);
+  --vp-c-bg-alt: var(--mantine-color-dark-8);
+  --vp-c-bg-elv: var(--mantine-color-dark-6);
   --vp-c-bg-soft: var(--mantine-color-dark-6);
 
+  /* Border */
+  --vp-c-border: var(--mantine-color-default-border);
+  --vp-c-divider: var(--mantine-color-default-border);
+
+  /* Text */
+  --vp-c-text-1: var(--mantine-color-text);
+  --vp-c-text-2: var(--mantine-color-dark-1);
+  --vp-c-text-3: var(--mantine-color-dimmed);
+
   /* Button */
-  --vp-button-brand-bg: var(--mantine-color-blue-8);
-  --vp-button-brand-hover-bg: var(--mantine-color-blue-9);
+  --vp-button-brand-bg: var(--mantine-primary-color-filled);
+  --vp-button-brand-hover-bg: var(--mantine-primary-color-filled-hover);
+}
 
-  /* Sidebar */
-  --vp-sidebar-bg-color: var(--mantine-color-dark-6);
+@media (min-width: 48rem) {
+  .VPNavBar .VPNavBarSearch .VPNavBarSearchButton {
+    height: 36px;
+    border: 1px solid var(--mantine-color-default-border);
+    border-radius: var(--mantine-radius-default);
+    background-color: var(--mantine-color-default);
+  }
+}
 
-  /* Docsearch */
-  --docsearch-search-button-background: var(--mantine-color-dark-6) !important;
+.VPLocalSearchBox .shell .search-bar {
+  border-color: var(--mantine-color-default-border);
+  border-radius: var(--mantine-radius-default);
+  background-color: var(--mantine-color-default);
+}
+
+.VPLocalSearchBox .shell .search-bar:focus-within,
+.VPNavBar .VPNavBarSearch .VPNavBarSearchButton:focus-visible {
+  border-color: var(--mantine-primary-color-filled);
 }
 
 .label .nodeLabel {

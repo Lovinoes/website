@@ -24,6 +24,8 @@ hero:
 import FeaturedSponsors from '../.vitepress/components/FeaturedSponsors.vue';
 import Features from '../.vitepress/components/Features.vue';
 import Stats from '../.vitepress/components/Stats.vue';
+import Card from '../.vitepress/components/ui/Card.vue';
+import CollapsibleSection from '../.vitepress/components/ui/CollapsibleSection.vue';
 import { faqs } from '../.vitepress/data/faqs.ts';
 import browserPreviewSrcset from './browser-preview.webp?w=480;760;1200;1520&as=srcset';
 import mobilePreviewSrcset from './mobile-preview.webp?w=360;500;720;1000&as=srcset';
@@ -65,18 +67,18 @@ import mobilePreviewSrcset from './mobile-preview.webp?w=360;500;720;1000&as=src
     built in. See how it stacks up against the panel you run today:
   </p>
   <div class="switch-grid">
-    <a class="switch-card" href="/compare/calagopus-vs-pterodactyl">
+    <Card class="switch-card" padding="lg" href="/compare/calagopus-vs-pterodactyl">
       <strong>Calagopus vs Pterodactyl</strong>
       <span>Side-by-side comparison and a node-by-node migration path.</span>
-    </a>
-    <a class="switch-card" href="/compare/calagopus-vs-pelican">
+    </Card>
+    <Card class="switch-card" padding="lg" href="/compare/calagopus-vs-pelican">
       <strong>Calagopus vs Pelican</strong>
       <span>How the two Pterodactyl successors differ.</span>
-    </a>
-    <a class="switch-card" href="/compare/calagopus-vs-amp">
+    </Card>
+    <Card class="switch-card" padding="lg" href="/compare/calagopus-vs-amp">
       <strong>Calagopus vs AMP</strong>
       <span>Open-source panel vs the licensed alternative.</span>
-    </a>
+    </Card>
   </div>
   <p class="switch-more">
     <a href="/compare/">All Pterodactyl alternatives compared</a> ·
@@ -88,10 +90,9 @@ import mobilePreviewSrcset from './mobile-preview.webp?w=360;500;720;1000&as=src
 <section class="faq-wrapper" aria-labelledby="faq-heading">
   <h2 id="faq-heading" class="section-heading">Frequently Asked Questions</h2>
   <div class="faq-list">
-    <details v-for="(faq, i) in faqs" :key="i" class="faq-item">
-      <summary class="faq-question">{{ faq.q }}</summary>
+    <CollapsibleSection v-for="(faq, i) in faqs" :key="i" :title="faq.q" class="faq-item">
       <p class="faq-answer">{{ faq.a }}</p>
-    </details>
+    </CollapsibleSection>
   </div>
   <p class="faq-more">
     <a href="/docs/about/what-is-calagopus">See more questions →</a>
@@ -164,19 +165,7 @@ import mobilePreviewSrcset from './mobile-preview.webp?w=360;500;720;1000&as=src
 }
 
 .switch-card {
-  display: flex;
-  flex-direction: column;
   gap: 6px;
-  padding: 20px;
-  border-radius: 12px;
-  background-color: var(--vp-c-bg-soft);
-  border: 1px solid var(--vp-c-bg-soft);
-  transition: border-color 0.25s;
-  text-decoration: none;
-}
-
-.switch-card:hover {
-  border-color: var(--vp-c-brand-1);
 }
 
 .switch-card strong {
@@ -228,51 +217,12 @@ import mobilePreviewSrcset from './mobile-preview.webp?w=360;500;720;1000&as=src
 }
 
 .faq-item {
-  border-radius: 12px;
-  background-color: var(--vp-c-bg-soft);
-  border: 1px solid var(--vp-c-bg-soft);
-  transition: border-color 0.25s;
-  overflow: hidden;
-}
-
-.faq-item:hover,
-.faq-item[open] {
-  border-color: var(--vp-c-brand-1);
-}
-
-.faq-question {
-  padding: 16px 20px;
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--vp-c-text-1);
-  cursor: pointer;
-  list-style: none;
-  user-select: none;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.faq-question::-webkit-details-marker {
-  display: none;
-}
-
-.faq-question::after {
-  content: '+';
-  font-size: 20px;
-  color: var(--vp-c-text-2);
-  transition: transform 0.2s ease;
-  font-weight: 400;
-}
-
-.faq-item[open] .faq-question::after {
-  transform: rotate(45deg);
+  margin: 0;
 }
 
 .faq-answer {
-  padding: 0 20px 16px;
   margin: 0;
-  font-size: 14px;
+  font-size: var(--mantine-font-size-sm);
   line-height: 1.6;
   color: var(--vp-c-text-2);
 }

@@ -7,7 +7,7 @@ description: Manage the server's IPv4 and IPv6 allocations, the addresses and po
 
 The first tab under [Network](./index.md) lists the server's allocations: the IP and port combinations it can be reached on. A counter at the top shows something like "2 of 5 maximum allocations assigned."; the limit is part of the server's [feature limits](../../admin/servers.md#feature-limits), set by an admin.
 
-![](./images/allocations/list.webp)
+![Network page Allocations tab listing hostnames, ports, notes, and creation times with the primary allocation starred](./images/allocations/list.webp)
 
 Each row shows a primary indicator (a star with a **Primary** tooltip on the primary allocation), the **Hostname**, the **Port**, an editable **Notes** field, and **Created**. The Hostname is the allocation's IP unless an admin set an **IP Alias** on it, in which case the alias is shown everywhere instead, including the console's Address tile.
 

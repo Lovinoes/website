@@ -10,6 +10,8 @@ import {
   sponsorMonthlyMeta as monthlyMeta,
   sponsorProviderLabel as providerLabel,
 } from '../lib/sponsor-display.ts';
+import Badge from './ui/Badge.vue';
+import Card from './ui/Card.vue';
 
 const monthly = computed(() =>
   sponsors.sponsors
@@ -40,7 +42,7 @@ const markAvatarFailed = (sponsor: Sponsor): void => {
     </div>
 
     <template v-else>
-      <div class="summary">
+      <Card class="summary" padding="lg">
         <div>
           <span class="summary-label">Active monthly sponsorships</span>
           <span class="summary-amount">{{ formatUsd(sponsors.monthlyCents) }}</span>
@@ -52,16 +54,16 @@ const markAvatarFailed = (sponsor: Sponsor): void => {
           </a>
           <span>{{ sponsors.sponsors.length }} sponsorships · {{ formatUsd(sponsors.lifetimeCents) }} lifetime</span>
         </div>
-      </div>
+      </Card>
 
       <section v-if="monthly.length">
         <h2>Monthly sponsors</h2>
         <div class="cards">
-          <component
-            :is="sponsor.profile ? 'a' : 'div'"
+          <Card
             v-for="(sponsor, index) in monthly"
             :key="key(sponsor) ?? index"
             class="card"
+            padding="sm"
             :href="sponsor.profile?.url"
             :target="sponsor.profile ? '_blank' : undefined"
             :rel="sponsor.profile ? 'noreferrer' : undefined"
@@ -79,7 +81,7 @@ const markAvatarFailed = (sponsor: Sponsor): void => {
             <span class="card-text">
               <span class="card-name">
                 {{ displayName(sponsor) }}
-                <span class="tag">{{ providerLabel(sponsor) }}</span>
+                <Badge variant="outline" color="gray">{{ providerLabel(sponsor) }}</Badge>
               </span>
               <span class="card-amount">{{ formatUsd(sponsor.monthlyCents) }}/month</span>
               <span v-if="sponsor.oneTimeCents" class="card-since">
@@ -87,7 +89,7 @@ const markAvatarFailed = (sponsor: Sponsor): void => {
               </span>
               <span class="card-since">{{ monthlyMeta(sponsor) }}</span>
             </span>
-          </component>
+          </Card>
         </div>
       </section>
 
@@ -110,9 +112,9 @@ const markAvatarFailed = (sponsor: Sponsor): void => {
               {{ displayName(sponsor) }}
             </a>
             <span v-else>Anonymous</span>
-            <span class="tag">{{ providerLabel(sponsor) }}</span>
-            <span v-if="sponsor.status === 'monthly'" class="tag tag-monthly">monthly</span>
-            <span v-else-if="sponsor.status === 'former'" class="tag">former monthly</span>
+            <Badge variant="outline" color="gray">{{ providerLabel(sponsor) }}</Badge>
+            <Badge v-if="sponsor.status === 'monthly'" variant="light">monthly</Badge>
+            <Badge v-else-if="sponsor.status === 'former'" variant="outline" color="gray">former monthly</Badge>
             <span class="row-meta">{{ formatUsd(sponsor.lifetimeCents) }}</span>
           </li>
         </ol>
@@ -123,16 +125,12 @@ const markAvatarFailed = (sponsor: Sponsor): void => {
 
 <style scoped>
 .summary {
-  display: flex;
+  flex-direction: row;
   flex-wrap: wrap;
   gap: 16px;
   align-items: flex-end;
   justify-content: space-between;
-  padding: 20px 24px;
   margin: 24px 0;
-  border: 1px solid var(--vp-c-divider);
-  border-radius: 12px;
-  background-color: var(--vp-c-bg-soft);
 }
 
 .summary-label {
@@ -178,20 +176,9 @@ const markAvatarFailed = (sponsor: Sponsor): void => {
 }
 
 .card {
-  display: flex;
+  flex-direction: row;
   gap: 12px;
   align-items: center;
-  padding: 12px 16px;
-  border: 1px solid var(--vp-c-divider);
-  border-radius: 12px;
-  background-color: var(--vp-c-bg-soft);
-  font-weight: 400;
-  text-decoration: none;
-  transition: border-color 0.25s;
-}
-
-a.card:hover {
-  border-color: var(--vp-c-brand-1);
 }
 
 .card img,
@@ -278,22 +265,6 @@ a.card:hover {
 
 .rank.top {
   font-weight: 600;
-  color: var(--vp-c-brand-1);
-}
-
-/* Outlined like ReleaseList's badges - a tinted fill loses contrast in dark mode. */
-.tag {
-  flex: none;
-  padding: 0 8px;
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 18px;
-  border: 1px solid;
-  border-radius: 999px;
-  color: var(--vp-c-text-2);
-}
-
-.tag-monthly {
   color: var(--vp-c-brand-1);
 }
 

@@ -1,7 +1,13 @@
 <script setup lang="ts">
+import { faSearch } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { computed, onMounted, ref } from 'vue';
 import { data as releases } from '../data/releases.data.mts';
 import { formatCount, formatDate, formatMebibytes as formatSize } from '../lib/format.ts';
+import Badge from './ui/Badge.vue';
+import Card from './ui/Card.vue';
+import Checkbox from './ui/Checkbox.vue';
+import CollapsibleSection from './ui/CollapsibleSection.vue';
 
 const props = defineProps<{ project: string }>();
 
@@ -35,7 +41,7 @@ onMounted(async () => {
 
 <template>
   <div class="releases">
-    <div v-if="project.total > 0" class="summary">
+    <Card v-if="project.total > 0" class="summary" padding="lg">
       <div class="summary-latest">
         <span class="summary-label">Latest release</span>
         <a class="summary-version" :href="`#${project.releases[0]?.anchor}`">{{ project.latestVersion }}</a>
@@ -47,7 +53,7 @@ onMounted(async () => {
         </a>
         <span v-if="project.updatedAt">Synced {{ formatDate(project.updatedAt) }}</span>
       </div>
-    </div>
+    </Card>
 
     <div v-if="newerVersion" class="tip custom-block">
       <p class="custom-block-title">{{ newerVersion }} is out</p>
@@ -71,17 +77,19 @@ onMounted(async () => {
 
     <template v-else>
       <div class="controls">
-        <input
-          v-model="query"
-          type="search"
-          class="filter"
-          :placeholder="`Filter ${formatCount(project.releases.length)} releases`"
-          aria-label="Filter releases"
-        />
-        <label v-if="withoutNotes > 0" class="toggle">
-          <input v-model="notesOnly" type="checkbox" />
+        <div class="filter">
+          <span class="filter-icon" aria-hidden="true"><FontAwesomeIcon :icon="faSearch" /></span>
+          <input
+            v-model="query"
+            type="search"
+            class="filter-input"
+            :placeholder="`Filter ${formatCount(project.releases.length)} releases`"
+            aria-label="Filter releases"
+          />
+        </div>
+        <Checkbox v-if="withoutNotes > 0" v-model="notesOnly">
           Hide the {{ formatCount(withoutNotes) }} release{{ withoutNotes === 1 ? '' : 's' }} without notes
-        </label>
+        </Checkbox>
       </div>
 
       <p v-if="visible.length === 0" class="empty">No release matches “{{ query }}”.</p>
@@ -93,31 +101,32 @@ onMounted(async () => {
             <a class="header-anchor" :href="`#${release.anchor}`" :aria-label="`Permalink to ${release.version}`"></a>
           </h2>
           <time :datetime="release.publishedAt">{{ formatDate(release.publishedAt) }}</time>
-          <span v-if="release.version === project.latestVersion" class="badge latest">Latest</span>
-          <span v-if="release.prerelease" class="badge pre">Pre-release</span>
+          <Badge v-if="release.version === project.latestVersion" variant="light">Latest</Badge>
+          <Badge v-if="release.prerelease" variant="light" color="yellow">Pre-release</Badge>
         </div>
 
         <!-- eslint-disable-next-line vue/no-v-html -- rendered at build time from the release API -->
         <div v-if="release.hasNotes" class="release-body" v-html="release.html" />
         <p v-else class="release-body no-notes">No release notes were published for this version.</p>
 
-        <details v-if="release.assets.length" class="assets">
-          <summary>{{ release.assets.length }} assets</summary>
-          <table>
-            <thead>
-              <tr>
-                <th>Asset</th>
-                <th>Size</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="asset in release.assets" :key="asset.name">
-                <td><a :href="asset.url" target="_blank" rel="noreferrer">{{ asset.name }}</a></td>
-                <td>{{ formatSize(asset.size) }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </details>
+        <CollapsibleSection v-if="release.assets.length" :title="`${release.assets.length} assets`">
+          <div class="m-table" data-flush>
+            <table>
+              <thead>
+                <tr>
+                  <th>Asset</th>
+                  <th>Size</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="asset in release.assets" :key="asset.name">
+                  <td><a :href="asset.url" target="_blank" rel="noreferrer">{{ asset.name }}</a></td>
+                  <td>{{ formatSize(asset.size) }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </CollapsibleSection>
 
         <p class="release-links">
           <a :href="release.htmlUrl" target="_blank" rel="noreferrer">View release on GitHub</a>
@@ -130,16 +139,12 @@ onMounted(async () => {
 
 <style scoped>
 .summary {
-  display: flex;
+  flex-direction: row;
   flex-wrap: wrap;
   gap: 16px;
   align-items: flex-end;
   justify-content: space-between;
-  padding: 20px 24px;
   margin: 24px 0;
-  border: 1px solid var(--vp-c-divider);
-  border-radius: 12px;
-  background-color: var(--vp-c-bg-soft);
 }
 
 .summary-label {
@@ -181,28 +186,42 @@ onMounted(async () => {
 }
 
 .filter {
+  position: relative;
   flex: 1 1 240px;
-  padding: 8px 12px;
-  font-size: 14px;
-  color: var(--vp-c-text-1);
-  border: 1px solid var(--vp-c-divider);
-  border-radius: 8px;
-  background-color: var(--vp-c-bg);
-  transition: border-color 0.25s;
 }
 
-.filter:focus {
-  border-color: var(--vp-c-brand-1);
-  outline: none;
-}
-
-.toggle {
+.filter-icon {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 1px;
   display: flex;
-  gap: 8px;
   align-items: center;
-  font-size: 14px;
-  color: var(--vp-c-text-2);
-  cursor: pointer;
+  justify-content: center;
+  width: 34px;
+  color: var(--mantine-color-dimmed);
+  pointer-events: none;
+}
+
+.filter-input {
+  width: 100%;
+  height: 36px;
+  padding: 0 12px 0 34px;
+  font-size: var(--mantine-font-size-sm);
+  color: var(--mantine-color-text);
+  border: 1px solid var(--mantine-color-default-border);
+  border-radius: var(--mantine-radius-default);
+  background-color: var(--mantine-color-default);
+  transition: border-color 100ms ease;
+}
+
+.filter-input::placeholder {
+  color: var(--mantine-color-placeholder);
+}
+
+.filter-input:focus {
+  border-color: var(--mantine-primary-color-filled);
+  outline: none;
 }
 
 .empty {
@@ -237,39 +256,8 @@ onMounted(async () => {
   color: var(--vp-c-text-2);
 }
 
-/* The theme makes `--vp-c-brand-soft` a solid color in dark mode, so these outline
-   rather than fill - a tinted background would drop the label's contrast. */
-.badge {
-  padding: 1px 8px;
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 18px;
-  border: 1px solid;
-  border-radius: 999px;
-}
-
-.badge.latest {
-  color: var(--vp-c-brand-1);
-}
-
-.badge.pre {
-  color: var(--vp-c-warning-1);
-}
-
 .no-notes {
   color: var(--vp-c-text-2);
-}
-
-.assets summary {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--vp-c-text-2);
-  cursor: pointer;
-}
-
-.assets table {
-  margin-top: 12px;
-  font-size: 14px;
 }
 
 .release-links {

@@ -6,6 +6,10 @@ description: Performance benchmarks comparing the Calagopus panel with Pterodact
 <script setup>
 import { computed, ref } from 'vue'
 import BenchChart from '../../../.vitepress/components/BenchChart.vue'
+import Alert from '../../../.vitepress/components/ui/Alert.vue'
+import Badge from '../../../.vitepress/components/ui/Badge.vue'
+import Card from '../../../.vitepress/components/ui/Card.vue'
+import SegmentedControl from '../../../.vitepress/components/ui/SegmentedControl.vue'
 import {
   chartSystems,
   cpuOptions,
@@ -200,38 +204,31 @@ For the node agent that runs game servers, see [daemon benchmarks](./daemon-benc
 
 <div class="toolbar">
   <div class="filter-chips" role="group" aria-label="Toggle panels shown in the charts">
-    <button
+    <Badge
       v-for="id in panelIds"
       :key="id"
+      component="button"
       type="button"
+      variant="dot"
+      size="lg"
+      :dot-color="panels[id].color"
       class="filter-chip"
       :class="{ inactive: !active.has(id) }"
       :aria-pressed="active.has(id)"
       @click="toggle(id)"
-    >
-      <span class="chip-dot" :style="{ background: panels[id].color }"></span>
-      <span class="chip-name">{{ panels[id].name }}</span>
-    </button>
+    >{{ panels[id].name }}</Badge>
   </div>
   <div class="toolbar-row">
     <p class="panel-hint toolbar-hint">Click a panel to show or hide it. Dots match the bar colours.</p>
-    <div class="segmented" role="group" aria-label="CPU limit">
+    <div class="segmented">
       <span class="segmented-label">CPU limit</span>
-      <button
-        v-for="c in cpuOptions"
-        :key="c"
-        type="button"
-        class="segment"
-        :class="{ active: selectedCpus === c }"
-        :aria-pressed="selectedCpus === c"
-        @click="selectedCpus = c"
-      >{{ c }}</button>
+      <SegmentedControl v-model="selectedCpus" :data="cpuOptions" size="xs" aria-label="CPU limit" />
     </div>
   </div>
 </div>
 
 <div class="headline-stats">
-  <div v-for="card in statCards" :key="card.label" class="stat">
+  <Card v-for="card in statCards" :key="card.label" class="stat">
     <div class="stat-label">{{ card.label }} · {{ selectedCpus }}c</div>
     <div class="stat-value">{{ card.value }} <span>{{ card.unit }}</span></div>
     <div v-if="card.note" class="stat-note">{{ card.note }}</div>
@@ -247,88 +244,54 @@ For the node agent that runs game servers, see [daemon benchmarks](./daemon-benc
         <span class="stat-row-name">{{ row.name }}</span>
       </div>
     </div>
-  </div>
+  </Card>
 </div>
 <p class="panel-hint">Headline figures come from <code>settings (unauth)</code>, the one scenario every panel answers with real <code>200</code>s. The authenticated scenarios are dominated by each panel's own rate limiting, so they are not comparable as throughput. <a href="#test-setup">How this was measured</a></p>
 
-<div v-if="pendingSystems.length" class="pending-note">
-  <strong>Re-run in progress.</strong>
+<Alert v-if="pendingSystems.length" title="Re-run in progress" class="pending-note">
   {{ pendingSystems.map((s) => s.name).join(', ') }}
   {{ pendingSystems.length === 1 ? 'has' : 'have' }} not been re-measured on this run yet and
   {{ pendingSystems.length === 1 ? 'is' : 'are' }} not charted below.
-</div>
+</Alert>
 
 ## Throughput
 
-<div class="chart-card">
+<Card class="chart-card">
   <div class="chart-cap">
     <span>Requests per second</span>
-    <div class="segmented" role="group" aria-label="Scenario">
-      <button
-        v-for="name in scenarios"
-        :key="name"
-        type="button"
-        class="segment"
-        :class="{ active: selectedScenario === name }"
-        :aria-pressed="selectedScenario === name"
-        @click="selectedScenario = name"
-      >{{ name }}</button>
-    </div>
+    <SegmentedControl v-model="selectedScenario" :data="scenarios" size="xs" aria-label="Scenario" />
   </div>
   <p class="chart-sub">↑ Higher is better - more requests served per second.</p>
-  <p v-if="selectedScenario !== CLEAN_SCENARIO" class="scenario-warn">Not a like-for-like comparison. Panels keep their default rate limiting, so most of them answer this scenario with <code>429</code>s or errors instead of real responses.</p>
+  <Alert v-if="selectedScenario !== CLEAN_SCENARIO" color="yellow" class="scenario-warn">Not a like-for-like comparison. Panels keep their default rate limiting, so most of them answer this scenario with <code>429</code>s or errors instead of real responses.</Alert>
   <BenchChart v-for="s in scenarioCharts" :key="`rps-${s.name}`" :option="s.rps" :height="chartHeight" :active="s.name === selectedScenario" />
-</div>
+</Card>
 
 ## Latency
 
-<div class="chart-card">
+<Card class="chart-card">
   <div class="chart-cap">
-    <div class="segmented" role="group" aria-label="Latency statistic">
-      <button type="button" class="segment" :class="{ active: latencyStat === 'mean' }" :aria-pressed="latencyStat === 'mean'" @click="latencyStat = 'mean'">average</button>
-      <button type="button" class="segment" :class="{ active: latencyStat === 'p99' }" :aria-pressed="latencyStat === 'p99'" @click="latencyStat = 'p99'">p99</button>
-    </div>
-    <div class="segmented" role="group" aria-label="Scenario">
-      <button
-        v-for="name in scenarios"
-        :key="name"
-        type="button"
-        class="segment"
-        :class="{ active: selectedScenario === name }"
-        :aria-pressed="selectedScenario === name"
-        @click="selectedScenario = name"
-      >{{ name }}</button>
-    </div>
+    <SegmentedControl v-model="latencyStat" :data="[{ value: 'mean', label: 'average' }, 'p99']" size="xs" aria-label="Latency statistic" />
+    <SegmentedControl v-model="selectedScenario" :data="scenarios" size="xs" aria-label="Scenario" />
   </div>
   <p class="chart-sub">↓ Lower is better - {{ latencyStat === 'mean' ? 'faster average response' : 'faster worst-case (p99) response' }}.</p>
-  <p v-if="selectedScenario !== CLEAN_SCENARIO" class="scenario-warn">Not a like-for-like comparison. Panels keep their default rate limiting, so most of them answer this scenario with <code>429</code>s or errors instead of real responses.</p>
+  <Alert v-if="selectedScenario !== CLEAN_SCENARIO" color="yellow" class="scenario-warn">Not a like-for-like comparison. Panels keep their default rate limiting, so most of them answer this scenario with <code>429</code>s or errors instead of real responses.</Alert>
   <template v-for="s in scenarioCharts" :key="`lat-${s.name}`">
     <BenchChart :option="s.latMean" :height="chartHeight" :active="s.name === selectedScenario && latencyStat === 'mean'" />
     <BenchChart :option="s.latP99" :height="chartHeight" :active="s.name === selectedScenario && latencyStat === 'p99'" />
   </template>
-</div>
+</Card>
 
 ## CPU cost per request
 
-<div class="chart-card">
+<Card class="chart-card">
   <div class="chart-cap">
     <span>CPU time per response</span>
-    <div class="segmented" role="group" aria-label="Scenario">
-      <button
-        v-for="name in scenarios"
-        :key="name"
-        type="button"
-        class="segment"
-        :class="{ active: selectedScenario === name }"
-        :aria-pressed="selectedScenario === name"
-        @click="selectedScenario = name"
-      >{{ name }}</button>
-    </div>
+    <SegmentedControl v-model="selectedScenario" :data="scenarios" size="xs" aria-label="Scenario" />
   </div>
   <p class="chart-sub">↓ Lower is better - less CPU burned per response, with the idle floor removed.</p>
-  <p v-if="selectedScenario !== CLEAN_SCENARIO" class="scenario-warn">Not a like-for-like comparison. Panels keep their default rate limiting, so most of them answer this scenario with <code>429</code>s or errors instead of real responses.</p>
+  <Alert v-if="selectedScenario !== CLEAN_SCENARIO" color="yellow" class="scenario-warn">Not a like-for-like comparison. Panels keep their default rate limiting, so most of them answer this scenario with <code>429</code>s or errors instead of real responses.</Alert>
   <BenchChart v-for="s in scenarioCharts" :key="`cpu-${s.name}`" :option="s.cpuCost" :height="chartHeight" :active="s.name === selectedScenario" />
-</div>
+</Card>
 
 ::: tip Reading the CPU charts
 On `settings (unauth)`, Calagopus spends 0.02 to 0.16 ms per request and the PHP panels spend 2 to 138 ms, two to three orders of magnitude more. PufferPanel, the other compiled panel, is in the same class as Calagopus and slightly cheaper on all but four configurations.
@@ -338,24 +301,21 @@ This matters most when the panel shares a box with game servers. A game server r
 
 ## Memory
 
-<div class="chart-card">
+<Card class="chart-card">
   <div class="chart-cap"><span>Resting (idle)</span></div>
   <p class="chart-sub">↓ Lower is better - footprint with no traffic, sampled before the run.</p>
   <BenchChart :option="idleMem" :height="chartHeight" />
-</div>
+</Card>
 
-<div class="chart-card">
+<Card class="chart-card">
   <div class="chart-cap">
     <span>While serving load</span>
-    <div class="segmented" role="group" aria-label="Memory statistic">
-      <button type="button" class="segment" :class="{ active: loadMemStat === 'peak' }" :aria-pressed="loadMemStat === 'peak'" @click="loadMemStat = 'peak'">peak</button>
-      <button type="button" class="segment" :class="{ active: loadMemStat === 'mean' }" :aria-pressed="loadMemStat === 'mean'" @click="loadMemStat = 'mean'">mean</button>
-    </div>
+    <SegmentedControl v-model="loadMemStat" :data="['peak', 'mean']" size="xs" aria-label="Memory statistic" />
   </div>
   <p class="chart-sub">↓ Lower is better - {{ loadMemStat === 'peak' ? 'worst-case footprint' : 'average footprint across the run' }} on <code>settings (unauth)</code>.</p>
   <BenchChart :option="memPeak" :height="chartHeight" :active="loadMemStat === 'peak'" />
   <BenchChart :option="memMean" :height="chartHeight" :active="loadMemStat === 'mean'" />
-</div>
+</Card>
 
 ::: tip Reading the memory charts
 The gap between the idle and peak charts is what a panel costs above its resting footprint. Calagopus stays within about 15 MiB of idle, and PufferPanel starts smaller and ends up in the same range. The PHP panels grow: on the Ryzen at eight CPUs, Pelican rests at 174 MiB and reaches 384 MiB under load.
@@ -374,12 +334,12 @@ Memory is `anon + shmem`, excluding page cache and slab. `cpu-ms` is CPU time pe
 ### Panels tested
 
 <div class="panel-strip">
-  <div v-for="id in panelIds" :key="id" class="panel-chip">
+  <Card v-for="id in panelIds" :key="id" padding="xs" class="panel-chip">
     <span class="chip-dot" :style="{ background: panels[id].color }"></span>
     <img :src="panels[id].icon" :alt="''" height="16" />
     <span class="chip-name">{{ panels[id].name }}</span>
     <code v-if="panelVersions[id]" class="chip-version">{{ panelVersions[id] }}</code>
-  </div>
+  </Card>
 </div>
 
 ### Test environments
@@ -437,13 +397,7 @@ Raw numbers are only part of the picture. For feature-by-feature breakdowns agai
 <style scoped>
 .scenario-warn {
   margin: 0.4rem 0;
-  padding: 0.4rem 0.7rem;
-  border-left: 3px solid var(--vp-c-warning-1);
-  border-radius: 4px;
-  background: var(--vp-c-warning-soft);
-  font-size: 0.76rem;
-  line-height: 1.5;
-  color: var(--vp-c-text-2);
+  padding: var(--mantine-spacing-xs) var(--mantine-spacing-sm);
 }
 
 .headline-stats {
@@ -456,8 +410,6 @@ Raw numbers are only part of the picture. For feature-by-feature breakdowns agai
 .stat {
   min-width: 0;
   padding: 0.9rem 1.1rem;
-  background: var(--vp-c-bg-soft);
-  border-radius: 10px;
 }
 
 .stat-label {
@@ -539,8 +491,8 @@ Raw numbers are only part of the picture. For feature-by-feature breakdowns agai
 
 .env-table {
   margin: 1.2rem 0 0.4rem;
-  border: 1px solid var(--vp-c-divider);
-  border-radius: 10px;
+  border: 1px solid var(--mantine-color-default-border);
+  border-radius: var(--mantine-radius-md);
   overflow: hidden;
   font-family: var(--vp-font-family-mono);
   font-size: 0.82rem;
@@ -548,15 +500,35 @@ Raw numbers are only part of the picture. For feature-by-feature breakdowns agai
 
 /* Reset the VitePress .vp-doc details/summary theme styling. */
 .env-item {
+  interpolate-size: allow-keywords;
   margin: 0;
   padding: 0;
   border: none;
   border-radius: 0;
-  background: var(--vp-c-bg-soft);
+  background: var(--mantine-color-default);
+}
+
+.env-item::details-content {
+  block-size: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition:
+    block-size 200ms ease,
+    opacity 200ms ease,
+    content-visibility 200ms allow-discrete;
+}
+
+.env-item[open]::details-content {
+  block-size: auto;
+  opacity: 1;
 }
 
 .env-item + .env-item {
-  border-top: 1px solid var(--vp-c-divider);
+  border-top: 1px solid var(--mantine-color-gray-3);
+}
+
+.dark .env-item + .env-item {
+  border-top-color: var(--mantine-color-dark-4);
 }
 
 .env-line {
@@ -577,15 +549,18 @@ Raw numbers are only part of the picture. For feature-by-feature breakdowns agai
 }
 
 .env-line::after {
-  content: '+';
-  font-size: 1rem;
-  color: var(--vp-c-text-3);
-  transition: transform 0.2s ease;
+  content: '';
   justify-self: end;
+  width: 0.75em;
+  height: 0.75em;
+  background-color: var(--mantine-color-gray-6);
+  mask: var(--collapsible-chevron) center / contain no-repeat;
+  transform: rotate(-90deg);
+  transition: transform 150ms ease;
 }
 
 .env-item[open] .env-line::after {
-  transform: rotate(45deg);
+  transform: rotate(0deg);
 }
 
 .env-line:hover .env-name {

@@ -15,7 +15,7 @@ The **Application** tab has an **Advanced mode** toggle in the top right. It rev
 
 ## Application
 
-![](./images/settings/application.webp)
+![Admin Settings Application tab with name, icon, URL, session, two-factor, telemetry, and registration options](./images/settings/application.webp)
 
 | Field | Description |
 | --- | --- |
@@ -67,7 +67,7 @@ Trailing slashes are stripped and duplicates of the main URL are dropped on save
 
 ## Metadata
 
-![](./images/settings/metadata.webp)
+![Admin Settings Metadata tab with description, preview image, Twitter card type, theme color, and search indexing toggle](./images/settings/metadata.webp)
 
 Controls the `<head>` of the panel's own page: what search engines record and what a link to your panel looks like when it is pasted into Discord, Slack, or a social app. These values are rendered into the HTML the panel serves, so they apply before anyone logs in.
 
@@ -115,7 +115,7 @@ How the panel sends email. Pick a **Provider**:
 
 The emails the panel sends, editable per template. The tab requires `email-templates.read`; saving requires `email-templates.update`.
 
-![](./images/settings/mail-templates.webp)
+![Admin Settings Mail Templates tab with the account_created template, HTML editor, and variables panel](./images/settings/mail-templates.webp)
 
 Pick a template from the **Templates** sidebar to edit its **Subject**, an **Enabled** toggle, and the HTML content in the editor. The built-in templates cover account creation, password resets, email verification, login codes for email two-factor, the connection test, being added to or removed from a server, and server installs and restores.
 
@@ -164,7 +164,7 @@ For **reCAPTCHA V3**, **Score threshold** is the minimum accepted score, from `0
 
 ## Webauthn
 
-![](./images/settings/webauthn.webp)
+![Admin Settings Webauthn tab with security key toggles, RP Id, RP Origin, and timeout fields](./images/settings/webauthn.webp)
 
 The settings behind [Security Keys](../dashboard/security-keys.md) and the login page's [passkey options](../auth/login.md#sign-in-with-a-passkey).
 
@@ -185,7 +185,7 @@ Changing the **RP Id** breaks all existing WebAuthn credentials and forces users
 
 ## Server
 
-![](./images/settings/server.webp)
+![Admin Settings Server tab with limits for file manager, schedules, subusers, backups, and databases](./images/settings/server.webp)
 
 Limits and behavior toggles that apply to all servers on the panel.
 
@@ -213,7 +213,7 @@ The database instance limits apply to [managed databases](../../../db-agent/inde
 
 ## User
 
-![](./images/settings/user.webp)
+![Admin Settings User tab with per-user limits and a collapsed Client Route Order section](./images/settings/user.webp)
 
 Per-account limits for [Dashboard](../dashboard/index.md) features.
 
@@ -230,13 +230,13 @@ Per-account limits for [Dashboard](../dashboard/index.md) features.
 
 Below the limits, **Client Route Order** is a collapsible section: enable it to reorder the pages of the user dashboard sidebar for everyone. Drag entries to reorder, and use the row at the bottom to insert extra entries: a **Route**, a **Divider**, or a **Redirect** (a name plus an external URL). It's the same editor egg configurations use for the [server sidebar](./egg-configurations.md#route-configuration).
 
-![](./images/settings/client-route-order.webp)
+![Client Route Order section listing account routes from Account to Activity with a route picker](./images/settings/client-route-order.webp)
 
-![](./images/settings/route-divider-redirect.webp)
+![Route type dropdown open with Route, Divider, and Redirect choices](./images/settings/route-divider-redirect.webp)
 
 ## Activity
 
-![](./images/settings/activity.webp)
+![Admin Settings Activity tab with retention days, retention counts, logging toggles, and Hide Server Activity IPs](./images/settings/activity.webp)
 
 Retention for the three activity logs and what gets logged.
 
@@ -252,7 +252,7 @@ Retention for the three activity logs and what gets logged.
 
 ## Ratelimits
 
-![](./images/settings/ratelimits.webp)
+![Admin Settings Ratelimits tab with hits and window fields per route, plus exempt IPs and API keys](./images/settings/ratelimits.webp)
 
 Per-endpoint API rate limits. Each endpoint card has two values: **Hits**, the maximum number of requests allowed per window, and **Window**, the window duration in seconds.
 

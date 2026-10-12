@@ -37,7 +37,7 @@ Each service page in the Paymenter client area gets a **Go to Server** button th
 
 Live usage comes from the node. If the node can't be reached, the summary falls back to the configured limits.
 
-![](./images/paymenter/client-area.webp)
+![Paymenter service page with a Go to Server button and a server card showing address, location, memory, disk, and CPU](./images/paymenter/client-area.webp)
 
 ## Requirements
 
@@ -66,7 +66,7 @@ Live usage comes from the node. If the node can't be reached, the summary falls 
 
 4. Click **Create**. On the saved server, use **Test Connection** next to the **Server** field to confirm Paymenter can reach the panel with the supplied key.
 
-![](./images/paymenter/server-config.webp)
+![Paymenter Create Server form with Calagopus selected and Panel URL, API Key, language, and OAuth Provider UUID fields](./images/paymenter/server-config.webp)
 
 ## Configuring a product
 
@@ -76,7 +76,7 @@ Create a product (or edit an existing one) and select **Calagopus** as the serve
 The **Nest**, **Egg**, **Node**, and **Location(s)** fields are populated live from your panel through the API key you configured on the server, so you can pick them from dropdowns rather than copying UUIDs by hand. Choosing a nest refreshes the available eggs.
 :::
 
-![](./images/paymenter/product-config.webp)
+![Paymenter product settings for Nest, Egg, node, locations, and memory, swap, disk, and CPU limits](./images/paymenter/product-config.webp)
 
 ### Deployment target
 
@@ -143,9 +143,9 @@ Name the environment variable after a product setting key and its value replaces
 
 For example, a config option named **Memory** with the environment variable `memory`, the type **Select**, and choices whose environment variables are `2048`, `4096`, and `8192` lets a customer pick their RAM tier at checkout. The product's own **Memory** field is the default when the option is not on the service.
 
-![](./images/paymenter/config-option.webp)
+![Paymenter configuration option General tab for Memory with environment variable memory and type Select](./images/paymenter/config-option.webp)
 
-![](./images/paymenter/config-option-choices.webp)
+![Paymenter configuration option Options tab listing 2 GB, 4 GB, and 8 GB choices with environment variable 2048 on the first](./images/paymenter/config-option-choices.webp)
 
 ### Set an egg variable
 
@@ -190,7 +190,7 @@ Links are only created at server creation, so customers who already had a server
 - **All at once** - on the saved Calagopus server in Paymenter, click **Sync All Users** next to the **OAuth Provider UUID** field. This queues a background sweep over every customer who owns a service on that server, so it needs a running queue worker. Save any pending changes first, since the sweep uses the saved configuration.
 - **One customer at a time** - go to **Calagopus OAuth Links** in the admin area, find the customer, and click **Sync** on their row.
 
-![](./images/paymenter/oauth-sync-all.webp)
+![Paymenter OAuth Provider UUID field with a Sync All Users link](./images/paymenter/oauth-sync-all.webp)
 
 Neither creates panel accounts; they only add missing links. A customer is linked only when their panel user has the same email and they have verified their email in Paymenter. The **Calagopus OAuth Links** page lists every customer with a service on the server, shows the progress of a running sweep, and keeps each customer's last result:
 
@@ -203,7 +203,7 @@ Neither creates panel accounts; they only add missing links. A customer is linke
 | Email unverified | The customer hasn't verified their Paymenter email. Email verification is off on a default Paymenter install, so most customers land here until they verify or you link them in the panel. |
 | Failed | The panel rejected the request. The reason is shown on the page. |
 
-![](./images/paymenter/oauth-links.webp)
+![Paymenter Calagopus OAuth Links page listing a customer with an Already linked result and a Sync button](./images/paymenter/oauth-links.webp)
 
 ::: info
 The provided template is configured as **login only** - customers use it to authenticate, and the provider does not let them manage the link themselves. For more on OAuth providers in general, see [Setting up OAuth](../additional/setting-up-oauth/index.md).

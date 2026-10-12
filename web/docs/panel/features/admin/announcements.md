@@ -9,7 +9,7 @@ Announcements (**System** > **Announcements**) are colored banners shown to user
 
 The list shows each announcement's **ID**, **Type**, **Title**, **Enabled**, and **Created**.
 
-![](./images/announcements/list.webp)
+![Admin announcement list with one enabled Info announcement and a Create button](./images/announcements/list.webp)
 
 ## Creating an Announcement
 
@@ -29,9 +29,9 @@ Click **Create**.
 
 The four types set the banner's color and icon, the language selector next to Title and Content holds the per-language variants, and the Enabled Start/End fields use a date picker with an optional time. Every user sees the variant matching their own panel language, with the default text as the fallback for languages you didn't fill in:
 
-![](./images/announcements/types.webp)
-![](./images/announcements/languages.webp)
-![](./images/announcements/calendar.webp)
+![Announcement Type dropdown open with Info, Success, Warning, and Error options](./images/announcements/types.webp)
+![Language dropdown open listing English, Arabic, German, Spanish, French, Italian, Dutch, and Romanian](./images/announcements/languages.webp)
+![Date picker with a month calendar and a time field for the dismissible end date](./images/announcements/calendar.webp)
 
 ### Targeting
 
@@ -46,6 +46,6 @@ Finish with **Save**, or **Save & Stay** to keep creating. Opening an existing a
 
 In both cases only enabled announcements inside their schedule window are shown.
 
-![](./images/announcements/preview.webp)
+![Info announcement banner with a dismiss button above a server console page](./images/announcements/preview.webp)
 
 Managing announcements requires the `announcements.create`, `announcements.update`, and `announcements.delete` admin permissions. See the [Permissions Reference](../dashboard/permissions.md).

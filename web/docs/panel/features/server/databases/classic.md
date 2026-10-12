@@ -21,7 +21,7 @@ Database hosts are set up by administrators and attached to locations, see [Data
 
 Right-click a database and choose **Details** to open the **Database connection details** modal: database name, host, username, password, and a ready-made **JDBC Connection String** in the form `jdbc:mysql://<username>:<password>@192.0.2.1:3306/<database>`.
 
-![](../images/databases/details-modal.webp)
+![Database connection details dialog with name, host, username, password, JDBC string, and Rotate Password](../images/databases/details-modal.webp)
 
 The password is only visible with the `databases.read-password` permission. From the same modal, **Rotate Password** generates a new password immediately, invalidating the old one.
 

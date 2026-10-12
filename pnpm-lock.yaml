@@ -65,9 +65,6 @@ importers:
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
-      viewerjs:
-        specifier: ^1.15.2
-        version: 1.15.2
       vite:
         specifier: ^8.3.4
         version: 8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1)
@@ -86,9 +83,6 @@ importers:
       vitepress-plugin-tabs:
         specifier: ^0.9.1
         version: 0.9.1(vitepress@2.0.0-alpha.20(@types/node@26.6.4)(esbuild@0.28.2)(postcss@8.5.29)(typescript@7.0.2)(yaml@2.9.1))(vue@3.5.43(typescript@7.0.2))
-      vitepress-plugin-viewerjs:
-        specifier: ^2.0.1
-        version: 2.0.1(vitepress@2.0.0-alpha.20(@types/node@26.6.4)(esbuild@0.28.2)(postcss@8.5.29)(typescript@7.0.2)(yaml@2.9.1))(vue@3.5.43(typescript@7.0.2))
       vue:
         specifier: ^3.5.43
         version: 3.5.43(typescript@7.0.2)
@@ -194,11 +188,6 @@ packages:
     engines: {node: '>=6.0.0'}
     hasBin: true
 
-  '@babel/parser@8.0.6':
-    resolution: {integrity: sha512-LpGDIYJAzc3Y3PT9x+FxBrGYu2PlWxLmyN7SwPTzaX0LSwEmFJBsRnPBqmaXF2r1v+Zhz6lNiEJ+7yKtM5+Ugg==}
-    engines: {node: ^22.18.0 || >=24.11.0}
-    hasBin: true
-
   '@babel/parser@8.0.7':
     resolution: {integrity: sha512-UkDwEbPO1px2JQSrdh4qIgaH1JgG7GO/pFeJkpxhDxIETkT/QvGpnigXIw75ViHYPtIgKITmVUJqLjiO+JuWjA==}
     engines: {node: ^22.18.0 || >=24.11.0}
@@ -226,10 +215,6 @@ packages:
 
   '@babel/template@8.0.0':
     resolution: {integrity: sha512-eAD0QW/AlbamBbw0FeGiwasbCVPq5ncW0HNVyLP3B9czqLyh4gvw+5JTSNt6le9+ziAU7mqDZsKTHf3jTb4chQ==}
-    engines: {node: ^22.18.0 || >=24.11.0}
-
-  '@babel/traverse@8.0.6':
-    resolution: {integrity: sha512-ilYV+qLStGzSKLipJlETdvdtpK3rAuwfCmCoGKv15MU4EoeIuLkespSNoNLFGOPSciEHx9TLWtN5mv0fz5w5mQ==}
     engines: {node: ^22.18.0 || >=24.11.0}
 
   '@babel/traverse@8.0.7':
@@ -2613,9 +2598,6 @@ packages:
   vfile@6.0.3:
     resolution: {integrity: sha512-KzIbH/9tXat2u30jf+smMwFCsno4wHVdNmzFyL+T/L3UGqqk6JKfVqOFOZEpZSHADH1k40ab6NUIXZq422ov3Q==}
 
-  viewerjs@1.15.2:
-    resolution: {integrity: sha512-CYEqSFfPUSnmn1PjrhYxXOScaUC7n8+NpSqI+MrOSM8wcKPe35MlwQYwksuD5rjFkYv/ePmY5NsUa51uRNN2jA==}
-
   vite-imagetools@12.0.1:
     resolution: {integrity: sha512-BZcU5TLmCKJyLo6FIk8detM9TYtFkbwOaZ8ebd+Kt7YQKHXL+xJH/Oxg4bBNx8xcP3NPVblE6DI/VCaKja5nYQ==}
     engines: {node: '>=22.0.0'}
@@ -2689,12 +2671,6 @@ packages:
     peerDependencies:
       vitepress: ^1.0.0 || ^2.0.0-alpha.17
       vue: ^3.5.0
-
-  vitepress-plugin-viewerjs@2.0.1:
-    resolution: {integrity: sha512-b5gT6hk7ZOViz/wGhEjzw1HNDlu4v5diTiDH2fGijtSA+/OlaxL9CtyjrNZx2cFv5nxUFEtoz25sHnF+6xK/CA==}
-    peerDependencies:
-      vitepress: ^1.0.0 || ^2.0.0-alpha.0
-      vue: ^3.4.0
 
   vitepress@2.0.0-alpha.20:
     resolution: {integrity: sha512-uQWKmP9PaBkf9zxHn0iOml/ZPPDaGKqQXVMBHz3yjwyyd9Eg+BKLGxbqmOGlfOMCt6Fj8TLiAnE59qlKZ0A3xw==}
@@ -2805,9 +2781,9 @@ snapshots:
       '@babel/generator': 8.0.6
       '@babel/helper-compilation-targets': 8.0.5
       '@babel/helpers': 8.0.5
-      '@babel/parser': 8.0.6
+      '@babel/parser': 8.0.7
       '@babel/template': 8.0.0
-      '@babel/traverse': 8.0.6
+      '@babel/traverse': 8.0.7
       '@babel/types': 8.0.6
       '@types/gensync': 1.0.5
       convert-source-map: 2.0.0
@@ -2820,7 +2796,7 @@ snapshots:
 
   '@babel/generator@8.0.6':
     dependencies:
-      '@babel/parser': 8.0.6
+      '@babel/parser': 8.0.7
       '@babel/types': 8.0.6
       '@jridgewell/gen-mapping': 0.4.0-beta.0
       '@jridgewell/trace-mapping': 0.3.31
@@ -2896,10 +2872,6 @@ snapshots:
     dependencies:
       '@babel/types': 7.29.8
 
-  '@babel/parser@8.0.6':
-    dependencies:
-      '@babel/types': 8.0.6
-
   '@babel/parser@8.0.7':
     dependencies:
       '@babel/types': 8.0.6
@@ -2925,18 +2897,8 @@ snapshots:
   '@babel/template@8.0.0':
     dependencies:
       '@babel/code-frame': 8.0.6
-      '@babel/parser': 8.0.6
+      '@babel/parser': 8.0.7
       '@babel/types': 8.0.6
-
-  '@babel/traverse@8.0.6':
-    dependencies:
-      '@babel/code-frame': 8.0.6
-      '@babel/generator': 8.0.6
-      '@babel/helper-globals': 8.0.6
-      '@babel/parser': 8.0.6
-      '@babel/template': 8.0.0
-      '@babel/types': 8.0.6
-      obug: 2.2.1
 
   '@babel/traverse@8.0.7':
     dependencies:
@@ -5133,8 +5095,6 @@ snapshots:
       '@types/unist': 3.0.3
       vfile-message: 4.0.3
 
-  viewerjs@1.15.2: {}
-
   vite-imagetools@12.0.1(@types/node@26.6.4)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1)):
     dependencies:
       '@rollup/pluginutils': 5.4.0
@@ -5176,12 +5136,6 @@ snapshots:
 
   vitepress-plugin-tabs@0.9.1(vitepress@2.0.0-alpha.20(@types/node@26.6.4)(esbuild@0.28.2)(postcss@8.5.29)(typescript@7.0.2)(yaml@2.9.1))(vue@3.5.43(typescript@7.0.2)):
     dependencies:
-      vitepress: 2.0.0-alpha.20(@types/node@26.6.4)(esbuild@0.28.2)(postcss@8.5.29)(typescript@7.0.2)(yaml@2.9.1)
-      vue: 3.5.43(typescript@7.0.2)
-
-  vitepress-plugin-viewerjs@2.0.1(vitepress@2.0.0-alpha.20(@types/node@26.6.4)(esbuild@0.28.2)(postcss@8.5.29)(typescript@7.0.2)(yaml@2.9.1))(vue@3.5.43(typescript@7.0.2)):
-    dependencies:
-      viewerjs: 1.15.2
       vitepress: 2.0.0-alpha.20(@types/node@26.6.4)(esbuild@0.28.2)(postcss@8.5.29)(typescript@7.0.2)(yaml@2.9.1)
       vue: 3.5.43(typescript@7.0.2)
 

@@ -19,11 +19,11 @@ Administrators can also switch the private network off for certain servers throu
 
 A server that has not joined shows **Not on the Private Network**, with "Join to give this server a private address that the servers you connect it to can reach it on." Without the `connections.create` permission the button is gone and the text reads "This server has no private address, so no other server can reach it privately." instead.
 
-![](./images/connections/empty.webp)
+![Connections tab showing Not on the Private Network with a Join Private Network button](./images/connections/empty.webp)
 
 **Join Private Network** asks for a hostname and nothing else.
 
-<img src="./images/connections/join-form.webp" width="220" alt="" />
+<img src="./images/connections/join-form.webp" width="220" alt="Join the Private Network dialog with an optional hostname field" />
 
 Leave it empty and the panel derives one from the server name, lowercasing it and turning anything that isn't a letter or digit into a dash. Type your own and it has to be lowercase letters, digits and dashes, 1 to 63 characters, not starting or ending with a dash. Eight hexadecimal characters are rejected, because that shape is reserved for the alias below; a derived name of that shape gets `-1` appended.
 
@@ -45,7 +45,7 @@ These addresses only resolve from a server that has been granted a connection to
 
 A connection only grants access to the ports the destination server *offers*. **Offered Ports** (needing `connections.update`) is where that list lives.
 
-<img src="./images/connections/ports-form.webp" width="220" alt="" />
+<img src="./images/connections/ports-form.webp" width="220" alt="Offered Ports dialog with port 25125 set to TCP and an Add Port button" />
 
 Each entry is a port and one or both of **TCP** and **UDP**. **Add Port** appends a row; when the server has allocations whose ports aren't offered yet, they appear as `+ 25565` badges next to the button that add themselves in one click. The counter on the right reads "1 of 10 used" against the administrator's [per-server cap](../../admin/settings.md#server), and listing the same port twice is refused.
 
@@ -64,7 +64,7 @@ The canvas puts this server on the left and every server it is linked with on th
 
 Both edges are always drawn. A granted one is solid and arrowed; an ungranted one is dashed and faded, so "that server cannot reach us" looks different from "that server isn't here". The two colours are the same pair the console's network graph uses for outbound and inbound traffic.
 
-![](./images/connections/graph.webp)
+![Connections graph of a Hub server with outbound and inbound links to Lobby, Proxy, and Survival servers](./images/connections/graph.webp)
 
 Above, this server reaches all three peers, and only `proxy` reaches back.
 
@@ -76,7 +76,7 @@ Each peer card lists the addresses and ports *you* would use to reach it. A peer
 
 **Connect a Server** opens a picker of servers already on the private network - a server has to have joined before it can be connected - and then a switch per direction. Each switch previews the addresses it would make reachable. Admins get a **Show other user's servers** toggle to reach beyond their own.
 
-<img src="./images/connections/connect-form.webp" width="220" alt="" />
+<img src="./images/connections/connect-form.webp" width="220" alt="Connect a Server dialog with a server selector and toggles for each connection direction" />
 
 Both switches can be flipped at once, which grants two separate connections. Either one is blocked, with the reason shown inline, when:
 

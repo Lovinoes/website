@@ -9,17 +9,17 @@ The Servers page is the landing page for most users and lists every server you h
 
 Pressing `Enter` in the search box of **All Servers**, or of an expanded group, opens the first server in the results.
 
-![](./images/servers/all-servers.webp)
+![Servers page All Servers tab with Minecraft and Fabric Modpack cards showing address and resource usage](./images/servers/all-servers.webp)
 
 Each server card shows its power state, name, address, and live CPU, memory, and disk usage, and surfaces **Suspended**, **Transferring**, and **Node Maintenance** states. If the panel can't get live stats from the server's node, the usage area shows **Resource Usage Unavailable** instead of loading forever. Servers owned by someone else carry a **Foreign** badge ("This server is owned by another user, you have access to it as a subuser or administrator"). If your account has the `servers.read` admin permission, a **Show other user's servers** toggle appears in the top right; it's off by default.
 
-![](./images/servers/other-users-toggle.webp)
+![Show other users servers toggle enabled, adding a Fabric Modpack card with a Foreign badge](./images/servers/other-users-toggle.webp)
 
 ## Grouped Servers
 
 Groups are personal and only affect how servers are organized for you, they don't change who has access to a server.
 
-![](./images/servers/grouped-servers.webp)
+![Grouped Servers tab with a Game Servers group containing two servers and a Create Group button](./images/servers/grouped-servers.webp)
 
 ### Creating a Group
 
@@ -50,8 +50,8 @@ Groups are collapsible; click the chevron to expand or collapse one, and drag se
 
 Dragging also works *between* groups: drop a server onto another group to move it there, and a "Server moved to {group}." toast confirms it. Two things block a drop, and the target group tells you which as you hover it: **Already in this group**, or **Group is full**, since a group cannot hold more than 100 servers. A collapsed group won't accept a drop either; expand it first.
 
-![](./images/servers/group-collapsed.webp)
-![](./images/servers/group-expanded.webp)
+![Game Servers group expanded showing its Minecraft and Fabric Modpack servers](./images/servers/group-expanded.webp)
+![Game Servers group collapsed to a single header row](./images/servers/group-collapsed.webp)
 
 Use the select-all control in **All Servers** for the current page, or the control in a group header for that group's displayed servers. It does not add servers on other pages or in other groups, but earlier selections there remain selected and still count toward bulk actions.
 

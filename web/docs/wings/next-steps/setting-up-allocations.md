@@ -9,11 +9,11 @@ An allocation is an IP address and port combination that you assign to a server.
 
 To create allocations, go to **Admin → Nodes**, click your node, then open the **Allocations** tab.
 
-![](./images/setting-up-allocations/allocation-1.webp)
+![Node page tabs with the Allocations tab highlighted](./images/setting-up-allocations/allocation-1.webp)
 
 Click **Create** and a popup will appear:
 
-![](./images/setting-up-allocations/allocation-popup.webp)
+![Create Node Allocations dialog with IP, IP Alias, and Port Ranges fields](./images/setting-up-allocations/allocation-popup.webp)
 
 **IP address**: Use an IP assigned to an interface on the Wings host, or `0.0.0.0` to bind all its IPv4 interfaces. The panel's **IP** field suggests the host's interface addresses when Wings runs directly on the host (not in a container); otherwise run `ip addr` to inspect them. `hostname -I` can include private and Docker addresses; its first result is not necessarily your public IP. If your provider routes a public IP to a private address on the VPS, bind the private address or `0.0.0.0` and enter the public address as the alias below.
 

@@ -15,7 +15,7 @@ Calagopus has backwards compatibility for Pterodactyl eggs, so you can use the o
 ::: info
 You can also add egg repositories directly from the OOBE when first setting up Calagopus - select the repositories you want and click Import.
 
-![](./images/egg-repos/oobe.webp)
+![Setup wizard Egg Repositories step with three Pterodactyl egg repositories ticked and an Import button](./images/egg-repos/oobe.webp)
 :::
 
 ## How Egg Repositories Work
@@ -33,11 +33,11 @@ Fill in the fields:
 - **Git Repository**: The full URL of the Git repository (e.g. `https://github.com/pterodactyl/game-eggs`).
 - **Description**: Optional description.
 
-![](./images/egg-repos/add-2.webp)
+![Create Egg Repository form with Name, Git Repository, and Description fields](./images/egg-repos/add-2.webp)
 
 Click **Save**, then click **Sync** to pull the egg list from the repository.
 
-![](./images/egg-repos/sync.webp)
+![Update Egg Repository form for Games with the Sync button highlighted](./images/egg-repos/sync.webp)
 
 This doesn't install any eggs - it populates the Eggs tab with the full list from the repository so you can choose which ones to import.
 
@@ -45,7 +45,7 @@ This doesn't install any eggs - it populates the Eggs tab with the full list fro
 
 Head to the **Eggs** tab for the repository. You'll see a list of all available eggs.
 
-![](./images/egg-repos/import.webp)
+![Egg repository Eggs tab listing available eggs, each with an install button](./images/egg-repos/import.webp)
 
 For documentation on what a specific egg does, check the same path in the source Git repository.
 
@@ -55,7 +55,7 @@ Select the eggs you want by dragging them into the selection area or searching b
 
 A popup will ask which nest to import into. A nest is a category for eggs, such as Minecraft. If you don't have one yet, [create a nest](../features/admin/nests.md#creating-and-editing-a-nest) under **Admin → Nests**, then return to the repository. Select the nest and click **Install**. This imports the template; it does not create or start a game server.
 
-![](./images/egg-repos/install.webp)
+![Install Egg Repository Egg dialog with a Nest dropdown set to Games and an Install button](./images/egg-repos/install.webp)
 
 ## Updating Eggs
 
@@ -65,20 +65,20 @@ When an egg in the repository has been updated, re-sync the repository first, th
 
 Re-sync the repository:
 
-![](./images/egg-repos/updating-eggrepo.webp)
-![](./images/egg-repos/sync.webp)
+![Egg Repositories list with the sidebar entry and a repository ID highlighted](./images/egg-repos/updating-eggrepo.webp)
+![Update Egg Repository form for Games with the Sync button highlighted](./images/egg-repos/sync.webp)
 
 Then head to **Admin → Nests**, click the nest containing the egg, click the egg, scroll down to the **Update** section, and click **Update from Repository**.
 
-![](./images/egg-repos/nest-update.webp)
-![](./images/egg-repos/egg-update.webp)
-![](./images/egg-repos/update.webp)
+![Nests list with the Nests sidebar entry and the Game-eggs nest highlighted](./images/egg-repos/nest-update.webp)
+![Nest Eggs tab listing eggs with one egg ID highlighted](./images/egg-repos/egg-update.webp)
+![Egg editor with the Update dropdown open and from Repository highlighted](./images/egg-repos/update.webp)
 
 ### Updating Multiple Eggs at Once
 
 Re-sync the repository, then head to **Admin → Nests** and open the nest. Select the eggs you want to update and click **Update from Repository** in the action bar.
 
-![](./images/egg-repos/nest-update.webp)
-![](./images/egg-repos/massupdate.webp)
+![Nests list with the Nests sidebar entry and the Game-eggs nest highlighted](./images/egg-repos/nest-update.webp)
+![Game-eggs list with several eggs selected and the Update from Repository button highlighted](./images/egg-repos/massupdate.webp)
 
 Updating an egg changes its template, not the game files already installed on your servers. Depending on what changed, you may need to update a server's settings, choose a different runtime image, or rerun its installer. Before reinstalling, back up the server and read the [reinstall warning](../features/server/settings.md#reinstall-server): the install script can modify or delete files even when you don't choose to wipe the server first.

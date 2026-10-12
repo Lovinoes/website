@@ -7,7 +7,7 @@ description: Creating an account on a Calagopus panel, what the Register form as
 
 When registration is enabled, the **Create account** link on the [login page](./login.md) leads to `/auth/register` ("Please enter your details to register"). With registration off, the link is hidden and the page shows a not-found card.
 
-![](./images/register/form.webp)
+![Register form with username, email, first name, last name, and password fields plus a Login button](./images/register/form.webp)
 
 The form asks for **Username**, **Email**, **Password** (with a visibility toggle), and optionally **First Name** and **Last Name**. Usernames are 3 to 15 characters of letters, numbers, and underscores; passwords need at least 8 characters. Hit **Register** to create the account, or **Login** below the separator to go back.
 

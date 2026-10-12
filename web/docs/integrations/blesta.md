@@ -30,7 +30,7 @@ Clients are matched to panel users by the `external_id` `bl-<client id>`, so eac
 
 Clients see a summary of their server when they expand the service in their services list:
 
-![](./images/blesta/client-area.webp)
+![Blesta services list with an expanded service showing status, address, memory, disk, CPU, and an Open Panel button](./images/blesta/client-area.webp)
 
 It shows the same information the panel does:
 
@@ -42,11 +42,11 @@ It shows the same information the panel does:
 
 The same summary is also on its own **Server** tab when the client manages the service:
 
-![](./images/blesta/server-tab.webp)
+![Blesta Manage service page with the Server tab showing address, resource usage, and Open Panel button](./images/blesta/server-tab.webp)
 
 Staff see the same live state, address and usage when they expand the service on the client's admin page, along with the server UUID, node and panel owner and an **Open Panel** link:
 
-![](./images/blesta/admin-service-info.webp)
+![Blesta admin service information table with server UUID, state, node, owner, resource limits, and Open Panel link](./images/blesta/admin-service-info.webp)
 
 ## Requirements
 
@@ -75,7 +75,7 @@ Staff see the same live state, address and usage when they expand the service on
 
    Saving validates the connection against the panel.
 
-![](./images/blesta/server-config.webp)
+![Blesta Add Calagopus Server form with Server Label, Panel URL, API Key, and Default User Language fields](./images/blesta/server-config.webp)
 
 ## Configuring a package
 
@@ -94,7 +94,7 @@ You can deploy in one of two ways:
 
 At least one of a node or one or more locations must be set, or the package will not save.
 
-![](./images/blesta/package-deployment.webp)
+![Blesta package form with Nest, Egg, Node, and Location fields for deployment](./images/blesta/package-deployment.webp)
 
 ### Resources and limits
 
@@ -124,7 +124,7 @@ At least one of a node or one or more locations must be set, or the package will
 
 The package form renders a field for each of the egg's environment variables, validated against the egg's own rules. Each variable has a checkbox under its field. Tick it to show that variable to the client during checkout so they can set its value themselves, or leave it unticked to keep the value fixed by the package.
 
-![](./images/blesta/package-egg-variables.webp)
+![Blesta package egg variable fields, each with a checkbox beneath it to show it at checkout](./images/blesta/package-egg-variables.webp)
 
 ## Overriding settings with configurable options
 

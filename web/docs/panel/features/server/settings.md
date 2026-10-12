@@ -45,7 +45,7 @@ Runs the egg's install script again, as if the server were being set up fresh.
 
 Clicking **Reinstall Server** opens a confirmation. Its first switch reads "Do you want to delete all files of this server before performing this action? This cannot be undone." Leave it off to keep your files (the install script may still touch some of them), or turn it on to wipe the server first. The second, **Start the server after the reinstall has finished**, boots the server once the install script completes successfully; it is off by default and only shown to users with the `control.start` permission. Confirm with **Reinstall**; the server switches into an installing state and you're returned to the console.
 
-<img src="./images/settings/reinstall-modal.webp" width="220" alt="" />
+<img src="./images/settings/reinstall-modal.webp" width="220" alt="Reinstall Server dialog with delete-all-files and start-after-reinstall toggles" />
 
 
 Each card maps to its own subuser permission (`settings.rename`, `settings.auto-kill`, `settings.auto-start`, `settings.timezone`, `settings.install`), and `settings.cancel-install` separately gates the **Cancel** button on the installing banner. See the [Permissions Reference](../dashboard/permissions.md).

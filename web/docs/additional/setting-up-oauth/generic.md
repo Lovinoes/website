@@ -63,116 +63,91 @@ Then, click on the Create button and you should arrive to a page similar to this
 On that page, fill out these fields according to the guide below. It will explain what each field represents and give you some examples for <a href="/oauth2/pocket-id.yml" download>Download <code>pocket-id.yml</code> ➚</a>.
 
 ## General Information
-### Name
+### Name <Badge type="tip" text="Required" />
 The name of your provider, displayed on the user's OAuth list.
 
-Required: :white_check_mark:\
 Example: `Pocket-ID`
 
-### Description
+### Description <Badge type="info" text="Optional" />
 A description of your provider, useful for organization.
 
-Required: :x:
-
-
 ## OAuth Provider Config
-### Client ID
+### Client ID <Badge type="tip" text="Required" />
 This is your Client ID that your provider has given you.
 
-Required: :white_check_mark:
-
-### Client Secret
+### Client Secret <Badge type="info" text="Optional" />
 This is your Client Secret that your provider has given you. If your provider registered Calagopus as a public client without a secret, leave it empty and turn on [PKCE](#pkce).
 
-Required: :x:
-
-
 ## OAuth URLs
-### Auth URL
+### Auth URL <Badge type="tip" text="Required" />
 This is the Authentication URL that you have grabbed from the `authorization_endpoint` JSON key.
 
-Required: :white_check_mark:\
 Example: `https://id.example.com/authorize`
 
-### Token URL
+### Token URL <Badge type="tip" text="Required" />
 This is the Token URL that you have grabbed from the `token_endpoint` JSON key.
 
-Required: :white_check_mark:\
 Example: `https://id.example.com/api/oidc/token`
 
-### Info URL
+### Info URL <Badge type="tip" text="Required" />
 This is the User Info URL that you have grabbed from the `userinfo_endpoint` JSON key.
 
-Required: :white_check_mark:\
 Example: `https://id.example.com/api/oidc/userinfo`
 
-### Basic Auth
+### Basic Auth <Badge type="info" text="Optional" />
 Enable this if your provider transmits the Client ID and Client Secret via HTTP Basic Authentication. Do not enable this option unless you know what you are doing.
 
-Required: :x:\
 Example: Off
 
-### PKCE
+### PKCE <Badge type="info" text="Optional" />
 Sends a Proof Key for Code Exchange (an `S256` code challenge) with every login. It is off by default. **Import from OpenID Discovery** turns it on only when the provider lists `S256` under `code_challenge_methods_supported`. Most modern providers support it, and public clients without a Client Secret usually require it.
 
-Required: :x:\
 Example: On
-
 
 ## Scopes and Paths
 For all the paths, make sure to also add `$.` at the beginning, for example if your email path is `email`, you would do: `$.email`.
-### Scopes
-The scopes used to get the user data via OIDC.
+### Scopes <Badge type="warning" text="Recommended" />
+The scopes used to get the user data via OIDC. The Panel accepts an empty list, but in practice you need them to extract the email, username, first name, last name, and potentially the identifier.
 
-Required: :x: (technically optional per panel validation, but required in practice to extract email, username, first name, last name, and potentially the identifier).\
 Example: `openid`, `email`, `profile`
 
-### Identifier Path
+### Identifier Path <Badge type="tip" text="Required" />
 The Path to use to extract the unique user identifier from the Info URL response (https://serdejsonpath.live)
 
-Required: :white_check_mark:\
 Example: `$.sub`
 
-### Email Path
+### Email Path <Badge type="info" text="Optional" />
 The Path to use to extract the email from the Info URL response (https://serdejsonpath.live)
 
-Required: :x:\
 Example: `$.email`
 
-### Username Path
+### Username Path <Badge type="info" text="Optional" />
 The Path to use to extract the username from the Info URL response (https://serdejsonpath.live)
 
-Required: :x:\
 Example: `$.preferred_username`
 
-### First Name Path
+### First Name Path <Badge type="info" text="Optional" />
 The Path to use to extract the first name from the Info URL response (https://serdejsonpath.live)
 
-Required: :x:\
 Example: `$.given_name`
 
-### Last Name Path
+### Last Name Path <Badge type="info" text="Optional" />
 The Path to use to extract the last name from the Info URL response (https://serdejsonpath.live)
 
-Required: :x:\
 Example: `$.family_name`
 
-
 ## Avatars
-### Avatar URL Template
+### Avatar URL Template <Badge type="info" text="Optional" />
 Where to fetch the user's profile picture from, so it becomes their panel avatar. Unlike the paths above this one is a URL, with `{...}` placeholders that get filled in from the Info URL response. Leave it empty and no avatar is ever imported.
 
 Providers that return the picture URL in the profile response, the standard OIDC `picture` claim, only need the placeholder on its own, and the value is used as-is. If yours hands back pieces instead, build the URL around them, for example `https://id.example.com/avatars/{$.sub}.png`; each piece is then percent-encoded so it cannot break out of the URL you wrote. Note that this also applies to something like `{$.picture}?size=512`, which is no longer a lone placeholder and will not do what you want.
 
-Required: :x:\
 Example: `{$.picture}`
 
-### Overwrite Existing Avatars
+### Overwrite Existing Avatars <Badge type="info" text="Optional" />
 Off, the avatar is imported for users who don't have one yet. On, it is re-imported on every login, replacing an avatar the user uploaded themselves.
 
-Required: :x:\
 Example: Off
-
 
 ## Options
 ### Enabled

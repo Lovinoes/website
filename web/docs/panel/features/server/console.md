@@ -7,7 +7,7 @@ description: The Calagopus server console, with power controls, a live terminal,
 
 The Console is the landing tab of every server: power controls, the live terminal, resource stats, and usage graphs on one page.
 
-![](./images/console/overview.webp)
+![Server console page with live Minecraft log output, command input, resource cards, and usage graphs](./images/console/overview.webp)
 
 ## Power Controls
 
@@ -54,7 +54,7 @@ Click the terminal icon in the command input to set a **Command Prefix** of up t
 
 **Command History** opens a drawer of every command sent to this server, pulled from the [Activity](./activity.md) log (so it needs the `activity.read` permission). Click an entry to see the full command, who sent it (a user, a schedule, or the system), and when. From there, **Send Command** runs it again and **Copy Command** copies it.
 
-<img src="./images/console/command-history.webp" width="200" alt="" />
+<img src="./images/console/command-history.webp" width="200" alt="Command History panel listing recent console commands with the user and time" />
 
 ### SSH Details
 
@@ -62,7 +62,7 @@ Click the terminal icon in the command input to set a **Command Prefix** of up t
 
 Every field except the password copies on click, and **Launch** opens the connection in your system's SSH client. Both this and **Command History** are disabled while the server is suspended or busy installing, restoring, or transferring.
 
-<img src="./images/console/ssh-details.webp" width="220" alt="" />
+<img src="./images/console/ssh-details.webp" width="220" alt="SSH Details dialog with protocol, port, host, username, password, and SSH command fields" />
 
 ## Stats
 
@@ -83,7 +83,7 @@ Below everything, three live graphs: **CPU Load**, **Memory Load**, and **Networ
 
 When the server has a CPU or memory limit, that graph draws it as a dashed red **Limit** line. Once usage reaches 40% of the limit, the graph's scale stretches to the limit so you can see how close the server is; below that the line sits off the top of the graph and only a small **Limit** label marks it. Hovering over one graph highlights the same moment on all three.
 
-![](./images/console/graphs.webp)
+![CPU load, memory load, and network graphs below the console](./images/console/graphs.webp)
 
 ## Automatic Prompts
 

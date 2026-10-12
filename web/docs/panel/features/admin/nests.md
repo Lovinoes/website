@@ -9,7 +9,7 @@ Nests are categories for eggs, and eggs are the templates that define how a serv
 
 The list shows each nest's ID, name, author, description, and created timestamp. Use the search box to filter, click a nest's ID to open it, or hit **Create** in the top right for a new one.
 
-![](./images/nests/list.webp)
+![Admin nest list with the Games nest, a search box, and a Create button](./images/nests/list.webp)
 
 ## Creating and Editing a Nest
 
@@ -17,13 +17,13 @@ A nest is just three fields: **Name**, **Author**, and an optional **Description
 
 Opening an existing nest shows two tabs: **General**, the same form plus a **Delete** button, and **Eggs**. Deleting a nest asks whether you also want to delete all eggs inside it, via the **Do you want to delete all eggs in this nest?** switch in the confirmation.
 
-![](./images/nests/general.webp)
+![Games nest General tab with the Update Nest form, Save and Delete buttons](./images/nests/general.webp)
 
 ## Eggs
 
 The **Eggs** tab lists the nest's eggs with the same columns as the nest list (ID, Name, Author, Description, Created) plus a selection checkbox per row.
 
-![](./images/nests/eggs.webp)
+![Games nest Eggs tab listing eggs with Import and Create buttons](./images/nests/eggs.webp)
 
 Eggs support bulk operations: drag across rows to select, Ctrl/Cmd-click or use the checkboxes (the one in the header selects the whole page), Ctrl/Cmd+A to select everything, Escape to clear. With eggs selected, an action bar appears with **Update from Repository**, **Move** (to another nest), and **Delete**.
 
@@ -33,7 +33,7 @@ Eggs support bulk operations: drag across rows to select, Ctrl/Cmd-click or use 
 
 **Create** opens the egg form described under [General](#general) below. New eggs start with a stub install script (a `debian:latest` container running `/bin/bash`) that you fill in afterwards.
 
-![](./images/nests/egg-create-form.webp)
+![Empty egg create form with startup, stop, config files, startup commands, and Docker image sections](./images/nests/egg-create-form.webp)
 
 ### Importing Eggs
 
@@ -60,7 +60,7 @@ The top of the form covers identity and repository linkage:
 | **Author** / **Name** / **Description** | Basic metadata. |
 | **Egg Repository** / **Egg Repository Egg** | Links this egg to an egg from a synced [egg repository](./egg-repositories.md), enabling **Update from Repository**. |
 
-![](./images/nests/egg-general.webp)
+![Paper egg General tab with startup, stop, config file, startup command, and Docker image settings filled in](./images/nests/egg-general.webp)
 
 Below that, three configuration cards:
 
@@ -68,9 +68,9 @@ Below that, three configuration cards:
 - **Stop Configuration**: **Stop Type** is **Send Command** (with a **Stop Command** field), **Send Signal** (with a **Stop Signal** picker: `SIGABRT`, `SIGINT`, `SIGTERM`, `SIGQUIT`, `SIGKILL`), or **Docker Stop**.
 - **Config Files Configuration**: files the panel rewrites on boot. Each entry has a **File Path**, a **Parser** (File, YAML, Properties, INI, JSON, XML, TOML), a **Create New File** switch, and a list of replacements (**Match**, optional **If Value**, **Replace With** as either **Text** or **JSON**, plus **Insert New** and **Update Existing** switches controlling whether unmatched values get inserted and matched ones replaced).
 
-![](./images/nests/config-files.webp)
+![Config Files Configuration section with a new config file entry and an Add Replacement button](./images/nests/config-files.webp)
 
-![](./images/nests/config-files-replacement.webp)
+![Empty replacement row with Match, If Value, and Replace With fields and Insert New and Update Existing toggles](./images/nests/config-files-replacement.webp)
 
 The rest of the form:
 
@@ -101,7 +101,7 @@ Pterodactyl and Pelican eggs don't map one-to-one onto Calagopus eggs, so a few 
 
 The script that runs when a server using this egg is installed or reinstalled. **Installation Container** is the Docker image the script runs in, **Container Entrypoint** the shell that executes it, and below both sits a code editor for the script itself.
 
-![](./images/nests/egg-script.webp)
+![Paper egg Installation Script tab with installer container, entrypoint, and script editor](./images/nests/egg-script.webp)
 
 #### Reporting Progress
 
@@ -123,7 +123,7 @@ There is a matching `INSTALL_STATUS_FILE` for the final status of the install.
 
 Each variable is a card in a grid; drag a card by the grip handle in its top-right corner to reorder them, which sets the order users see on the Startup page. **Add** creates a blank card.
 
-![](./images/nests/egg-variables.webp)
+![Paper egg Variables tab showing four egg variable cards with environment names, defaults, and rules](./images/nests/egg-variables.webp)
 
 | Field | What it does |
 |---|---|
@@ -140,7 +140,7 @@ Each card has its own **Save**, **Duplicate**, and **Remove** buttons.
 
 Mounts attached here become available to every server using this egg, on top of any per-server mounts. The searchable table lists ID, Name, Source, Target, and Added; **Add** opens a modal to pick one of the panel's configured [mounts](./mounts.md), and each row's context menu offers **Remove**. See the server-side [Mounts page](../server/mounts.md) for how users interact with them.
 
-![](./images/nests/egg-mounts.webp)
+![Paper egg Mounts tab listing the Minecraft Plugins mount with an Add button](./images/nests/egg-mounts.webp)
 
 ### Devices
 
@@ -150,7 +150,7 @@ Assign [devices](./devices.md) that servers using this egg may attach (requires 
 
 A read-only, searchable list of all servers currently using this egg, with the same columns as the [Servers](./servers.md) list, handy before deleting or heavily editing one.
 
-![](./images/nests/egg-servers.webp)
+![Paper egg Servers tab listing two servers with status, node, owner, and allocation](./images/nests/egg-servers.webp)
 
 ::: info
 Nest and egg actions are gated by the `nests.*` and `eggs.*` admin permissions (the Mounts tab additionally needs `eggs.mounts`). See the [Permissions Reference](../dashboard/permissions.md).

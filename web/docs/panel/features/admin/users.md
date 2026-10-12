@@ -18,7 +18,7 @@ Next to **Create** (requires `users.create`) sits **Find by External ID** (requi
 
 Click **Create** (or go to `/admin/users/new`) and fill in the form:
 
-![](./images/users/create-form.webp)
+![Create User form with username, email, names, language, role, password, and Admin, Frozen, and Suspended toggles](./images/users/create-form.webp)
 
 | Field | Notes |
 | --- | --- |
@@ -68,27 +68,27 @@ The **Update User** form, the same fields as [creating a user](#creating-a-user)
 
 Every server the user has access to, with the same columns as the admin [Servers](./servers.md) list. The **Only show users' owned servers** switch narrows the list to servers they own, hiding ones where they're only a [subuser](../server/subusers.md).
 
-![](./images/users/servers.webp)
+![User Servers tab listing two servers with status, node, owner, and allocation](./images/users/servers.webp)
 
 ### OAuth Links
 
 The user's connections to [OAuth providers](./oauth-providers.md): ID, OAuth Provider, Identifier, Last Used, and Created. **Add** (shown with `oauth-providers.read`, since it lists providers; the write itself falls under this tab's `users.oauth-links`) opens a modal where you pick the provider and enter the user's **Identifier** at that provider; right-click a row to **Remove** a link. The user-facing side of this list is their [OAuth Links](../dashboard/oauth-links.md) page.
 
-![](./images/users/oauth-links.webp)
+![User OAuth Links tab listing a GitHub link with its identifier and an Add button](./images/users/oauth-links.webp)
 
 ### Activity
 
 The user's account audit log, the same one they see on their own [Activity](../dashboard/activity.md) page: source (**Web** or **API**), Event, IP, and When, with an info button for entries carrying extra metadata. For the panel-wide admin log, see [Activity](./activity.md).
 
-![](./images/users/activity.webp)
+![User Activity tab listing events such as auth:success and api-key:create, paginated](./images/users/activity.webp)
 
 ## Impersonation
 
 **Impersonate** on the General tab logs you in as the user and drops you on their dashboard, useful for reproducing exactly what they see. A banner stays at the top the whole time: "You are currently impersonating a user. Please be aware that your actions may affect the impersonated user's account." While impersonating, the sidebar account menu shows **Stop Impersonating** in place of **Logout**; use it to return to your own session.
 
-![](./images/users/impersonation-banner.webp)
+![Servers page showing the impersonation warning banner while viewing as the impersonated user](./images/users/impersonation-banner.webp)
 
-<img src="./images/users/stop-impersonating.webp" width="200" alt="" />
+<img src="./images/users/stop-impersonating.webp" width="200" alt="User menu open with the Stop Impersonating option" />
 
 
 

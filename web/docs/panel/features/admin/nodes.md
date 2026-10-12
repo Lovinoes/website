@@ -28,7 +28,7 @@ The capacity states compare allocated memory (including reserved container overh
 The badge falls back to **Deployment Enabled** when the allocation figures cannot be loaded, so green on its own is not proof that the node has room.
 :::
 
-![](./images/nodes/list.webp)
+![Admin node list with health, deployment and maintenance badges, location, and a Create button](./images/nodes/list.webp)
 
 Select nodes with the checkboxes (the one in the table header selects the whole page), by dragging, or with `Ctrl+A` (`Escape` clears). An action bar appears with **Update Config**, which opens a YAML editor and applies the entered configuration to every selected node at once.
 
@@ -40,7 +40,7 @@ Select nodes with the checkboxes (the one in the table header selects the whole 
 
 Click **Create** in the top right (requires `nodes.create`). If no location exists yet, a create-location modal appears first.
 
-![](./images/nodes/create-form.webp)
+![Create Node form with name, location, URLs, SFTP, memory and disk, and deployment and maintenance toggles](./images/nodes/create-form.webp)
 
 | Field | Description |
 |---|---|
@@ -57,7 +57,7 @@ Click **Create** in the top right (requires `nodes.create`). If no location exis
 | **SFTP Host** | Optional. Custom SFTP hostname shown to users; defaults to the URL's hostname. |
 | **SFTP Port** | Required, default `2022`. |
 
-![](./images/nodes/no-port-specified.webp)
+![Node URL field with a warning that no port is specified and an Add :8080 button](./images/nodes/no-port-specified.webp)
 
 **Resources** section:
 
@@ -75,7 +75,7 @@ Hit **Save**, or **Save & Stay** to create another. These limits are what deploy
 
 Two status badges up top: **Deployment Enabled** / **Deployment Disabled** and **Under Maintenance** / **Not Under Maintenance**.
 
-![](./images/nodes/overview.webp)
+![Node Overview tab with node details, system information, and allocated memory, disk, and CPU gauges](./images/nodes/overview.webp)
 
 - **Node Details**: Location, Internal URL, Public URL, SFTP Address, Backup Configuration (shows **Inherited from Location** when the node has none of its own), Description, and Created.
 - **System Information**: live data from wings - Wings Version (with an **Update Available** badge when outdated), CPU model and core count, Memory, Servers (online / total), Kernel Version, and Architecture. Shows **Unavailable** when the node can't be reached.
@@ -83,7 +83,7 @@ Two status badges up top: **Deployment Enabled** / **Deployment Disabled** and *
 
 ## General
 
-![](./images/nodes/general.webp)
+![Update Node form for Local with Save, Reset Token, Duplicate, and Delete buttons](./images/nodes/general.webp)
 
 The same form as [creating a node](#creating-a-node), plus three extra buttons:
 
@@ -99,7 +99,7 @@ The same form as [creating a node](#creating-a-node), plus three extra buttons:
 
 Below that are the manual configuration tools needed to connect Wings to this node entry. These start collapsed behind **Reveal Configuration** because the output contains the node token (requires `nodes.read-token`). On an All-in-One node there is nothing to join, so **Initial Setup** is left out and the page opens straight on **Live Configuration**.
 
-![](./images/nodes/configuration.webp)
+![Node Configuration tab with a token warning and a Reveal Configuration button](./images/nodes/configuration.webp)
 
 **Initial Setup** walks through three steps:
 
@@ -107,47 +107,47 @@ Below that are the manual configuration tools needed to connect Wings to this no
 2. **Apply Configuration**: the generated YAML to place into `/etc/calagopus-wings/config.yml`, or a copyable `calagopus-wings configure --join-data <...>` one-liner that does it for you.
 3. **Verify Connection**: checks **Backend to Wings** (panel reaches the node) and **Frontend to Wings** (your browser reaches it; the console, downloads, and uploads depend on this one).
 
-![](./images/nodes/verify-connection.webp)
+![Verify Connection step with backend and frontend connection checks to Wings both succeeding](./images/nodes/verify-connection.webp)
 
 **Live Configuration** below edits the full `config.yml` of the running wings instance in a YAML editor. **Save Configuration** (or `Ctrl+S`) pushes it to the node. The editor lists options that cannot be changed from the web UI, and reports changes to those paths as ignored. Edit them on the Wings host instead; this includes `allowed_mounts` and `allowed_devices`. See the [Wings configuration reference](../../../wings/configuration.md) for every option. Leaving the page with unsaved edits in the editor asks you to confirm first.
 
-![](./images/nodes/live-configuration.webp)
+![Live Configuration YAML editor for Wings with a Save Configuration button](./images/nodes/live-configuration.webp)
 
 ## Statistics
 
 Live host metrics streamed from wings: CPU (model and threads), Memory (including how much wings itself uses), Disk, and Network gauges, followed by rolling **Graphs** for CPU Load, Memory Usage, Disk I/O (read/write), and Network Traffic (inbound/outbound).
 
-![](./images/nodes/statistics.webp)
+![Node Statistics tab with CPU, memory, disk, and network gauges above usage graphs](./images/nodes/statistics.webp)
 
 ## Logs
 
 Reads log files straight off the node. Pick a **Log File** (sizes shown in the dropdown), set **Lines** (default 1000), then **Load Logs** to view or **Download Full Log** to save it. The **Follow** switch tails the file live, with a connection indicator.
 
-![](./images/nodes/logs.webp)
+![Node Logs tab with the Log File dropdown open over Wings log output, plus Follow toggle](./images/nodes/logs.webp)
 
 ## Allocations
 
 The node's IP:port pool that servers draw from (requires `nodes.allocations`). Columns: **ID**, **Server** (which server holds the allocation, if any), **IP**, **IP Alias**, **Port**, and **Created**. Filter by IP or port with the dropdowns next to the search box.
 
-![](./images/nodes/allocations.webp)
+![Node Allocations tab listing IPs and ports, assigned servers, filters, and a Create button](./images/nodes/allocations.webp)
 
 Click **Create** to bulk-create allocations: an **IP**, an optional **IP Alias**, and **Port Ranges** (single ports or ranges like `3000-4000`). The button shows how many allocations will be created.
 
 The **IP** field suggests addresses as you type, in three groups: **All Addresses** (`0.0.0.0` and `::`), **Node Interfaces** (the addresses Wings finds on the host's network interfaces, leaving out loopback, link-local and Docker's own bridges), and **In Use** (IPs the node already has allocations on). The same field is used by **Update** and by the first-time setup's node step. Node interfaces need `nodes.read` and only appear when Wings runs directly on the host; a Wings running in a container reports none, even with host networking. You can still type any address.
 
-![](./images/nodes/allocations-create.webp)
+![Create Node Allocations dialog with IP, IP Alias, and Port Ranges fields](./images/nodes/allocations-create.webp)
 
 Select allocations (drag, checkboxes, or `Ctrl+A`) for the action bar: **Update** rewrites the IP or IP Alias of all selected at once, **Delete** removes them (also on the `Delete` key). See [Setting up Allocations](../../../wings/next-steps/setting-up-allocations.md) for guidance on choosing IPs.
 
-![](./images/nodes/allocations-selection.webp)
+![Node allocations with eleven rows selected and Update and Delete buttons at the bottom](./images/nodes/allocations-selection.webp)
 
-![](./images/nodes/allocations-update.webp)
+![Update Node Allocations dialog with IP and IP Alias fields](./images/nodes/allocations-update.webp)
 
 ## Mounts
 
 Which admin-defined [mounts](../server/mounts.md) are usable on this node (requires `nodes.mounts`). **Add** attaches an existing mount; removing a row only detaches it from the node. Wings must also allow the source path via [`allowed_mounts`](../../../wings/configuration.md#allowed-mounts).
 
-![](./images/nodes/mounts.webp)
+![Node Mounts tab listing the Minecraft Plugins mount with an Add button](./images/nodes/mounts.webp)
 
 ## Devices
 
@@ -159,13 +159,13 @@ The mount and device assignment lists flag sources that are **Not Allowed on Nod
 
 Database hosts attached directly to this node (requires `nodes.database-hosts`). Servers on a node can use hosts attached to the node or to its location. **Add** attaches an existing host, deleting a row detaches it. See [Setting up Database Hosts](../../../additional/database-hosts/index.md).
 
-![](./images/nodes/database-hosts.webp)
+![Node Database Hosts tab listing a MariaDB and a PostgreSQL host with an Add button](./images/nodes/database-hosts.webp)
 
 ## Database Agent Hosts
 
 Same attach/detach pattern for [database agent](../../../db-agent/index.md) hosts (requires `nodes.database-agent-hosts`).
 
-![](./images/nodes/database-agent-hosts.webp)
+![Node Database Agent Hosts tab listing one Local agent host with an Add button](./images/nodes/database-agent-hosts.webp)
 
 ## Backups
 
@@ -181,7 +181,7 @@ Restore, export to files, detach and reattach apply to file backups only; dumps 
 
 When there are failed backups, a **Delete Failed** button appears above the table (requires `nodes.backups`), showing how many it would remove. It asks for confirmation, keeps locked backups and any whose configuration is in maintenance, and runs in the background. A **Force** switch removes them even when the configuration is missing or the remote storage is unreachable, at the risk of leaving orphaned files behind.
 
-![](./images/nodes/backups.webp)
+![Node Backups tab listing backups with server, checksum, size, and file count](./images/nodes/backups.webp)
 
 Right-click a backup for:
 
@@ -198,7 +198,7 @@ For the user-facing side, see [server Backups](../server/backups.md).
 
 All servers on the node, in the standard admin server list (ID, Status, Name, Node, Owner, Allocation, Created). The header buttons run mass actions against every server on the node, each with a count and a confirmation: **Start**, **Restart**, **Stop** (require `nodes.power`), and **Transfer** (requires `nodes.transfers`).
 
-![](./images/nodes/servers.webp)
+![Node Servers tab listing two servers with Start, Restart, Stop, and Transfer bulk buttons](./images/nodes/servers.webp)
 
 Select individual servers (checkboxes, drag, `Ctrl+A`, or click while holding `S`) to run the same actions on just the selection. The checkbox in the table header selects or clears every server on the current page.
 
@@ -224,7 +224,7 @@ The six **Allocation Mode** options, with the caveats their dropdown entries sta
 - **Assign allocations based on Egg deployment configuration**: only works if an [egg configuration](./egg-configurations.md#allocation-configuration) with allocation settings applies to the egg on the destination node, and that node has compatible allocations. Configurations are matched against the destination node and its location, not the source.
 - **Self-assign new allocations based on Egg port range**: only works if the egg has a port range and the destination node has compatible allocations.
 
-![](./images/nodes/transfer-modal.webp)
+![Transfer Servers dialog with node, allocation mode, backup options, archive format, and compression level](./images/nodes/transfer-modal.webp)
 
 After confirming, you're taken to the **Outgoing Transfers** tab. Transfers cannot be undone.
 
@@ -232,7 +232,7 @@ After confirming, you're taken to the **Outgoing Transfers** tab. Transfers cann
 
 Live view of transfers currently leaving this node (requires `nodes.transfers`): ID, Progress, Archive Rate, Network Rate, Name, destination Node, Owner, and Created, updating in real time over a websocket.
 
-![](./images/nodes/outgoing-transfers.webp)
+![Node Outgoing Transfers tab showing one transfer in progress at 99.7 percent](./images/nodes/outgoing-transfers.webp)
 
 ## Private Network
 
@@ -246,7 +246,7 @@ The tunnel daemon has to be turned on for the node first, and it is off by defau
 | **Not supported** | "This node **cannot run the private network**. It is either turned off in the node configuration, or the node uses rootless Docker, which is unsupported." |
 | **No certificate** | "This node has **not reported a certificate**, so no peer can open a connection to it. Restart the node's tunnel daemon to re-enrol it." Peers dial a node by its certificate, so until one is reported nothing can connect to it. |
 
-![](./images/nodes/tunnel.webp)
+![Node Private Network tab with host and port settings, node state, and live peer links](./images/nodes/tunnel.webp)
 
 **Network Settings** holds the two fields peers need to find this node, and **Enable** puts it on the network:
 

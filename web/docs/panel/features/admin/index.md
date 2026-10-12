@@ -66,7 +66,7 @@ The sidebar starts with **Back** (returns to the dashboard) and **Home**, follow
 
 ### Overview
 
-![](./images/home/overview.webp)
+![Admin home Overview tab with system overview, general statistics, and backup statistics](./images/home/overview.webp)
 
 Three cards:
 
@@ -91,7 +91,7 @@ A healthy panel is mostly **Memory hit**. A large **Computed** share means value
 
 ### Updates
 
-![](./images/home/updates.webp)
+![Admin home Updates tab with panel version, version history, and outdated extensions, nodes, and database agent hosts](./images/home/updates.webp)
 
 - **Panel Version**: the version you're running versus the latest available, with a **Recheck for Updates** button that re-runs every update check on this tab.
 - **Version History**: a table of installed versions and when they were installed. The dropdown switches between the panel's history and each extension's.
@@ -101,7 +101,7 @@ A healthy panel is mostly **Memory hit**. A large **Computed** share means value
 
 ### Health
 
-![](./images/home/health.webp)
+![Admin home Health tab with applied migrations, NTP offset, debug mode toggle, and desynced nodes](./images/home/health.webp)
 
 - **General Health**: applied database migrations (e.g. `107 / 107 (100.00%)`) and the panel's **Avg. NTP Offset**, highlighted when it climbs above 100 ms.
 - **Extension Migration Health**: applied versus total migrations per installed extension.

@@ -9,7 +9,7 @@ Managed databases are dedicated Redis, MongoDB, PostgreSQL, or MariaDB instances
 
 The **Managed Databases** tab lists each instance's name, type, address, memory, disk, and lock state; an instance with a pending template update also shows an **Update Available** badge. Right-click a row for power actions (**Start**, **Restart**, **Stop**, **Kill**) and **Delete**, or click it to open the instance page.
 
-![](../images/databases/instances.webp)
+![Managed Databases tab listing Redis, MongoDB, MariaDB, and PostgreSQL instances with address, memory, and disk](../images/databases/instances.webp)
 
 ## Creating a Managed Database
 
@@ -29,7 +29,7 @@ Select rows with their checkboxes, by dragging across them, or with `Ctrl+A` (`E
 
 Each instance has its own page at `/server/<id>/databases/instances/<id>` with the instance name, its type badge, and badges for **Locked**, **Update Available**, and **Restoring backup** where relevant.
 
-![](../images/databases/instance-view.webp)
+![Managed MariaDB instance page with CPU and memory graphs, address, uptime, and Start, Restart, Stop, Edit, Delete buttons](../images/databases/instance-view.webp)
 
 Along the top:
 
@@ -47,7 +47,7 @@ A restore also **write locks** the instance, and anything connected to it notice
 
 Restores are the only thing that locks an instance; exports and remote imports you start yourself do not, so your own export will not freeze the database under a running server. The [query explorer](./index.md#data-explorer) also refuses to run while the lock is held.
 
-![](../images/databases/instance-restoring.webp)
+![Managed database page showing a restore-in-progress banner, Restoring Backup badge, and disabled power buttons](../images/databases/instance-restoring.webp)
 
 ## Databases Tab
 
@@ -90,7 +90,7 @@ You never choose a password either; the agent generates one and **Details** show
 
 Access is granted per database rather than per instance. The list names every database in the instance with a **No Access** / **Read Only** / **Read & Write** control beside it, and one user can hold a different level in each. You get the same list whether you are creating a user or editing one through **Permissions**, and the **Databases** badges on the row summarize the result.
 
-![](../images/databases/instance-user-permissions-modal.webp)
+![Database Permissions dialog setting No Access, Read Only, or Read and Write per database](../images/databases/instance-user-permissions-modal.webp)
 
 **No Access** is the absence of a grant rather than a stored setting. If you turn off **Create a user for this database**, grant an existing or new user access before connecting. Leaving it on creates the user and grants read/write access automatically. **Recreate** keeps the grants, so wiping a database does not change who can reach it.
 
@@ -118,7 +118,7 @@ For MariaDB/MySQL, a client may display the proxy's greeting version rather than
 
 Shown with the `backups.read` permission. Lists the database backups taken from this instance, under a counter like "2 of 15 maximum backups created on this server, shared with server backups." - the same limit the server's [Backups](../backups.md) page counts against. Backups that belong to a [backup group](../backups.md#backup-groups) show the group's name under theirs.
 
-![](../images/databases/instance-backups.webp)
+![Backups tab of a managed database listing MariaDB backups with source, checksum, size, and lock status](../images/databases/instance-backups.webp)
 
 **Create** asks for a **Name** and, when the server has groups, a **Backup Group**, then dumps the running instance. It is disabled while the instance is offline ("The managed database must be running to take a backup.") and while a restore is in progress.
 

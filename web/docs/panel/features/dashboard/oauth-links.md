@@ -7,7 +7,7 @@ description: Link third-party accounts to your Calagopus account for faster logi
 
 OAuth links let you log in with a third-party account instead of typing your username and password. The list shows the provider name, identifier, and last used and created timestamps for each linked account.
 
-![](./images/oauth-links/list.webp)
+![OAuth Links page listing a GitHub link with a Connect dropdown button](./images/oauth-links/list.webp)
 
 ## Linking an Account
 

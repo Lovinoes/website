@@ -27,7 +27,7 @@ Click **Create** in the top right.
 ::: warning
 Mounts are a powerful and potentially dangerous feature. A badly chosen source path can lead to data loss or security vulnerabilities, including container escapes. Make sure you understand the implications before creating one.
 
-![](./images/mounts/warning.webp)
+![Warning banner that mounts are powerful and can cause data loss or container escapes if misused](./images/mounts/warning.webp)
 :::
 
 Finish with **Save**, or **Save & Stay** to keep creating.

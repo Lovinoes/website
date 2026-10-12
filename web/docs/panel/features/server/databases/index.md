@@ -11,7 +11,7 @@ Both kinds count toward the same limit, shown at the top of the page as "6 of 15
 
 A tab only appears when it's relevant to your server: classic when you have databases or a database host to create on, managed when you have instances or templates to create from. With only one relevant, the tab bar hides and you get a single plain list.
 
-![](../images/databases/list.webp)
+![Databases tab listing database names, types, addresses, usernames, sizes, and lock status](../images/databases/list.webp)
 
 ## Pick a Kind
 

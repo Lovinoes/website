@@ -48,7 +48,7 @@ The service's **Overview** page shows a summary card of the server, loaded live 
 - An **Includes** line with the database, backup, port (allocation), and schedule limits, followed by any numeric custom feature limits.
 - An **Open Panel** button that takes the client straight to the server in Calagopus.
 
-![](./images/whmcs/client-area.webp)
+![WHMCS client area Manage tab with server status, address, resource usage, and an Open Panel button](./images/whmcs/client-area.webp)
 
 If the panel can't be reached, the card shows "Unable to load server information from the panel." and the error is written to the WHMCS module log.
 
@@ -56,7 +56,7 @@ If the panel can't be reached, the card shows "Unable to load server information
 
 On the client's **Products/Services** tab, the module replaces the WHMCS login link with an **Open in Panel** button and lists the server's UUID, name, node, owner, and suspended state below the module commands.
 
-![](./images/whmcs/admin-service.webp)
+![WHMCS admin service page with Open in Panel button, module commands, and server UUID, name, node, and owner](./images/whmcs/admin-service.webp)
 
 ## Requirements
 
@@ -82,11 +82,11 @@ On the client's **Products/Services** tab, the module replaces the WHMCS login l
 
    Leave **Username** and **Access Hash** empty. The module doesn't use them.
 
-   ![](./images/whmcs/add-new-server.webp)
+   ![WHMCS Add New Server form with the Calagopus module, panel hostname, and empty Username and Access Hash](./images/whmcs/add-new-server.webp)
 
 3. Click **Test Connection**. On success, WHMCS opens the full server form. Give the server a **Name**, keep **Secure** ticked if your panel uses HTTPS (untick it for plain HTTP), and click **Save Changes**.
 
-   ![](./images/whmcs/server-details.webp)
+   ![WHMCS Server Details with Calagopus module, Connection successful message, and Secure SSL checkbox ticked](./images/whmcs/server-details.webp)
 
 4. Create a **Server Group** and assign your Calagopus server to it.
 
@@ -98,7 +98,7 @@ To see the panel's server UUID against each service, create two **custom fields*
 
 Create a product, set its module to **Calagopus** on the **Module Settings** tab, and pick your server group. WHMCS fields are plain text, so you enter UUIDs directly; copy them from the admin area of your panel.
 
-![](./images/whmcs/module-settings.webp)
+![WHMCS product Module Settings tab with Calagopus module, server group, and nest, egg, and resource limit fields](./images/whmcs/module-settings.webp)
 
 ::: warning
 WHMCS enforces a hard limit of **24 module configuration options**. This module uses all of them, so do not add further custom config options to a Calagopus product.
@@ -153,7 +153,7 @@ Every product setting can be overwritten per service through WHMCS **Configurabl
 
 WHMCS only passes the part of a name before the `|` to the module, for option names and option values alike. An option named `Memory (MB)|Memory` with the values `2048|2 GB` and `4096|4 GB` shows **Memory** with **2 GB** and **4 GB** to the client, and the module receives `Memory (MB)` = `4096` for the second choice.
 
-![](./images/whmcs/configurable-option.webp)
+![WHMCS Configurable Options with a Memory (MB)|Memory dropdown and 2048|2 GB and 4096|4 GB choices](./images/whmcs/configurable-option.webp)
 
 ### Overridable Settings
 

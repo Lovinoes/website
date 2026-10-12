@@ -25,9 +25,9 @@ Locations group nodes together and control backup configuration inheritance. You
 | Backup Disk | Where backups are stored. `Local` stores them on the Wings host; keep a copy elsewhere in case that host is lost. *(OOBE only)* |
 | Description | Optional notes about this location. *(Admin panel only)* |
 
-![](./images/configure-node/location-oobe.webp)
-![](./images/configure-node/create-location.webp)
-![](./images/configure-node/location-field.webp)
+![Setup wizard Location step with Location Name, Backup Configuration Name, and Backup Disk fields](./images/configure-node/location-oobe.webp)
+![Locations page with the Locations sidebar entry and Create button highlighted](./images/configure-node/create-location.webp)
+![Create Location form with Name, Backup Configuration, and Description fields](./images/configure-node/location-field.webp)
 
 ## Pair a Waiting Node
 
@@ -78,9 +78,9 @@ Setup mode only starts when no configuration file is found. An invalid existing 
 
 If your panel has SSL but Wings doesn't, **Wings Proxy Mode** lets the panel proxy browser traffic to Wings. With the supplied Docker Compose stack, set `APP_ENABLE_WINGS_PROXY=true` in the `web` service's `environment` list, then run `docker compose up -d --no-deps web` from the Compose directory. For a native installation, set it in the Panel's `.env` and restart the Panel service. Click the globe icon next to Public URL to auto-fill the proxy URL. This adds load to the Panel and does not proxy SFTP. See [Exposing Wings in a Homelab](../advanced/exposing-wings-in-a-homelab.md) for the network requirements and trade-offs.
 
-![](./images/configure-node/add-node-oobe.webp)
-![](./images/configure-node/create-node.webp)
-![](./images/configure-node/node-field.webp)
+![Setup wizard Node Configuration step with name, URL, Public URL, SFTP, memory, disk, and allocation fields](./images/configure-node/add-node-oobe.webp)
+![Nodes page with the Nodes sidebar entry and Create button highlighted](./images/configure-node/create-node.webp)
+![Create Node form with name, location, URL, Public URL, SFTP, memory, and disk fields](./images/configure-node/node-field.webp)
 
 > The OOBE also asks for an **IP** and **Port Ranges** here, so your first allocation is ready immediately. The admin pairing form also offers optional **IP** and **Port Ranges** fields. With manual admin creation, add allocations afterward. See [Setting up Allocations](./setting-up-allocations.md).
 
@@ -123,8 +123,8 @@ wings configure --join-data xxxxxx
 
 For a **package installation**, use `calagopus-wings configure --join-data xxxxxx` instead, unless you created the optional `wings` alias. Replace `xxxxxx` with the join data supplied by your Panel.
 
-![](./images/configure-node/oobe-nodeconf.webp)
-![](./images/configure-node/config.webp)
+![Setup wizard Node Configuration step showing the config and a highlighted copy button for the join-data command](./images/configure-node/oobe-nodeconf.webp)
+![Node page Configuration tab highlighted, showing the config file and wings configure join-data command](./images/configure-node/config.webp)
 
 After applying the configuration, return to your [Docker](../installation/docker.md#start-wings), [Binary](../installation/binary.md#configure-wings), or [Package Manager](../installation/pkgmanager.md#configure-wings) guide to start Wings and check the connection.
 

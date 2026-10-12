@@ -33,7 +33,7 @@ The **Connect** menu offers two ways to work on your files outside the browser:
 - **via SFTP** opens the **SFTP Details** modal with the connection info: **Protocol**, **Host**, **Port**, **Username** (your panel username plus the server's short ID, like `user.1a2b3c4d`), and a **Password** field that just reads "Your Control Panel Password". If your password cannot open that connection, a warning replaces the field and you need an [SSH Key](../dashboard/ssh-keys.md). That applies when the account has no password, when you have turned [Password Login](../dashboard/account.md#password-login) off, and when an admin has turned it off for the whole panel. Every field except the password copies on click, and **Launch** opens an `sftp://` link for clients registered to handle it. Holding Shift while clicking **via SFTP** skips the modal and launches directly. Requires the `files.sftp` permission.
 - **via VS Code** mounts the server as a workspace folder in your editor. See the [VS Code integration](../../../integrations/vscode.md) for setup and everything it can do.
 
-![](./images/files/sftp-details.webp)
+![SFTP Details dialog with protocol, port, host, username, and password fields and a Launch button](./images/files/sftp-details.webp)
 
 ### New
 
@@ -64,7 +64,7 @@ Below the toolbar, a **Disk Usage** bar shows how much of the server's disk limi
 
 Results replace the listing, with a banner summarizing the query and active filters; close the banner to return to normal browsing. The content-search size cap is limited by a panel-wide maximum under [Settings > Server](../admin/settings.md#server), and the **File Content** section only appears on filesystems where the daemon supports fast content scanning.
 
-![](./images/files/search-modal.webp)
+![Search Files dialog with advanced filters for path patterns, file content, and file size](./images/files/search-modal.webp)
 
 #### Result Previews
 
@@ -148,7 +148,7 @@ Right-click a row (or use its menu button) for the single-file context menu belo
 
 For directories, a switch applies the change recursively to everything inside. Changes can be undone straight from the confirmation toast.
 
-![](./images/files/permissions.webp)
+![File Permissions dialog with owner, group, and other checkboxes and octal mode 644](./images/files/permissions.webp)
 
 ### Renaming
 
@@ -192,7 +192,7 @@ The maximum size per uploaded file is set by the Wings option [`api.upload_limit
 
 With **Always overwrite existing files** off, the panel checks whether the names you are uploading already exist in the target directory before sending anything. If matching names exist, a **Resolve Upload Conflicts** modal lists them next to the existing entries, and you pick one of three actions per item:
 
-![](./images/files/upload-conflicts-modal.webp)
+![Resolve Upload Conflicts dialog with Skip, Overwrite, and Rename choices per file](./images/files/upload-conflicts-modal.webp)
 
 | Action | Effect |
 | --- | --- |
@@ -216,7 +216,7 @@ Uploads are not private to the tab that started them. Wings tracks each one and 
 | Incomplete | Yellow row with an **Incomplete** badge. The upload has stopped without finishing. |
 | Someone else's | The same badges, plus `by <user>` next to them. Your own uploads are not attributed. |
 
-![](./images/files/uploads.webp)
+![File list with an Incomplete Uploads banner, a modpack.zip upload at 18 percent, and an incomplete file](./images/files/uploads.webp)
 
 Seeing an upload needs the `files.read` permission, and a subuser whose [ignored files](./subusers.md#ignored-files) hide the destination does not see the upload either - the deny rule is matched against the name the file will end up with, so a partial cannot be used to peek at a path that is otherwise hidden.
 
@@ -228,7 +228,7 @@ An upload that goes 30 seconds without progress is treated as incomplete. Its ba
 
 **Review Uploads** on the banner, or the **Review Incomplete Uploads** entry in the [quick actions](../dashboard/index.md#quick-actions) palette (`Ctrl+Space`), opens a modal listing every partial file and how far it got. Dismissing the banner hides it for that server until you open the panel in a new tab; the quick action stays available as long as something is unfinished.
 
-![](./images/files/incomplete-uploads-modal.webp)
+![Incomplete Uploads dialog listing world-backup.zip as a partial upload](./images/files/incomplete-uploads-modal.webp)
 
 How to clear one depends on where it came from:
 
@@ -284,7 +284,7 @@ The clock icon ("File History") in the editor header opens a drawer listing the 
 - **Compare to previous revision**, a read-only `Revision #N vs #M` diff.
 - **Restore this revision into the editor**, which loads the old content into the editor as an unsaved change so you can review before saving.
 
-![](./images/files/history-drawer.webp)
+![File History drawer listing numbered revisions with full snapshot badges and compare and restore icons](./images/files/history-drawer.webp)
 
 ![Revision diff view](./images/files/revision-diff.webp)
 

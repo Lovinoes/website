@@ -35,27 +35,27 @@ Copy the Redirect URL provided by the panel and proceed to the next step.
 
 #### Creating the application
 Go to [Discord's Developer Portal](https://discord.com/developers/applications), and create an application.
-![](./files/images/discord/image-1.webp)
+![Discord Developer Portal applications page with the New Application button highlighted](./files/images/discord/image-1.webp)
 
 In the popup, type the name of your application, which will be shown on the Discord login page. Select a team if you have one and then click on `Create`.
-![](./files/images/discord/image-2.webp)
+![Discord Create a new app dialog with the name Calagopus, a team selector, and Create button](./files/images/discord/image-2.webp)
 
 On the General Information page, you can optionally set an icon and description - this is not required and is not covered further here.
 
 #### Add your Redirect URL to Discord OAuth
 On the left sidebar, click on `OAuth2`.
-![](./files/images/discord/image-3.webp)
+![Discord Developer Portal sidebar with the OAuth2 entry highlighted](./files/images/discord/image-3.webp)
 
 On the Redirects section, click on `Add Redirect` and paste the redirect URL Calagopus Panel has given you.
-![](./files/images/discord/image-4.webp)
+![Discord OAuth2 Redirects section with the Calagopus redirect URL entered and an Add Another button](./files/images/discord/image-4.webp)
 
 At the bottom, you should see the warning below:
-![](./files/images/discord/image-5.webp)
+![Discord unsaved changes warning bar with a Save Changes button](./files/images/discord/image-5.webp)
 Click on the `Save Changes` button below.
 
 #### Issue an OAuth Client ID and Secret
 On the same `OAuth2` page, look for the Client information section. Reset your Client Secret by clicking on the `Reset Secret` button.
-![](./files/images/discord/image-6.webp)
+![Discord Client information section with the Client ID, hidden Client Secret, and Reset Secret button](./files/images/discord/image-6.webp)
 
 Once you reset your Client Secret, copy both your Client ID and Client Secret. You will need those for the next step.
 

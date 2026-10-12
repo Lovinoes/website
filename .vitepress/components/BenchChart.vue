@@ -11,6 +11,7 @@ import { use } from 'echarts/core';
 import { CanvasRenderer } from 'echarts/renderers';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import VChart, { THEME_KEY } from 'vue-echarts';
+import CollapsibleSection from './ui/CollapsibleSection.vue';
 
 use([
   CanvasRenderer,
@@ -110,9 +111,8 @@ const fmtCell = (v) => {
   <div v-if="active" class="bench-chart" :style="{ height }">
     <v-chart :option="themedOption" :update-options="{ notMerge: true }" autoresize />
   </div>
-  <details v-if="dataTable" v-show="active" class="bench-data">
-    <summary>View this chart's data as a table</summary>
-    <div class="bench-data-scroll">
+  <CollapsibleSection v-if="dataTable" v-show="active" title="View this chart's data as a table" class="bench-data">
+    <div class="m-table" data-flush>
       <table>
         <thead>
           <tr>
@@ -130,7 +130,7 @@ const fmtCell = (v) => {
         </tbody>
       </table>
     </div>
-  </details>
+  </CollapsibleSection>
 </template>
 
 <style scoped>
@@ -141,33 +141,10 @@ const fmtCell = (v) => {
 
 .bench-data {
   margin: 0 0 0.6rem;
-  font-size: 0.78rem;
-}
-
-.bench-data summary {
-  cursor: pointer;
-  color: var(--vp-c-text-3);
-  user-select: none;
-}
-
-.bench-data summary:hover {
-  color: var(--vp-c-brand-1);
-}
-
-.bench-data-scroll {
-  overflow-x: auto;
-  margin-top: 0.5rem;
-}
-
-.bench-data table {
-  border-collapse: collapse;
-  width: 100%;
 }
 
 .bench-data th,
 .bench-data td {
-  padding: 0.3rem 0.6rem;
-  border: 1px solid var(--vp-c-divider);
   text-align: right;
   font-feature-settings: 'tnum';
   white-space: nowrap;

@@ -7,7 +7,7 @@ description: View and revoke devices currently logged into your Calagopus accoun
 
 Sessions lists every device currently logged into your account: its IP address, whether it's the device you're using right now (the **This Device?** column), its user agent, and when it was last active.
 
-![](./images/sessions/list.webp)
+![Sessions page listing IP, This Device, User Agent, and Last Used with a Log Out Others button](./images/sessions/list.webp)
 
 ## Revoking a Session
 

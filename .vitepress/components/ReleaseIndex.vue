@@ -2,13 +2,14 @@
 import { computed } from 'vue';
 import { data as releases } from '../data/releases.data.mts';
 import { formatDate } from '../lib/format.ts';
+import Card from './ui/Card.vue';
 
 const projects = computed(() => Object.values(releases));
 </script>
 
 <template>
   <div class="release-index">
-    <a v-for="project in projects" :key="project.key" class="card" :href="project.link">
+    <Card v-for="project in projects" :key="project.key" class="card" padding="lg" :href="project.link">
       <span class="card-title">{{ project.title }}</span>
       <span class="card-version">{{ project.latestVersion || 'unavailable' }}</span>
       <span v-if="project.releases[0]" class="card-date">
@@ -16,7 +17,7 @@ const projects = computed(() => Object.values(releases));
       </span>
       <span class="card-blurb">{{ project.blurb }}</span>
       <span v-if="project.total" class="card-total">{{ project.total }} releases</span>
-    </a>
+    </Card>
   </div>
 </template>
 
@@ -35,20 +36,7 @@ const projects = computed(() => Object.values(releases));
 }
 
 .card {
-  display: flex;
-  flex-direction: column;
   gap: 4px;
-  padding: 20px;
-  border: 1px solid var(--vp-c-divider);
-  border-radius: 12px;
-  background-color: var(--vp-c-bg-soft);
-  font-weight: 400;
-  text-decoration: none;
-  transition: border-color 0.25s;
-}
-
-.card:hover {
-  border-color: var(--vp-c-brand-1);
 }
 
 .card-title {
