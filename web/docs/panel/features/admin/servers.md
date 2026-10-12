@@ -13,7 +13,7 @@ Next to **Create** sits **Find by External ID**: enter the external identifier (
 
 ## Bulk Actions
 
-Selecting servers in the list opens an action bar at the bottom of the page that applies one operation to the whole selection. Select with the row checkboxes, or by dragging a box across the rows.
+Selecting servers in the list opens an action bar at the bottom of the page that applies one operation to the whole selection. Select with the row checkboxes, by dragging a box across the rows, or with the checkbox in the table header, which selects every server on the current page.
 
 ![Admin server selected with Clear State, Unsuspend, Suspend and Delete controls](./images/servers/bulk-actions.webp)
 
@@ -56,7 +56,7 @@ All five are searchable dropdowns. Picking an egg immediately prefills the Docke
 
 ### Resource Limits
 
-Size fields take a value plus a unit (B through PiB).
+Size fields take a value plus a unit (B through PiB). The two bandwidth fields use bit rates instead: Kbps, Mbps, or Gbps, in decimal units (1 Mbps is 1,000,000 bits per second).
 
 | Field | Meaning |
 | --- | --- |
@@ -67,6 +67,9 @@ Size fields take a value plus a unit (B through PiB).
 | **Memory Overhead** (*advanced*) | "Hidden Memory that will be added to the container.", extra headroom the owner doesn't see. |
 | **IO Weight** (*advanced*) | Relative IO weight compared to other containers, 0 to 1000. May not work on all systems. |
 | **Pinned CPUs** (*advanced*) | CPU cores the server is pinned to, by index (e.g. `0`, `1`, `2`). Empty allows all cores. |
+| **Upload Limit** / **Download Limit** | Caps the server's outgoing and incoming network traffic. `0` sets no limit; otherwise the rate must be between 8 bits/s and 100 Gbps. Needs bandwidth limits enabled on the node, see below. |
+
+Bandwidth limits are enforced by Wings and need [`docker.bandwidth.enabled`](../../../wings/configuration.md#docker-bandwidth-enabled) on the node (on by default) plus a Linux host that can apply them. Once a node is picked, the panel asks it whether it can apply limits, and the description under both fields tells you where it stands: "0 will not set a limit." when limits work, "Bandwidth limits are disabled in the node configuration." when the option is off on a node that could otherwise apply them, or "The node does not support bandwidth limits." (or the reason Wings gave) when the node can't apply them. Setting or changing a non-zero limit on a node that isn't ready fails with a 409 naming the reason ("bandwidth limits are disabled on this node" when the option is off); `0` always saves. The owner sees the limits on the [console's](../server/console.md#stats) network tiles.
 
 ### Server Configuration
 
@@ -135,6 +138,8 @@ Changing the egg re-prefills the image and startup command. A suspended server s
 
 Changing the **Owner** hands the server to another user.
 
+Unsaved edits here survive switching to another tab of the server view and back. Leaving the server view with them still unsaved asks you to confirm first.
+
 ![](./images/servers/general.webp)
 
 ### Allocations
@@ -145,19 +150,19 @@ The server's allocations: primary marker, IP, IP Alias, Port, Notes, and Created
 
 ### Variables
 
-The same variable grid as the client [Startup](../server/startup.md) page, but every variable is editable regardless of its user-editable flag; variables users can't touch just carry a **Read-Only** badge here. Edit values and hit **Save** (Ctrl+S also works).
+The same variable grid as the client [Startup](../server/startup.md) page, but every variable is editable regardless of its user-editable flag; variables users can't touch just carry a **Read-Only** badge here. Edit values and hit **Save** (Ctrl+S also works). Navigating away with unsaved values, including to another tab, asks you to confirm first.
 
 ![](./images/servers/variables.webp)
 
 ### Mounts
 
-Mounts attached to this server: ID, Name, Source, Target, and Added. **Add** attaches one of the mounts available to this server from the admin **Mounts** area; right-click for **Remove**. The owner sees and toggles these on their [Mounts](../server/mounts.md) page.
+Mounts attached to this server: ID, Name, Source, Target, and Added. **Add** attaches one of the mounts available to this server from the admin **Mounts** area; right-click for **Remove**. A mount whose source the node's `allowed_mounts` doesn't cover carries a **Not Allowed on Node** badge, since Wings will skip it; see [node allowlist feedback](./mounts.md#node-allowlist-feedback). The owner sees and toggles these on their [Mounts](../server/mounts.md) page.
 
 ![](./images/servers/mounts.webp)
 
 ### Devices
 
-Attach or detach [host devices](./devices.md) for this server (requires `servers.devices`). The available list includes devices assigned to both its node and egg. Admins can attach devices even when **User Attachable** is off. Restart the server after changing attachments.
+Attach or detach [host devices](./devices.md) for this server (requires `servers.devices`). The available list includes devices assigned to both its node and egg. Admins can attach devices even when **User Attachable** is off. Attached devices the node's `allowed_devices` doesn't cover are marked **Not Allowed on Node**, as described in [node allowlist feedback](./devices.md#node-allowlist-feedback). Restart the server after changing attachments.
 
 ### Backups
 

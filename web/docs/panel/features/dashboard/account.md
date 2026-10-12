@@ -49,6 +49,8 @@ Once you have a second factor set up, the card lists each enrolled method as a g
 
 Up to three buttons sit at the bottom of the card: **Setup Two-Factor** or **Disable Two-Factor** for the authenticator app, **Enable Email** or **Disable Email** when the administrator has turned on email two-factor, and **Security Keys**, which takes you to the [Security Keys](./security-keys.md) page. Disabling asks for a valid authentication code and your password again.
 
+Every authenticator code is accepted only once. The code you confirm the setup with cannot be reused to log in, and the code you just logged in with cannot be used to disable 2FA. Wait for your app to show the next code if you get "this code has already been used".
+
 If your role or the panel requires 2FA, the card also tells you whether your account currently meets that requirement. A frozen account shows an alert explaining that account details cannot be changed.
 
 <img src="./images/account/2fa-disable.webp" width="220" alt="" />

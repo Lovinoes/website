@@ -224,3 +224,7 @@ Also make sure `WINGS_UID` and `WINGS_GID` match the user the Wings container ru
 ## LXCFS
 
 The optional [LXCFS integration](../installation/binary.md#optional-lxcfs) also uses host bind mounts with Podman. Run lxcfs as a separate host service and make its mount directory accessible to the account running the Podman engine. Restart affected servers after enabling it or restarting lxcfs.
+
+## Bandwidth Limits
+
+[Per-server bandwidth limits](../configuration.md#docker-bandwidth-enabled) work with rootless Podman as long as the host allows user namespaces (`/proc/sys/user/max_user_namespaces` above `0`). Wings joins the container's user namespace to set up shaping, and uses deeper download buffers there because traffic is relayed through pasta or slirp4netns. Rootful Podman needs Wings to hold `CAP_NET_ADMIN` and `CAP_SYS_ADMIN`, as with Docker.

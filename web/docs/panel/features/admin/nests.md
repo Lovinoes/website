@@ -25,7 +25,7 @@ The **Eggs** tab lists the nest's eggs with the same columns as the nest list (I
 
 ![](./images/nests/eggs.webp)
 
-Eggs support bulk operations: drag across rows to select, Ctrl/Cmd-click or use the checkboxes, Ctrl/Cmd+A to select everything, Escape to clear. With eggs selected, an action bar appears with **Update from Repository**, **Move** (to another nest), and **Delete**.
+Eggs support bulk operations: drag across rows to select, Ctrl/Cmd-click or use the checkboxes (the one in the header selects the whole page), Ctrl/Cmd+A to select everything, Escape to clear. With eggs selected, an action bar appears with **Update from Repository**, **Move** (to another nest), and **Delete**.
 
 ![Egg selected with Update from Repository, Move and Delete controls](./images/nests/eggs-selection.webp)
 
@@ -48,6 +48,8 @@ To pull eggs from a Git repository and keep them updated, use [Egg Repositories]
 ## Editing an Egg
 
 Opening an egg shows five tabs: **General**, **Installation Script**, **Variables**, **Mounts**, and **Servers**.
+
+Unsaved edits on **General** and **Installation Script** are kept while you switch between the egg's tabs. Leaving the egg with them still unsaved asks you to confirm first.
 
 ### General
 
@@ -90,6 +92,11 @@ At the bottom, next to **Save**:
 - **Export**: dropdown with **Export as JSON**, **Export as YAML**, and **Export as Pterodactyl** (JSON in Pterodactyl's egg format, for taking eggs back the other way).
 - **Move** (to another nest), **Duplicate** (copy under a new name, optionally into a different nest), and **Delete**.
 
+Pterodactyl and Pelican eggs don't map one-to-one onto Calagopus eggs, so a few things get translated on the way in and out:
+
+- **Import**: a stop value of `^C` becomes the `SIGINT` signal, and `^SIGTERM`, `^SIGQUIT`, `^SIGABRT` and `^SIGKILL` become those signals. Any other `^` value, including `^^C`, becomes `SIGKILL`. Conditional config file replacements (an object of value-to-replacement pairs) turn into replacements with **If Value** set, and the file's `create_file` setting carries over to **Create New File**.
+- **Export as Pterodactyl**: **Docker Stop** and the `SIGQUIT` signal are written as `^SIGTERM`, since Pterodactyl doesn't know them. The author must be an email address, so one is pulled out of the author field if it contains one, and `unknown@example.com` is used otherwise. Variables without rules are exported with `nullable`.
+
 ### Installation Script
 
 The script that runs when a server using this egg is installed or reinstalled. **Installation Container** is the Docker image the script runs in, **Container Entrypoint** the shell that executes it, and below both sits a code editor for the script itself.
@@ -121,7 +128,7 @@ Each variable is a card in a grid; drag a card by the grip handle in its top-rig
 | Field | What it does |
 |---|---|
 | **Name** / **Description** | Shown to users. Both are translatable per language, and the description supports Markdown. |
-| **Environment Variable** | The `ENV_VAR` passed to the container. Typed input is uppercased automatically, with spaces and hyphens converted to underscores. |
+| **Environment Variable** | The `ENV_VAR` passed to the container. Typed input is uppercased automatically, with spaces and hyphens converted to underscores. Wings sets `TZ`, `STARTUP`, `SERVER_MEMORY`, `SERVER_IP` and `SERVER_PORT` itself; from Wings 1.2.5 a variable with one of those names replaces Wings' value, while older versions overwrite it. |
 | **Default Value** | Value used when the user hasn't set one. |
 | **User Viewable** / **User Editable** | Whether users see and can change the variable on the Startup page. |
 | **Secret** | Hides the value like a password. |

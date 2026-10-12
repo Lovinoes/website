@@ -75,11 +75,13 @@ To the right of the terminal, tiles show the server's live stats. Usage tiles sh
 | **CPU Load** | CPU usage against the CPU limit, like `2.35% / 400%`. A checkbox on the tile, **Normalize CPU Load (shifted to max 100%)**, rescales it to a 0-100% range instead. |
 | **Memory Load** | Memory usage against the memory limit |
 | **Disk Usage** | Disk usage against the disk limit |
-| **Network (In)** / **Network (Out)** | Received and sent traffic, with the current per-second rate and packets per second below |
+| **Network (In)** / **Network (Out)** | Current receive and send rate in bits per second, against the server's download and upload [bandwidth limits](../admin/servers.md#resource-limits). The line below shows the total traffic and the packets per second, like `1.2 GiB total · 340 pps`. |
 
 ## Graphs
 
-Below everything, three live graphs: **CPU Load**, **Memory Load**, and **Network**. The Network graph tracks both directions; click **Hide Outbound** or **Hide Inbound** in its legend to focus on one. While the server is offline, the graphs show a **Server is offline** overlay instead.
+Below everything, three live graphs: **CPU Load**, **Memory Load**, and **Network**. The Network graph tracks both directions in bits per second; click **Hide Outbound** or **Hide Inbound** in its legend to focus on one. While the server is offline, the graphs show a **Server is offline** overlay instead.
+
+When the server has a CPU or memory limit, that graph draws it as a dashed red **Limit** line. Once usage reaches 40% of the limit, the graph's scale stretches to the limit so you can see how close the server is; below that the line sits off the top of the graph and only a small **Limit** label marks it. Hovering over one graph highlights the same moment on all three.
 
 ![](./images/console/graphs.webp)
 

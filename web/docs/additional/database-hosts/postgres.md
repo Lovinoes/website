@@ -11,6 +11,10 @@ This guide explains how to install and configure a **PostgreSQL** database serve
 The panel connects to this host using a privileged account to provision databases and roles on demand. Each game server then receives its own isolated credentials.
 :::
 
+::: warning PostgreSQL 13 or newer
+The panel drops databases with `DROP DATABASE ... WITH (FORCE)`, which PostgreSQL added in version 13. On older versions, recreating or deleting a database fails. Most current distributions ship a newer version, but RHEL-compatible 8.x installs PostgreSQL 10 unless you enable a newer module stream.
+:::
+
 ## Installation
 
 ::::tabs
@@ -149,6 +153,8 @@ CREATE USER calagopus WITH PASSWORD '<strong-password>' SUPERUSER;
 ::: info
 `SUPERUSER` allows the panel to provision databases and per-game-server roles without needing additional privileges.
 :::
+
+Each database the panel creates is owned by its own role, and the panel revokes the default `PUBLIC` privileges on it. PostgreSQL normally lets every role connect to every database; with those revoked, one game server's credentials can't connect to another server's database.
 
 ## Adding the Host to the Panel
 

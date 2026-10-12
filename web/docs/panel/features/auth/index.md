@@ -30,4 +30,5 @@ What actually shows up on these pages depends on panel settings:
 | Passkeys and usernameless login | [Settings > Webauthn](../admin/settings.md#webauthn) |
 | OAuth login buttons | [OAuth Providers](../admin/oauth-providers.md) |
 | Reset and other outgoing email | [Settings > Mail](../admin/settings.md#mail) |
+| Language picker below the card | **Allow Changing Language** in [Settings > User](../admin/settings.md#user), shown when more than one language is available |
 | Rate limits on the auth endpoints | [Settings > Ratelimits](../admin/settings.md#ratelimits); the OAuth callback has a fixed limit of 6 attempts per 5 minutes |

@@ -5,7 +5,7 @@ description: The server's networking tab, covering its public allocations, the f
 
 # Network
 
-Everything about how a server can be reached lives under Network, at `/server/<id>/network`. It splits into three tabs, each of which only appears if you hold the permission for it. When you can see only one, the tab bar is hidden and you land straight on that page.
+Everything about how a server can be reached lives under Network, at `/server/<id>/network`. It splits into three tabs, each of which only appears if you hold the permission for it. Firewall and Connections are also hidden when an [egg configuration](../../admin/egg-configurations.md#feature-configuration) switches that feature off for the server. When you can see only one, the tab bar is hidden and you land straight on that page.
 
 | Tab | What it covers | Permission |
 | --- | --- | --- |

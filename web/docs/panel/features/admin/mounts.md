@@ -60,6 +60,6 @@ Managing mounts requires the `mounts.create`, `mounts.update`, and `mounts.delet
 
 ## Node Allowlist Feedback
 
-Node assignment views show **Checking...** while reading the node configuration and **Not Allowed** when the mount source does not match Wings' `allowed_mounts` entries. Update that node's local allowlist before expecting the attachment to work. Assignment dialogs also warn about rejected sources.
+Node assignment views and the **Mounts** tab of the [admin server view](./servers.md#mounts) show **Checking Node** while reading the node configuration and **Not Allowed on Node** when the mount source does not match Wings' `allowed_mounts` entries. Update that node's local allowlist before expecting the attachment to work. Assignment dialogs also warn about rejected sources.
 
-This check compares configured paths. It does not resolve symlinks on the node or prove that the source exists; an absent warning is not a host filesystem check.
+This check compares configured paths. It does not resolve symlinks on the node or prove that the source exists; an absent warning is not a host filesystem check. No badge appears when the node configuration can't be fetched within 3 seconds, or when the answer hinges on a relative allowlist entry the panel can't resolve.

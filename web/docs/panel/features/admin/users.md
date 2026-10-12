@@ -22,7 +22,7 @@ Click **Create** (or go to `/admin/users/new`) and fill in the form:
 
 | Field | Notes |
 | --- | --- |
-| **Username** | Required. |
+| **Username** | Required. 3 to 15 characters of letters, numbers, and underscores. |
 | **Email** | Required. |
 | **First Name** / **Last Name** | Optional. |
 | **Language** | Required. The user's panel language. |

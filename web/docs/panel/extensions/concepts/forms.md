@@ -198,10 +198,10 @@ The same input for a `number[]` value, with optional bounds on each entry.
 ### Size
 
 ```ts
-{ type: 'size', name: '...', label: '...', mode: 'b' | 'mb', min: number }
+{ type: 'size', name: '...', label: '...', mode: 'b' | 'mb' | 'bps', min: number }
 ```
 
-A numeric input with byte/megabyte units. Store the value as a number in your Zod schema.
+A numeric input with a unit picker. `'b'` and `'mb'` store bytes or megabytes; `'bps'` stores bits per second and offers decimal Kbps, Mbps, and Gbps units (1 Mbps = 1,000,000). Store the value as a number in your Zod schema.
 
 ### Localized text
 

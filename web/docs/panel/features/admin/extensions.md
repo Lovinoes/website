@@ -11,7 +11,7 @@ Extensions (**System** > **Extensions**) add features to the panel itself. This 
 The full installation walkthrough, including switching to the heavy image that extension building requires, lives at [Installing Extensions](../../extensions/installing-extensions.md). This page only describes the admin UI.
 :::
 
-Web installation, removal, and rebuild controls are unavailable when [`APP_DISABLE_EXTENSION_MANAGEMENT`](../../environment.md#app-disable-extension-management) is enabled, even in the heavy image. Installed extensions still run and can be toggled; the extension CLI remains available.
+Web installation, removal, rebuild, restart, and build log controls are unavailable when [`APP_DISABLE_EXTENSION_MANAGEMENT`](../../environment.md#app-disable-extension-management) is enabled, even in the heavy image. Installed extensions still run and can be toggled, but since the panel can't restart itself from the web interface then, a toggle takes effect when you restart the container. The extension CLI remains available.
 
 ## Installed Extensions
 

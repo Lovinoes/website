@@ -341,7 +341,7 @@ export const wingsConfigDoc: ConfigDoc = {
         {
           key: 'system.timezone',
           description:
-            'The timezone passed into server containers. Generated from `TZ`, then the first line of `/etc/timezone`, then the current local UTC offset. The example uses `+00:00`; the generated value depends on the host.',
+            'The timezone passed into server containers. Generated from `TZ`, then the first line of `/etc/timezone`, then the current local UTC offset. The example uses `+00:00`; the generated value depends on the host. A `TZ` variable on the server takes precedence, then a per-server timezone set in the Panel.',
           example: '+00:00',
         },
         {
@@ -1040,6 +1040,18 @@ export const wingsConfigDoc: ConfigDoc = {
           description:
             'The maximum size (in bytes) of the source file of a firewall rule. A file larger than this is rejected as a whole, and the rule keeps the entries it last loaded.',
           default: 1048576,
+        },
+        {
+          key: 'docker.bandwidth.enabled',
+          description:
+            "Whether Wings enforces the per-server upload and download limits set in the Panel. Limits are applied inside each server's network namespace with `tbf` and `fq_codel`: upload on the container's interface, download through an `ifb` device named `wings-dl` that Wings creates inside the container. They are applied when the server starts and updated live when its limits change, without a restart. When this is off, limited servers run without their limits and Wings logs a warning for each one.",
+          default: true,
+          notesAfter: [
+            {
+              type: 'warning',
+              body: "Bandwidth limits are Linux only. Rootful Wings needs `CAP_NET_ADMIN` and `CAP_SYS_ADMIN`, which it has when it runs as root on the host. Wings in the default Docker Compose stack has neither, and it also cannot reach server containers' network namespaces without sharing the host PID namespace, so bandwidth limits are not supported there out of the box. Rootless Wings needs user namespaces (`/proc/sys/user/max_user_namespaces` above `0`). The Panel shows the reason on the server's limit fields when a node can't apply limits, and refuses to save a non-zero limit there.\n\nA limited server needs a bridge network with exactly one interface; `host`, `none` and `container:` network modes are rejected, as is a server container granted `NET_ADMIN`, `NET_RAW` or `SYS_ADMIN`. If shaping fails when a limited server starts, the start fails rather than running the server unthrottled. Set this to `false` to start such servers without their limits.",
+            },
+          ],
         },
         {
           key: 'docker.domainname',

@@ -158,7 +158,20 @@ Example of a restic configuration pointing at an S3-compatible endpoint:
 
 === Proxmox Backup Server
 
-Use the **Proxmox Backup Server** disk to store backups in a [Proxmox Backup Server](https://pbs.proxmox.com/docs/) datastore. Each Calagopus backup becomes a PBS snapshot (backup type `host`, backup ID `<prefix>-<server-uuid>`), uploaded as a deduplicated `pxar` archive. Wings authenticates with a PBS [API token](https://pbs.proxmox.com/docs/user-management.html#api-tokens) - create one in the PBS web UI under **Configuration → Access Control → API Token** and grant it permission on the target datastore (e.g. `DatastoreBackup`, plus `DatastoreReader` if you want restores and browsing).
+Use the **Proxmox Backup Server** disk to store backups in a [Proxmox Backup Server](https://pbs.proxmox.com/docs/) datastore. Each Calagopus backup becomes a PBS snapshot (backup type `host`, backup ID `<prefix>-<server-uuid>`), uploaded as a deduplicated `pxar` archive. Wings authenticates with a PBS [API token](https://pbs.proxmox.com/docs/user-management.html#api-tokens), created in the PBS web UI under **Configuration → Access Control → API Token**.
+
+::: warning Grant permissions to both the user and the token
+PBS tokens are created with **Privilege Separation** on by default. A token like that doesn't inherit its user's permissions, and its own permissions are capped by the user's: it can only do what **both** the user and the token are allowed to do. Giving the role to just one of them gets you `HTTP 403` errors from Wings.
+
+Under **Configuration → Access Control → Permissions**, add the same permission twice, once with the user (`calagopus@pbs`) and once with the token (`calagopus@pbs!wings`):
+
+- **Path**: `/datastore/<datastore>`, or `/datastore/<datastore>/<namespace>` if you use a namespace
+- **Role**: `DatastorePowerUser`
+
+`DatastoreBackup` alone is enough to create and restore backups but not to delete them, so deleting a backup in the Panel fails. `DatastorePowerUser` adds the prune privilege Wings needs to delete its own snapshots.
+
+If you untick **Privilege Separation** when creating the token, it inherits the user's permissions instead, and only the user needs the permission entry.
+:::
 
 | Field | Value |
 | --- | --- |
@@ -280,6 +293,7 @@ Click **Test** on the configuration's form and pick a node. [Testing a Configura
 | Restic storage keeps growing even though old backups are deleted | Deleting a backup only forgets the snapshot. The data stays until `restic prune` runs, and [prune jobs](#disk-specific-settings) currently only do a dry run. Turn on **Maintenance Enabled** for the configuration, run `restic prune` against the repository (and `restic unlock` first if a stale lock is reported), then turn maintenance off. |
 | Restic says the repository doesn't exist | The repository setting points at a directory inside the repository, or at a parent of it. It must be the repository root, the directory that contains `config` and `keys`. |
 | A backup is stuck at "creating" or "deleting" with no way to remove it | Restart Wings. Anything still in progress is marked failed, and failed backups can be deleted. Proxmox Backup Server deletions that got stuck because of missing permissions clear themselves after a while. |
+| Proxmox Backup Server fails with `PBS denied access (HTTP 403)` even though the token has a role on the datastore | With **Privilege Separation** on (the PBS default), a token can only do what both it and its user are allowed to do. Add the permission for the user as well as the token. See [the PBS settings](#disk-specific-settings). Deleting backups also needs `DatastorePowerUser` (or anything with `Datastore.Prune`), not just `DatastoreBackup`. |
 | Backups disappeared after a server transfer or after deleting an old node | Backups belong to the node that made them. When transferring a server, select the backups in the transfer dialog, or they stay behind and are lost when that node is deleted. For remote drivers (S3, restic and Kopia), turn on **Shared** on the configuration so every node can see the same backups and a transferred server keeps them without copying anything. It's off by default, so an existing configuration almost certainly needs the change. |
 | ZFS or Btrfs backups fail with `failed to parse dataset name`, `server volume ... is not its own ZFS dataset`, or `Failed to get ZFS dataset name ...` followed by whatever `zfs list` printed | Snapshot backups need the server to live on its own dataset or subvolume, which means `system.disk_limiter_mode` set to `zfs_dataset` or `btrfs_subvolume` and existing servers converted with `wings migrate-disk-limiter`. See [Disk Limiters](../disk-limiters/index.md). When Wings runs in a container, it also needs to see the pool: bind-mount the dataset at its real mountpoint and pass `/dev/zfs` through to the container, otherwise `zfs list` fails inside the container and its complaint is what ends up in the error. |
 | Backups drag the server's TPS down | The first snapshot of a server is expensive whatever the driver, later ones are incremental. `system.backups.read_limit` and `system.backups.write_limit` throttle the local, S3, restic and Proxmox Backup Server drivers. Kopia, ddup-bak and the ZFS and Btrfs snapshot drivers ignore them. |

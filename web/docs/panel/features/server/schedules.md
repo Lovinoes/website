@@ -9,7 +9,7 @@ Schedules automate work on your server. Each schedule combines **triggers** (whe
 
 ![](./images/schedules/list.webp)
 
-The list shows each schedule's name, **Last Run**, **Last Failure**, **Status** (**Active** or **Inactive**), and **Created** timestamps. Click a row to open the schedule, or right-click it for **Run Now**, **Export**, **Duplicate**, and **Delete**.
+The list shows each schedule's name, **Last Run**, **Last Failure**, **Status** (**Active** or **Inactive**), and **Created** timestamps. Click a row to open the schedule, or right-click it for **Run Now**, **Export**, **Duplicate**, and **Delete**. **Duplicate** is disabled once the server has reached its schedule limit.
 
 **View Calendar** opens the **Upcoming Runs Calendar**, which plots upcoming cron runs in a day, week, or month view. Click an entry to jump to its schedule.
 
@@ -77,9 +77,9 @@ Opening a schedule shows its name with an **Active**/**Inactive** badge, a **Run
 
 ### Actions
 
-The **Schedule Actions** tab is the heart of a schedule: an ordered list of steps. Add one with **Add Step** (or **Create First Step** on an empty schedule), drag the handle to reorder, and click a step's chevron to expand its full configuration. The maximum number of steps per schedule is a panel-wide setting under [Settings > Server](../admin/settings.md#server).
+The **Schedule Actions** tab is the heart of a schedule: an ordered list of steps. Add one with **Add Step** (or **Create First Step** on an empty schedule), drag the handle to reorder, and click a step's chevron to expand its full configuration. The maximum number of steps per schedule is a panel-wide setting, **Max Schedule Steps** under [Settings > Server](../admin/settings.md#server). Once a schedule has that many steps, **Add Step** and **Create First Step** are disabled with the tooltip "This schedule is limited to *N* steps."
 
-Each step's menu offers **Edit**, **Duplicate**, and **Delete**. While the schedule executes, the current step shows a **Running** badge; a step that failed on the last run shows a red warning icon with the error message.
+Each step's menu offers **Edit**, **Duplicate**, and **Delete**. **Duplicate** is disabled at the step limit too, and duplicating an **If** step needs two free slots rather than one. While the schedule executes, the current step shows a **Running** badge; a step that failed on the last run shows a red warning icon with the error message.
 
 Steps are picked from a searchable **Action Type** list, organized into five groups.
 

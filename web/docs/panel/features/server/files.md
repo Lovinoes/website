@@ -119,7 +119,7 @@ Right-clicking a selected row opens the mass action menu:
 
 **Copy** and **Move** work like cut and paste: the marked files stay highlighted while you navigate to the target directory, then the action bar offers **Copy ... here** or **Move ... here** (or `Ctrl+V`), with a cancel button to back out.
 
-If names collide while copying, a **Resolve Copy Conflicts** modal lists each clash with the source and destination details and lets you **Skip**, **Overwrite**, or **Rename** each file individually, or **Skip all** / **Overwrite all** at once.
+If names collide while copying, a **Resolve Copy Conflicts** modal lists each clash with the source and destination details and lets you **Skip**, **Overwrite**, or **Rename** each file individually, or **Skip all** / **Overwrite all** at once. With **Always overwrite existing files** turned on in the file-manager settings, pasting overwrites clashing files straight away and the modal never appears.
 
 Drag rows onto a directory row or a breadcrumb segment to move them; dragging any selected row drags the whole selection.
 
@@ -273,6 +273,8 @@ Files above the panel-wide view-size limit ([Settings > Server](../admin/setting
 ## SQLite Databases
 
 SQLite files (`.db`, `.db3`, `.sqlite`, `.sqlite3`) don't open in the editor: they open the same [data explorer](./databases/index.md#data-explorer) the panel uses for managed databases, at `/files/sqlite` - browsing rows, inspecting and editing the schema, and a raw query console. This requires the `files.query-raw` permission, which grants full read and write access to the file's contents; changing rows or structure additionally needs `files.update`.
+
+Wings (1.2.4 and newer) fences raw queries in: `ATTACH` only works for `:memory:` and temporary databases, setting the `temp_store_directory`, `data_store_directory`, `hard_heap_limit` and `soft_heap_limit` pragmas is refused, `PRAGMA threads` is ignored, a single string or blob value can be at most 32 MiB, and all queries running on one server at the same time share 128 MiB of memory.
 
 ## File History
 

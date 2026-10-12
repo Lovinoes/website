@@ -39,6 +39,7 @@ Extensions are built around several core systems:
 - [Quick Actions](./concepts/quick-actions.md) - Add entries, categories and prefix modes to the command palette
 - [File Manager](./concepts/file-manager.md) - Slot components, context menu items, file icons and custom editors into the file manager
 - [Toasts](./concepts/toasts.md) - Show transient feedback to the user
+- [Frontend Events](./concepts/frontend-events.md) - Change or cancel toasts, websocket frames, API requests, clipboard use and more before the Panel acts on them
 - [Extending Models](./concepts/extending-models.md) - Add fields to existing data models
 - [Email Templates](./concepts/email-templates.md) - Define custom email templates for notifications and communications
 - [Speaking Game Protocols](./concepts/speaking-game-protocols.md) - Open raw TCP/UDP tunnels to a server's port to query it directly

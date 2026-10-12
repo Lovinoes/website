@@ -20,7 +20,7 @@ Allocations can be IPv4 or IPv6, and a server can hold both at once, for example
 Click **Add** in the top right. There's nothing to fill in: the panel automatically assigns a free allocation from the node's pool. Once you reach the server's limit the button is disabled with the tooltip "This server is limited to 15 allocations."
 
 ::: info
-Self-assigning allocations only works when an [egg configuration](../../admin/egg-configurations.md#allocation-configuration) enables **User Self Assign** for the server's egg, which also pins the port range the panel picks from. Without one, **Add** is rejected.
+Self-assigning allocations only works when an [egg configuration](../../admin/egg-configurations.md#allocation-configuration) that applies to the server enables **User Self Assign**, which also pins the port range the panel picks from. Without one, **Add** is rejected.
 :::
 
 ## Notes

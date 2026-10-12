@@ -5,7 +5,7 @@ description: Creating an account on a Calagopus panel, what the Register form as
 
 # Register
 
-When registration is enabled, the **Create account** link on the [login page](./login.md) leads to `/auth/register` ("Please enter your details to register"). The page itself stays reachable with registration off, only the link is hidden, and submitting then fails with "registration is disabled".
+When registration is enabled, the **Create account** link on the [login page](./login.md) leads to `/auth/register` ("Please enter your details to register"). With registration off, the link is hidden and the page shows a not-found card.
 
 ![](./images/register/form.webp)
 
@@ -16,6 +16,8 @@ Registering logs you in immediately: your session starts the moment the account 
 If the administrator has turned on **Require Email Verification**, a verification link is mailed to you and the rest of the panel stays locked until you open it. You can still reach your account page, change your email, and request a new link, but nothing else - including SFTP and SSH - works until the address is verified. See [Account](../dashboard/account.md) for the verification banner and the resend button.
 
 When a captcha is configured, it renders below the card and **Register** stays disabled until it's solved.
+
+The account is created in the language the page is shown in. That is the one picked in the language selector under the card, or detected from your browser on a first visit, as long as **Allow Changing Language** is on. Otherwise new accounts get the panel's default language.
 
 ::: info
 For admins: the **Enable Registration** toggle lives in [Settings > Application](../admin/settings.md#application), and turning it on without a [captcha](../admin/settings.md#captcha) configured is asking for bot signups. The `auth/register` endpoint is [rate limited](../admin/settings.md#ratelimits) per IP.

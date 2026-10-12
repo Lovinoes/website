@@ -439,7 +439,7 @@ username: calagopus
 ```
 
 ### system.timezone
-The timezone passed into server containers. Generated from `TZ`, then the first line of `/etc/timezone`, then the current local UTC offset. The example uses `+00:00`; the generated value depends on the host.
+The timezone passed into server containers. Generated from `TZ`, then the first line of `/etc/timezone`, then the current local UTC offset. The example uses `+00:00`; the generated value depends on the host. A `TZ` variable on the server takes precedence, then a per-server timezone set in the Panel.
 
 ### system.user.rootless.enabled
 Enables rootless container execution, allowing Wings to run containers without requiring root privileges on the host. When enabled, Wings takes `system.username`, `system.user.uid` and `system.user.gid` from the user it runs as and derives `docker.userns_mode` from the container UID/GID below.
@@ -1375,6 +1375,20 @@ Default value:
 source_file_max_bytes: 1048576
 ```
 
+### docker.bandwidth.enabled
+Whether Wings enforces the per-server upload and download limits set in the Panel. Limits are applied inside each server's network namespace with `tbf` and `fq_codel`: upload on the container's interface, download through an `ifb` device named `wings-dl` that Wings creates inside the container. They are applied when the server starts and updated live when its limits change, without a restart. When this is off, limited servers run without their limits and Wings logs a warning for each one.
+
+Default value:
+```yaml
+enabled: true
+```
+
+::: warning
+Bandwidth limits are Linux only. Rootful Wings needs `CAP_NET_ADMIN` and `CAP_SYS_ADMIN`, which it has when it runs as root on the host. Wings in the default Docker Compose stack has neither, and it also cannot reach server containers' network namespaces without sharing the host PID namespace, so bandwidth limits are not supported there out of the box. Rootless Wings needs user namespaces (`/proc/sys/user/max_user_namespaces` above `0`). The Panel shows the reason on the server's limit fields when a node can't apply limits, and refuses to save a non-zero limit there.
+
+A limited server needs a bridge network with exactly one interface; `host`, `none` and `container:` network modes are rejected, as is a server container granted `NET_ADMIN`, `NET_RAW` or `SYS_ADMIN`. If shaping fails when a limited server starts, the start fails rather than running the server unthrottled. Set this to `false` to start such servers without their limits.
+:::
+
 ### docker.domainname
 The domain name assigned to containers, useful for internal networking resolution.
 
@@ -2184,6 +2198,8 @@ docker:
     backend: auto
     source_file_max_entries: 10000
     source_file_max_bytes: 1048576
+  bandwidth:
+    enabled: true
   domainname: ''
   registries: {}
   registry_image_fetch_cache:
@@ -2489,6 +2505,8 @@ docker:
     backend: auto
     source_file_max_entries: 10000
     source_file_max_bytes: 1048576
+  bandwidth:
+    enabled: true
   domainname: ''
   registries: {}
   registry_image_fetch_cache:

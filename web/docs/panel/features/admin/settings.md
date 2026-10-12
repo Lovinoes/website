@@ -90,7 +90,7 @@ Controls the `<head>` of the panel's own page: what search engines record and wh
 Where the panel stores uploaded files such as profile pictures and admin assets. Pick a **Driver**:
 
 - **Filesystem**: a single **Path** on the panel's disk.
-- **S3**: **Access Key**, **Secret Key**, **Bucket**, **Region**, **Public URL**, **Endpoint**, and a **Using path-style URLs** toggle. The `assets/`, `avatars/`, and `publicdata/` subdirectories must be publicly accessible over the **Public URL**; that's where admin assets, user avatars, and extension public data are served from.
+- **S3**: **Access Key**, **Secret Key**, **Bucket**, **Region**, **Public URL**, **Endpoint**, and a **Using path-style URLs** toggle. The `assets/`, `avatars/`, and `publicdata/` subdirectories must be publicly accessible over the **Public URL**; that's where admin assets, user avatars, and extension public data are served from. Avatars are uploaded with `Cache-Control: public, max-age=31536000, immutable`, since every avatar path is unique to its content. If you put a CDN in front of the bucket, let it pass that header through.
 
 ::: warning
 Changing the driver makes the panel look for existing assets in the new location. Move them over manually, or they'll turn up missing.
@@ -109,7 +109,7 @@ How the panel sends email. Pick a **Provider**:
 
 **HELO/EHLO Domain** is the name the panel announces itself with when it opens the SMTP connection. Left empty it sends `[127.0.0.1]`, which providers like Google Workspace reject; set it to the panel's own domain in that case.
 
-**Send Test Email** opens a small modal, prefilled with your own address, to verify the configuration actually delivers.
+**Send Test Email** opens a small modal, prefilled with your own address, to verify the configuration actually delivers. While the saved provider is **None** the button stays disabled with the tooltip "Save an email provider before sending a test email.", so save the new provider first.
 
 ## Mail Templates
 
@@ -147,7 +147,7 @@ Captcha protection for the panel; set this up before you [enable registration](#
 | --- | --- |
 | **None** | No captcha |
 | **Turnstile** | **Site Key**, **Secret Key** |
-| **reCAPTCHA** | **Site Key**, **Secret Key**, a **V3** toggle, and **Score Threshold** when V3 is on |
+| **reCAPTCHA** | **Site Key**, **Secret Key**, a **V3** toggle, and **Score threshold** when V3 is on |
 | **hCaptcha** | **Site Key**, **Secret Key** |
 | **Friendly Captcha** | **Site Key**, **API Key** |
 | **Cap** | **Instance URL**, **Site Key**, **Secret Key** |
@@ -156,7 +156,9 @@ For **Cap**, enter the **Instance URL** of your Cap server, such as `https://cap
 
 ![Cap settings with instance URL and key fields](./images/settings/cap.webp)
 
-For **reCAPTCHA V3**, **Score Threshold** is the minimum accepted score, from `0` to `1`, with a default of `0.5`. Scores below it are rejected; increasing it makes the check stricter. It does not affect reCAPTCHA V2.
+Both sides talk to the Cap instance directly. The widget in the visitor's browser calls `{Instance URL}/{Site Key}/`, and the Panel verifies each solution by posting to `{Instance URL}/{Site Key}/siteverify`. The instance therefore has to be reachable from your users' browsers and from the Panel host. The Panel's verification request does not go through [`APP_BLOCKED_CIDRS`](../../environment.md#app-blocked-cidrs), so an instance on your LAN works as long as browsers can reach it too. The Panel adjusts its Content Security Policy for Cap on its own (`'wasm-unsafe-eval'` and a per-request script nonce), so there is nothing to add to a reverse proxy.
+
+For **reCAPTCHA V3**, **Score threshold** is the minimum accepted score, from `0` to `1`, with a default of `0.5`. Scores below it are rejected; increasing it makes the check stricter. It does not affect reCAPTCHA V2.
 
 ![reCAPTCHA V3 score threshold](./images/settings/recaptcha-v3.webp)
 
@@ -224,7 +226,7 @@ Per-account limits for [Dashboard](../dashboard/index.md) features.
 | **Max SSH Keys** | Cap on [SSH keys](../dashboard/ssh-keys.md) per user |
 | **Max Synced Settings** | Cap on how many settings an account may sync across devices |
 | **Max Synced Setting Size (bytes)** | Largest value a single synced setting may hold |
-| **Allow Changing Language** | If enabled, users can change their language preferences |
+| **Allow Changing Language** | If enabled, users can change their language preferences. The login, register, and other auth pages then show a language picker when more than one language is available, and a first-time visitor gets the closest match to their browser languages, falling back to the panel default. New accounts are created with the language picked during registration |
 
 Below the limits, **Client Route Order** is a collapsible section: enable it to reorder the pages of the user dashboard sidebar for everyone. Drag entries to reorder, and use the row at the bottom to insert extra entries: a **Route**, a **Divider**, or a **Redirect** (a name plus an external URL). It's the same editor egg configurations use for the [server sidebar](./egg-configurations.md#route-configuration).
 

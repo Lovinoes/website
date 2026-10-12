@@ -34,7 +34,7 @@ Each instance has its own page at `/server/<id>/databases/instances/<id>` with t
 Along the top:
 
 - **Start**, **Restart**, and **Stop** power buttons. While the instance is stopping, **Stop** turns into **Kill**; killing warns you first, since forcibly killing a database can corrupt data.
-- **Export** and **Import** (Redis only, and only while running): download a dump of the whole instance, or upload one, optionally with **Wipe all existing data before importing**.
+- **Export** and **Import** (Redis only, and only while running): download a dump of the whole instance as an `.rdb` file, or upload one, optionally with **Wipe all existing data before importing**.
 - **Apply Update**, shown when the instance's template has a newer configuration. Applying it restarts the database on the updated template.
 - **Edit** to rename the instance or toggle **Locked**. A locked instance can't be deleted, template updates can't be applied, and its user passwords can't be rotated.
 - **Delete** to remove the instance and all its data. Type the name to confirm.
@@ -60,8 +60,8 @@ Right-click a database for:
 | Action | What it does |
 | --- | --- |
 | **Explore Data** | Opens the [Data Explorer](./index.md#data-explorer). |
-| **Export** | Downloads a dump of this database. |
-| **Import** | Uploads a **Dump File**, optionally wiping existing data first. MongoDB imports also need the **Source Database** name the dump was taken from. |
+| **Export** | Downloads a dump of this database: a gzip-compressed `.sql.gz` for PostgreSQL and MariaDB, a `.archive` for MongoDB. |
+| **Import** | Uploads a **Dump File**, optionally wiping existing data first. The file picker only offers `.sql` and `.gz` files for PostgreSQL and MariaDB, `.archive` for MongoDB, and `.rdb` for Redis. Gzip-compressed dumps are detected by their content and unpacked, so a plain `.sql` and an exported `.sql.gz` both work (DB Agent 1.2.3 and newer). MongoDB imports also need the **Source Database** name the dump was taken from. |
 | **Import from Remote** | Dumps another database server over a **Connection String** and imports the result. An optional **Source Database** field "Overrides the database named in the connection string", and a wipe toggle clears the target first. The connection string is only used to take the dump, it is never stored. Runs in the background as a cancellable operation. |
 | **Recreate** | Wipes all data and recreates an empty database with the same name and user access. Type the name to confirm. |
 | **Delete** | Permanently deletes the database and its data. |

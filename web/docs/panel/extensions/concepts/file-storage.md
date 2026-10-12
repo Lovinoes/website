@@ -87,7 +87,7 @@ Storage paths are global - whatever you write to `foo/bar.txt` is reachable as `
 | Prefix | Public? | What it's for |
 | --- | --- | --- |
 | `assets/` | Yes | Admin assets - logos, branding images, anything the admin panel needs publicly available. |
-| `avatars/` | Yes | User avatar images. Structure is `avatars/{user_uuid}/{identifier}.webp`, where the identifier is random for an uploaded avatar and derived from the source URL for one imported from an OAuth provider. **Don't write here directly** unless you're confident; the core Panel manages this and a botched write can leave a user with a missing or corrupted avatar. |
+| `avatars/` | Yes | User avatar images. Structure is `avatars/{user_uuid}/{identifier}.webp`, where the identifier is random for an uploaded avatar, and for one imported from an OAuth provider is a digest of the source URL followed by a digest of the stored image. An avatar path never gets new content, so browsers can cache it forever. **Don't write here directly** unless you're confident; the core Panel manages this and a botched write can leave a user with a missing or corrupted avatar. |
 | `publicdata/` | Yes | Currently unused by the base Panel; available for extension use. Suggested structure: `publicdata/extensions/{your.package.identifier}/...`. |
 | `privatedata/` | No | Not publicly accessible. Same suggested structure as `publicdata/`: `privatedata/extensions/{your.package.identifier}/...`. |
 
@@ -121,6 +121,33 @@ The format depends on the configured driver: filesystem-backed installs serve th
 For paths under `privatedata/`, `get_url(...)` will still return *a* URL. On the filesystem driver hitting it is a 404; on S3 it is whatever the bucket policy says. Treat the returned value as a path identifier for your own routes' use, not as something to expose to clients.
 
 The retriever holds a read guard on the settings for as long as it lives. That is fine for the lifetime of a request handler, but don't park one in a long-running task, where it would block the next settings write.
+
+## Cache Headers
+
+How long browsers keep a public file depends on its prefix. On the filesystem driver the Panel sets the headers itself when it serves the file:
+
+| Prefix | `Cache-Control` | Why |
+| --- | --- | --- |
+| `avatars/` | `public, max-age=31536000, immutable` | Every avatar path is unique to its content, so a browser never needs to ask again. |
+| `assets/`, `publicdata/` | `no-cache` | Paths can be overwritten with new content. Browsers revalidate with `If-Modified-Since` against the file's `Last-Modified` time and get a `304` when nothing changed. |
+
+You can't change this policy for filesystem storage, so an extension writing to `publicdata/` gets `no-cache`. If a file under your prefix is replaced, clients see the new version on their next request.
+
+On S3 the Panel doesn't serve anything, so the headers come from the object itself. `store` uploads objects with no `Cache-Control`, which leaves caching up to the bucket and CDN. To attach one, use `store_with_cache_control`, which takes the same arguments plus an `Option<&str>`:
+
+```rs
+state
+    .storage
+    .store_with_cache_control(
+        &path,
+        std::io::Cursor::new(body),
+        "image/webp",
+        Some("public, max-age=31536000, immutable"),
+    )
+    .await?;
+```
+
+The value is stored as object metadata on S3 and ignored by the filesystem driver. Only send `immutable` for paths that never get new content: put a content hash or a fresh UUID in the file name, and write a new path instead of overwriting the old one. Otherwise browsers and CDNs keep serving the stale file for a year.
 
 ## Storing Streamed Data
 

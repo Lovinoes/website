@@ -58,7 +58,7 @@ Lines starting with `#` are comments. Later lines win over earlier ones, so an e
 
 hides everything except `game/csgo/cfg` and its contents. The directories on the way there (`game`, `game/csgo`) stay listed so the subuser can reach the exception, but the directories themselves are still denied, so they cannot be renamed, deleted or archived as a whole. A list that fails to compile, for example with an unclosed `[`, denies the whole server rather than nothing.
 
-As you type, the gutter next to each line shows how many files currently match ("12 matched" or "No matches"); `!` lines are marked "Exception". Past 20 patterns, counting is no longer automatic and a **Count Matches** button appears instead.
+As you type, the gutter next to each line shows how many files currently match ("12 matched" or "No matches"); `!` lines are marked "Exception". Past 20 patterns, counting is no longer automatic and a **Count Matches** button appears instead. An exception without a `/` in it, like `!server.properties`, gets a yellow note below the field: "`!server.properties` matches at any depth, use `!/server.properties` to only match it in the root directory."
 
 A partially uploaded file is matched against the name it will end up with, not the `.upload-part` name it carries while in flight, so a pattern cannot be side-stepped by grabbing the partial file over SFTP mid-upload.
 

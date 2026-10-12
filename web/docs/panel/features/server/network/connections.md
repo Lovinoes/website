@@ -13,6 +13,8 @@ A server can only join if the node it runs on is on the network, which is an adm
 
 > The node this server runs on is **not on the private network**, so it cannot join. Ask an administrator to enable it for the node.
 
+Administrators can also switch the private network off for certain servers through an [egg configuration](../../admin/egg-configurations.md#feature-configuration). Such a server leaves the network, its Connections tab is hidden, and other servers cannot connect to it.
+
 ## Joining
 
 A server that has not joined shows **Not on the Private Network**, with "Join to give this server a private address that the servers you connect it to can reach it on." Without the `connections.create` permission the button is gone and the text reads "This server has no private address, so no other server can reach it privately." instead.

@@ -30,7 +30,7 @@ The badge falls back to **Deployment Enabled** when the allocation figures canno
 
 ![](./images/nodes/list.webp)
 
-Select nodes with the checkboxes, by dragging, or with `Ctrl+A` (`Escape` clears). An action bar appears with **Update Config**, which opens a YAML editor and applies the entered configuration to every selected node at once.
+Select nodes with the checkboxes (the one in the table header selects the whole page), by dragging, or with `Ctrl+A` (`Escape` clears). An action bar appears with **Update Config**, which opens a YAML editor and applies the entered configuration to every selected node at once.
 
 ![Node selected with the bulk Update Config control](./images/nodes/bulk-actions.webp)
 
@@ -109,7 +109,7 @@ Below that are the manual configuration tools needed to connect Wings to this no
 
 ![](./images/nodes/verify-connection.webp)
 
-**Live Configuration** below edits the full `config.yml` of the running wings instance in a YAML editor. **Save Configuration** (or `Ctrl+S`) pushes it to the node. The editor lists options that cannot be changed from the web UI, and reports changes to those paths as ignored. Edit them on the Wings host instead; this includes `allowed_mounts` and `allowed_devices`. See the [Wings configuration reference](../../../wings/configuration.md) for every option.
+**Live Configuration** below edits the full `config.yml` of the running wings instance in a YAML editor. **Save Configuration** (or `Ctrl+S`) pushes it to the node. The editor lists options that cannot be changed from the web UI, and reports changes to those paths as ignored. Edit them on the Wings host instead; this includes `allowed_mounts` and `allowed_devices`. See the [Wings configuration reference](../../../wings/configuration.md) for every option. Leaving the page with unsaved edits in the editor asks you to confirm first.
 
 ![](./images/nodes/live-configuration.webp)
 
@@ -153,7 +153,7 @@ Which admin-defined [mounts](../server/mounts.md) are usable on this node (requi
 
 The **Devices** tab assigns admin-defined [devices](./devices.md) to this node (requires `nodes.devices`). **Add** makes a device available here; removing it detaches its node assignment. The server's egg must also allow it, and Wings must allow its source in [`allowed_devices`](../../../wings/configuration.md#allowed-devices).
 
-The mount and device assignment lists flag sources that are **Not Allowed** by the node's configured allowlist. These checks compare paths only; see [mount feedback](./mounts.md#node-allowlist-feedback) and [device feedback](./devices.md#node-allowlist-feedback) for their limits.
+The mount and device assignment lists flag sources that are **Not Allowed on Node** by the node's configured allowlist. These checks compare paths only; see [mount feedback](./mounts.md#node-allowlist-feedback) and [device feedback](./devices.md#node-allowlist-feedback) for their limits.
 
 ## Database Hosts
 
@@ -200,7 +200,7 @@ All servers on the node, in the standard admin server list (ID, Status, Name, No
 
 ![](./images/nodes/servers.webp)
 
-Select individual servers (checkboxes, drag, `Ctrl+A`, or click while holding `S`) to run the same actions on just the selection.
+Select individual servers (checkboxes, drag, `Ctrl+A`, or click while holding `S`) to run the same actions on just the selection. The checkbox in the table header selects or clears every server on the current page.
 
 ![Node server selected with power and Transfer controls](./images/nodes/servers-selection.webp)
 
@@ -221,7 +221,7 @@ The six **Allocation Mode** options, with the caveats their dropdown entries sta
 - **Randomize primary allocation**: removes additional allocations.
 - **Randomize all allocations**: recommended to avoid incompatibility issues with the destination node.
 - **Preserve port numbers** (the default): reuses the same port numbers on the destination node where available, falls back to random allocations otherwise.
-- **Assign allocations based on Egg deployment configuration**: only works if the egg has a [deployment configuration](./egg-configurations.md#allocation-configuration) and the destination node has compatible allocations.
+- **Assign allocations based on Egg deployment configuration**: only works if an [egg configuration](./egg-configurations.md#allocation-configuration) with allocation settings applies to the egg on the destination node, and that node has compatible allocations. Configurations are matched against the destination node and its location, not the source.
 - **Self-assign new allocations based on Egg port range**: only works if the egg has a port range and the destination node has compatible allocations.
 
 ![](./images/nodes/transfer-modal.webp)

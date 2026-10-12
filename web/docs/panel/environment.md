@@ -160,7 +160,7 @@ APP_DISABLE_FRONTEND=false
 
 ## APP_DISABLE_EXTENSION_MANAGEMENT
 
-When enabled, the Panel no longer lets admins install, remove or rebuild extensions from the web interface in the heavy image, and the extensions page hides the management controls. Installed extensions keep running and can still be turned on or off. The `panel-rs extensions` CLI inside the container still works, so use this if extension changes should only happen through shell access. The regular images never offer web management, so the variable does nothing there.
+When enabled, the Panel no longer lets admins install, remove or rebuild extensions from the web interface in the heavy image, and the extensions page hides the management controls. Restarting the panel, viewing build logs, and reading the build status through the web interface or API are blocked too. Installed extensions keep running and can still be turned on or off, and a toggle applies the next time you restart the container. The `panel-rs extensions` CLI inside the container still works, so use this if extension changes should only happen through shell access. The regular images never offer web management, so the variable does nothing there.
 
 Default:
 ```plaintext
@@ -195,7 +195,7 @@ APP_TRUSTED_PROXIES=192.168.178.0/24,10.0.0.0/8
 
 ## APP_BLOCKED_CIDRS
 
-Comma-separated list of IP ranges the Panel refuses to connect to when it fetches a URL someone supplied through the UI, such as importing an egg from a URL, discovering an OpenID provider, or syncing an egg repository over git. Hostnames are resolved first and every resulting address is checked, so a name pointing at an internal address is rejected too. This keeps an administrator from using the Panel as a proxy to reach services on its own network.
+Comma-separated list of IP ranges the Panel refuses to connect to when it fetches a URL someone supplied through the UI, such as importing an egg from a URL, discovering an OpenID provider, importing a user's avatar from an OAuth provider, or syncing an egg repository over git. Hostnames are resolved first and every resulting address is checked, so a name pointing at an internal address is rejected too. A URL that names an IP address directly, such as `http://192.168.1.10/egg.json`, is checked against the same list before any connection is made. This keeps an administrator from using the Panel as a proxy to reach services on its own network.
 
 The default blocks the unspecified and loopback addresses, the private ranges, carrier-grade NAT, link-local, IETF-reserved and benchmarking ranges, multicast, 6to4 and the remaining reserved space:
 

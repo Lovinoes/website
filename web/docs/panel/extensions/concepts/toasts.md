@@ -327,7 +327,7 @@ Two gotchas specific to the Panel. Anything that reads a **context-scoped store*
 
 ## Dismissing and Lifetime
 
-Toasts raised with `addToast` auto-dismiss after `toastTimeout`, which is 7500ms. It's a module constant, not a per-toast option, so you can't make one of them stickier or shorter, and hovering doesn't pause the timer.
+Toasts raised with `addToast` auto-dismiss after `toastTimeout`, which is 7500ms. It's a module constant, not a per-toast option, so you can't make one of them stickier or shorter from the call site, and hovering doesn't pause the timer. A [dismiss handler](#intercepting-toasts) can cancel the timeout, but that keeps the toast around for good rather than longer.
 
 There are two lifetimes available and nothing in between: 7500ms, or until you take the toast down yourself. The second one is what [`addProgressToast`](#progress-toasts) gives you. If what you want is a normal toast that lingers a bit longer than the rest, that isn't on offer, so use a modal or an inline alert on the page instead.
 
@@ -449,6 +449,52 @@ The opt-outs differ, and two of the hooks don't have one:
 
 ::: warning
 The fetch-error toasts fire from an effect on `error`, so a query that keeps failing - a poll against a down node, say - toasts each time the error updates. `usePollingResource`'s `retryOnError` bounds that by stopping the poll after N consecutive failures; on a long-lived poll where the failure is already visible on the page, `silent: true` is usually the kinder choice.
+:::
+
+## Intercepting Toasts
+
+Everything above is about raising your own toasts. If you want to change or stop toasts the Panel (or another extension) raises, register handlers in `initialize()` through `enterEvents`:
+
+```ts
+import { Extension, ExtensionContext } from 'shared';
+
+class MyExtension extends Extension {
+  public initialize(ctx: ExtensionContext): void {
+    ctx.extensionRegistry.enterEvents((events) =>
+      events.enterToast((toast) =>
+        toast
+          .addShowHandler((event) => {
+            if (event.kind === 'toast' && typeof event.data.message === 'string') {
+              event.data.message = `✔ ${event.data.message}`;
+            }
+          })
+          .addDismissHandler((event) => {
+            if (event.reason === 'timeout' && event.toast.type === 'error') {
+              event.cancel();
+            }
+          }),
+      ),
+    );
+  }
+}
+```
+
+There are three events, one per toast operation:
+
+| Handler | Event | `data` | Extra info |
+| ------- | ----- | ------ | ---------- |
+| `addShowHandler` | `ToastShowEvent` | The toast about to be shown (`message`, `type`, `actions`, `progress`, `withCloseButton`, `onClose`) | `id`, `kind` (`'toast'` or `'progress'`) |
+| `addUpdateHandler` | `ToastUpdateEvent` | The patch passed to `updateToast` | `id`, `toast` (current state, frozen) |
+| `addDismissHandler` | `ToastDismissEvent` | Nothing | `id`, `toast` (frozen), `reason` (`'timeout'`, `'close'` or `'programmatic'`) |
+
+All three are [frontend events](./frontend-events.md), so the general rules there apply: edit `data` in place to change what the Panel does, call `cancel()` to stop it, and use `priority` and `receiveCancelled` to control ordering. For toasts specifically:
+
+- A cancelled show never appears. `addToast` still returns an id, and updating or dismissing it is a no-op.
+- A cancelled update leaves the toast as it was.
+- A cancelled dismiss keeps the toast on screen. That includes the auto-dismiss after `toastTimeout`, which is a `'timeout'` dismiss like any other, so the toast now stays until something dismisses it again. Make sure something does.
+
+::: warning
+Raising a toast from inside a toast handler fires the handlers again. The Panel stops after a few levels of recursion and logs an error, but by then you've already shown more toasts than you meant to.
 :::
 
 ## Styling Toasts

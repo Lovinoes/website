@@ -40,7 +40,7 @@ The sidebar starts with **Back** (returns to the dashboard) and **Home**, follow
 | Page | Description |
 | --- | --- |
 | [Nests](./nests.md) | Collections of eggs, the server type definitions |
-| [Egg Configurations](./egg-configurations.md) | Named, ordered sets of eggs with deployment settings |
+| [Egg Configurations](./egg-configurations.md) | Allocation, startup, sidebar and feature settings (firewall, private network), applied to servers by egg, nest, node or location |
 | [Egg Repositories](./egg-repositories.md) | Git repositories to import eggs from |
 
 ## Databases
@@ -70,7 +70,7 @@ The sidebar starts with **Back** (returns to the dashboard) and **Home**, follow
 
 Three cards:
 
-- **System Overview**: CPU model, memory usage (including how much the panel process itself uses), kernel version and architecture, container type (**Official**, **Official AIO**, **Official Heavy**, or **None detected**), PostgreSQL version and database size, and the cache statistics below.
+- **System Overview**: CPU model, memory usage (including how much the panel process itself uses), kernel version and architecture, container type (**Official**, **Official AIO**, **Official Heavy**, **Official Heavy AIO**, **None detected**, or **Unknown**), PostgreSQL version and database size, and the cache statistics below.
 - **General Statistics**: how many **Users**, **Servers**, **Locations**, **Nodes**, **Nest Eggs**, **Database Hosts**, **Backup Configurations**, and **Roles** the panel has.
 - **Backup Statistics**: backup counts for **All Time**, **Today**, **This Week**, and **This Month**, each broken down into total, successful (with size), failed, and deleted.
 

@@ -82,9 +82,9 @@ This is your Client ID that your provider has given you.
 Required: :white_check_mark:
 
 ### Client Secret
-This is your Client Secret that your provider has given you.
+This is your Client Secret that your provider has given you. If your provider registered Calagopus as a public client without a secret, leave it empty and turn on [PKCE](#pkce).
 
-Required: :white_check_mark:
+Required: :x:
 
 
 ## OAuth URLs
@@ -111,6 +111,12 @@ Enable this if your provider transmits the Client ID and Client Secret via HTTP 
 
 Required: :x:\
 Example: Off
+
+### PKCE
+Sends a Proof Key for Code Exchange (an `S256` code challenge) with every login. It is off by default. **Import from OpenID Discovery** turns it on only when the provider lists `S256` under `code_challenge_methods_supported`. Most modern providers support it, and public clients without a Client Secret usually require it.
+
+Required: :x:\
+Example: On
 
 
 ## Scopes and Paths

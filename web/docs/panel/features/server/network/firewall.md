@@ -7,6 +7,8 @@ description: Restrict which sources may reach a server's allocations with ordere
 
 The Firewall page controls who is allowed to reach this server's allocations. It lives under [Network](./index.md) as a second tab, at `/server/<id>/network/firewall`, and needs the `firewall.read` permission to view and `firewall.update` to change.
 
+An administrator can switch the firewall off for a server through an [egg configuration](../../admin/egg-configurations.md#feature-configuration). The Firewall tab is then hidden, and any rules you already had are kept but no longer enforced until it is switched back on.
+
 With no rules configured, the page tells you as much: "Every connection to this server's allocations is allowed. Add a rule to start restricting who can reach it." Nothing is filtered until you add the first rule.
 
 ## How Rules Are Evaluated

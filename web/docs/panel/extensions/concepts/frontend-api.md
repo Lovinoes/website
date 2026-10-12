@@ -359,6 +359,8 @@ export default function ItemPicker({ serverUuid }: { serverUuid: string }) {
 
 The hook builds the final query key as `[...queryKey, ...deps, { search: debouncedSearch }]`. Each distinct debounced search term gets its own cache entry, so typing the same string twice in a row hits the cache on the second pass without firing a network request. The default debounce is 150ms; pass `debounceMs` to override it.
 
+The hook also returns `refetch` and **`invalidate`**. `invalidate` calls `queryClient.invalidateQueries` with `[...queryKey, ...deps]`, so it marks every cached search term stale at once, not just the current one. Call it after creating or renaming an item so the dropdown doesn't keep serving the old list from cache.
+
 **`deps`** is an array of values that participate in two ways: they're spread into the query key (so changing one invalidates that cache entry rather than overwriting it), and the query is gated on `deps.every(Boolean)` when `deps` is non-empty. Pass it when the fetcher depends on something that may not yet be available:
 
 ```ts
@@ -383,7 +385,7 @@ const items = useSearchableResource<Item>({
 
 ### `useSearchablePaginatedTable` - paginated tables
 
-Use this for full table pages with search and pagination. It manages page and search state, syncs both to URL search params, and renders previous data while the next page loads via TanStack Query's `placeholderData: keepPreviousData`. The hook returns the fetched `data`, along with `error` (already turned into a readable string), `refetch` and `debouncedSearch`. It also accepts an optional `setStoreData` callback that it calls when fresh data arrives, which is how the Panel's own pages feed a zustand store that the table then reads from:
+Use this for full table pages with search and pagination. It manages page and search state, syncs both to URL search params, and renders previous data while the next page loads via TanStack Query's `placeholderData: keepPreviousData`. The hook returns the fetched `data`, along with `error` (already turned into a readable string), `refetch`, `invalidate` and `debouncedSearch`. It also accepts an optional `setStoreData` callback that it calls when fresh data arrives, which is how the Panel's own pages feed a zustand store that the table then reads from:
 
 ```tsx
 import { useSearchablePaginatedTable } from '@/plugins/resource/useSearchablePaginatedTable.ts';
@@ -421,7 +423,7 @@ export default function MyItemsTable({ serverUuid }: { serverUuid: string }) {
 }
 ```
 
-The fetcher signature is `(page: number, search: string) => Promise<T>`. The hook builds the final query key as `[...queryKey, ...deps, { page, search: debouncedSearch }]`, so each page/search combination has its own cache entry.
+The fetcher signature is `(page: number, search: string) => Promise<T>`. The hook builds the final query key as `[...queryKey, ...deps, { page, search: debouncedSearch }]`, so each page/search combination has its own cache entry. `invalidate` works like the one on `useSearchableResource`: it invalidates `[...queryKey, ...deps]`, which covers every cached page and search. Use it after a mutation that can shift rows between pages, where `refetch` would only reload the page you're on.
 
 **URL params:** On mount, the hook initialises `search` from `?search=` and `page` from `?page=` in the URL (the page param is parsed and ignored unless it's a finite integer `>= 1`). Whenever either changes, the hook rewrites just those two params and leaves any others in the URL alone; `page` is dropped from the URL while it equals `initialPage` and `search` while it is empty, so a table at rest has a clean address. The immediate `search` value (not debounced) is written to the URL on every keystroke; the debounced copy is what drives the query. Clearing the search field bypasses the debounce entirely and immediately resets both the debounced state and the query.
 

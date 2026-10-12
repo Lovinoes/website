@@ -52,6 +52,9 @@ A few things have to be true before the panel takes one:
 - The managed database must be running. Its Backups tab disables **Create** with "The managed database must be running to take a backup." while it is off.
 - The server's backup configuration cannot be a btrfs or ZFS one; those store file snapshots and have nowhere to put a dump. Every other driver works.
 - No restore may be running into that managed database at the time.
+- For PostgreSQL and MariaDB, the node needs Wings 1.2.5 or newer. The panel hands those dumps to Wings gzip-compressed as `.sql.gz`, and older Wings versions refuse them with "unsupported database dump extension".
+
+Wings doesn't compress a dump twice. The local backup driver keeps the gzip as it is when the node's backup compression is off or already gzip, and converts it otherwise; S3 converts it to the compression set in the backup configuration (unpacking it if that is none), and the deduplicating drivers (Restic, Kopia, Proxmox Backup Server, Ddup-Bak) unpack it first so deduplication still works.
 
 A dump has no file tree, so **Browse**, **Export to Files**, and **Backup Metadata** are not offered for database backups. **Download** hands you the dump file as it was stored. **Edit**, **Restore**, and **Delete** work as they do for server backups; restoring is covered under [Restore](#restore) below.
 
@@ -129,7 +132,7 @@ The server's backup limit is a hard cap that groups don't raise; retention only 
 
 Every automatic deletion shows up in the server's [Activity](./activity.md) log with the rule and the group that caused it.
 
-If an automatic backup needs to free a slot but cannot remove the old backups, creation is refused with the reason, including backup-storage maintenance or a deletion failure.
+Manual backups also clear out backups your rules no longer keep when they need the room. If a backup, automatic or manual, needs to free a slot but cannot remove the old backups, creation is refused with the reason: "cannot delete old backups while their backup configuration is in maintenance mode" or "failed to delete old backups to make room for a new one". When nothing could be freed, creation fails with "maximum number of backups reached". The backup-creation rate limit is checked before any of this, so a rate-limited request never deletes anything.
 
 ### Deleting a Group
 

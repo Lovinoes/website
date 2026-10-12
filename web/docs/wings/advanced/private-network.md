@@ -120,7 +120,7 @@ Repeat for every node that should take part. A node that is not on the network c
 
 ## Step 4: Connect Servers
 
-From here on, the work moves to the users of the servers. Each server joins from its own **Network → Connections** tab, which gives it a hostname (`<name>.tunnel`) and a private address. It then lists the ports it offers, and picks which other servers may reach it and which it may reach. The [Connections](../../panel/features/server/network/connections.md) page walks through all of it.
+From here on, the work moves to the users of the servers. Each server joins from its own **Network → Connections** tab (unless an [egg configuration](../../panel/features/admin/egg-configurations.md#feature-configuration) switches the private network off for it), which gives it a hostname (`<name>.tunnel`) and a private address. It then lists the ports it offers, and picks which other servers may reach it and which it may reach. The [Connections](../../panel/features/server/network/connections.md) page walks through all of it.
 
 Two things are worth knowing on the operator side:
 

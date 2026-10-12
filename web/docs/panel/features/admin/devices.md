@@ -72,6 +72,6 @@ Admin definitions use `devices.create`, `devices.read`, `devices.update`, and `d
 
 ## Node Allowlist Feedback
 
-Node assignment views show **Checking...** while reading the node configuration and **Not Allowed** when the device source does not match Wings' `allowed_devices` entries. Update that node's local allowlist before expecting the attachment to work. Assignment dialogs also warn about rejected sources.
+Node assignment views and the **Devices** tab of the [admin server view](./servers.md#devices) show **Checking Node** while reading the node configuration and **Not Allowed on Node** when the device source does not match Wings' `allowed_devices` entries. A device is also flagged when its permissions are not some combination of `r`, `w` and `m`. Update that node's local allowlist before expecting the attachment to work. Assignment dialogs also warn about rejected sources.
 
-This check compares configured paths. It does not resolve symlinks on the node or prove that the source exists or is a usable device; an absent warning is not a host filesystem check.
+This check compares configured paths. It does not resolve symlinks on the node or prove that the source exists or is a usable device; an absent warning is not a host filesystem check. No badge appears when the node configuration can't be fetched within 3 seconds, or when the answer hinges on a relative allowlist entry the panel can't resolve.

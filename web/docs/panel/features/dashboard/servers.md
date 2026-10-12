@@ -7,9 +7,11 @@ description: Browse your servers, organize them into groups, and manage power st
 
 The Servers page is the landing page for most users and lists every server you have access to. It has two views: **All Servers**, a flat list, and **Grouped Servers**, where you organize servers into your own groups.
 
+Pressing `Enter` in the search box of **All Servers**, or of an expanded group, opens the first server in the results.
+
 ![](./images/servers/all-servers.webp)
 
-Each server card shows its power state, name, address, and live CPU, memory, and disk usage, and surfaces **Suspended**, **Transferring**, and **Node Maintenance** states. Servers owned by someone else carry a **Foreign** badge ("This server is owned by another user, you have access to it as a subuser or administrator"). If your account has the `servers.read` admin permission, a **Show other user's servers** toggle appears in the top right; it's off by default.
+Each server card shows its power state, name, address, and live CPU, memory, and disk usage, and surfaces **Suspended**, **Transferring**, and **Node Maintenance** states. If the panel can't get live stats from the server's node, the usage area shows **Resource Usage Unavailable** instead of loading forever. Servers owned by someone else carry a **Foreign** badge ("This server is owned by another user, you have access to it as a subuser or administrator"). If your account has the `servers.read` admin permission, a **Show other user's servers** toggle appears in the top right; it's off by default.
 
 ![](./images/servers/other-users-toggle.webp)
 

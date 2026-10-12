@@ -105,6 +105,8 @@ Every configuration below does the same things. If you use a proxy that isn't li
 | Stream `/wings-proxy/` instead of buffering it | On the All-in-One image, and on a node in Wings Proxy Mode, browsers reach Wings through the Panel. See [All-in-One and Wings Proxy Mode](#all-in-one-and-wings-proxy-mode) |
 | Stream `/api/remote/backups/` with no body limit | Every node makes its backup requests here. Most are small, but some carry a whole backup as one streamed request, in either direction, and the Panel limits neither |
 | No CORS headers and no `Content-Security-Policy` | The Panel sends its own CSP, `X-Frame-Options` and `X-Content-Type-Options`, and sandboxes the file previews it serves. A copy from the proxy either overrides that or makes the browser reject the response |
+| No `Cache-Control` or `ETag` overrides | The Panel sets its own: `public, max-age=31536000, immutable` for the content-hashed files under `/assets/`, and `no-cache` with an `ETag` for the page and everything else. Forcing a long cache on the page makes browsers keep an old frontend after an update |
+| Compression is optional | The Panel already gzips JSON, JavaScript, SVG and text responses of 1 KiB or more. Proxy compression doesn't hurt, but it adds nothing for those |
 | No `X-Robots-Tag` | Indexing is [**Allow Search Engine Indexing**](../../panel/features/admin/settings.md#metadata) under Admin → Settings → Metadata. The header overrides that setting instead of following it, because crawlers apply whichever of the header and the page's `<meta name="robots">` tag is stricter |
 
 Pick the proxy you use:
