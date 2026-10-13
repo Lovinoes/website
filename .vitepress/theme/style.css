@@ -19,6 +19,31 @@ body * {
   --vp-c-brand-3: var(--mantine-color-blue-6);
   --vp-c-brand-soft: var(--mantine-color-blue-light);
 
+  /* Semantic colors, as Mantine light-variant Alerts/Badges (custom-block links and code, diff lines) */
+  --vp-c-important-1: var(--mantine-color-violet-light-color);
+  --vp-c-important-2: var(--mantine-color-violet-8);
+  --vp-c-important-3: var(--mantine-color-violet-filled);
+  --vp-c-important-soft: var(--mantine-color-violet-light);
+  --vp-c-warning-1: var(--mantine-color-yellow-light-color);
+  --vp-c-warning-2: var(--mantine-color-yellow-8);
+  --vp-c-warning-3: var(--mantine-color-yellow-filled);
+  --vp-c-warning-soft: var(--mantine-color-yellow-light);
+  --vp-c-danger-1: var(--mantine-color-red-light-color);
+  --vp-c-danger-2: var(--mantine-color-red-8);
+  --vp-c-danger-3: var(--mantine-color-red-filled);
+  --vp-c-danger-soft: var(--mantine-color-red-light);
+  --vp-c-caution-1: var(--mantine-color-orange-light-color);
+  --vp-c-caution-2: var(--mantine-color-orange-8);
+  --vp-c-caution-3: var(--mantine-color-orange-filled);
+  --vp-c-caution-soft: var(--mantine-color-orange-light);
+  --vp-c-success-1: var(--mantine-color-green-light-color);
+  --vp-c-success-2: var(--mantine-color-green-8);
+  --vp-c-success-3: var(--mantine-color-green-filled);
+  --vp-c-success-soft: var(--mantine-color-green-light);
+
+  /* Translucent so inline code reads on both the grey body and white cards; Mantine's dark gray-light alpha. */
+  --vp-c-default-soft: rgba(134, 142, 150, 0.15);
+
   /* Background */
   --vp-c-bg: var(--mantine-color-body);
   --vp-c-bg-alt: var(--mantine-color-white);
@@ -28,15 +53,26 @@ body * {
   /* Border */
   --vp-c-border: var(--mantine-color-default-border);
   --vp-c-divider: var(--mantine-color-gray-3);
+  --vp-c-gutter: var(--mantine-color-gray-3);
 
   /* Text */
   --vp-c-text-1: var(--mantine-color-text);
   --vp-c-text-2: var(--mantine-color-gray-7);
   --vp-c-text-3: var(--mantine-color-dimmed);
 
-  /* Button */
+  /* Button: brand = Mantine filled, alt = Mantine default variant. The tokens flip under .dark on their own. */
   --vp-button-brand-bg: var(--mantine-primary-color-filled);
   --vp-button-brand-hover-bg: var(--mantine-primary-color-filled-hover);
+  --vp-button-brand-active-bg: var(--mantine-primary-color-filled-hover);
+  --vp-button-alt-border: var(--mantine-color-default-border);
+  --vp-button-alt-text: var(--mantine-color-default-color);
+  --vp-button-alt-bg: var(--mantine-color-default);
+  --vp-button-alt-hover-border: var(--mantine-color-default-border);
+  --vp-button-alt-hover-text: var(--mantine-color-default-color);
+  --vp-button-alt-hover-bg: var(--mantine-color-default-hover);
+  --vp-button-alt-active-border: var(--mantine-color-default-border);
+  --vp-button-alt-active-text: var(--mantine-color-default-color);
+  --vp-button-alt-active-bg: var(--mantine-color-default-hover);
 
   /* Sidebar */
   --vp-sidebar-bg-color: var(--vp-c-bg);
@@ -47,7 +83,14 @@ body * {
   --vp-c-brand-1: var(--mantine-color-blue-3);
   --vp-c-brand-2: var(--mantine-color-blue-4);
   --vp-c-brand-3: var(--mantine-color-blue-5);
-  --vp-c-brand-soft: var(--mantine-color-blue-6);
+  --vp-c-brand-soft: var(--mantine-color-blue-light);
+
+  /* Semantic colors: hover step is the dark-scheme text shade */
+  --vp-c-important-2: var(--mantine-color-violet-4);
+  --vp-c-warning-2: var(--mantine-color-yellow-4);
+  --vp-c-danger-2: var(--mantine-color-red-4);
+  --vp-c-caution-2: var(--mantine-color-orange-4);
+  --vp-c-success-2: var(--mantine-color-green-4);
 
   /* Background */
   --vp-c-bg: var(--mantine-color-body);
@@ -58,15 +101,28 @@ body * {
   /* Border */
   --vp-c-border: var(--mantine-color-default-border);
   --vp-c-divider: var(--mantine-color-default-border);
+  --vp-c-gutter: var(--mantine-color-default-border);
 
   /* Text */
   --vp-c-text-1: var(--mantine-color-text);
   --vp-c-text-2: var(--mantine-color-dark-1);
   --vp-c-text-3: var(--mantine-color-dimmed);
+}
 
-  /* Button */
-  --vp-button-brand-bg: var(--mantine-primary-color-filled);
-  --vp-button-brand-hover-bg: var(--mantine-primary-color-filled-hover);
+/* Hero actions as Mantine size="md" Buttons instead of VitePress pills. */
+.VPHome .VPHero .VPButton.medium {
+  padding: 0 calc(1.375rem * var(--mantine-scale));
+  border-radius: var(--mantine-radius-default);
+  font-size: var(--mantine-font-size-md);
+  font-weight: var(--mantine-font-weight-medium);
+  line-height: calc(2.625rem * var(--mantine-scale) - 2px);
+}
+
+/* Theme switch: the circular reveal (index.ts) is the only motion, no UA crossfade underneath it. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
 }
 
 @media (min-width: 48rem) {

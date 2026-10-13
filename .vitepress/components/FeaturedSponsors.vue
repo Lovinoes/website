@@ -38,6 +38,7 @@ const markLogoFailed = (section: SponsorSection): void => {
             :src="section.logoUrl ?? undefined"
             :alt="section.name"
             class="featured-logo"
+            :data-tone="section.logoTone ?? undefined"
             width="220"
             height="64"
             loading="lazy"
@@ -146,13 +147,24 @@ const markLogoFailed = (section: SponsorSection): void => {
   padding: 12px 20px;
 }
 
-/* Logos arrive at whatever aspect ratio the sponsor uploaded, so the box is the constraint. */
+/* Logos arrive at whatever aspect ratio the sponsor uploaded, so the box is the constraint. Every logo gets the
+   same padded box so a backing tile only changes the colour behind it, never the layout. */
 .featured-logo {
   width: auto;
-  height: 64px;
-  max-width: 220px;
+  height: 80px;
+  max-width: 244px;
   flex: none;
+  padding: 8px 12px;
   object-fit: contain;
+  border-radius: var(--mantine-radius-sm);
+}
+
+:root:not(.dark) .featured-logo[data-tone='light'] {
+  background-color: var(--mantine-color-dark-6);
+}
+
+.dark .featured-logo[data-tone='dark'] {
+  background-color: var(--mantine-color-white);
 }
 
 .featured-text {

@@ -1,6 +1,7 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fetchJson } from '../lib/fetch-retry.ts';
+import { fetchLogoTone, type LogoTone } from '../lib/logo-tone.ts';
 
 const API_URL = 'https://calagopus.com/api/sponsors/sections';
 const SPONSORS_PAGE = '/docs/about/sponsors';
@@ -25,6 +26,8 @@ export interface SponsorSection {
   name: string;
   description: string | null;
   logoUrl: string | null;
+  /** Which backing tile the logo needs so it stays visible in both colour schemes; null renders it as-is. */
+  logoTone: LogoTone | null;
   link: string | null;
   since: string;
 }
@@ -39,6 +42,7 @@ const DEMO_SECTIONS: SponsorSection[] = [
     name: 'Demo Hosting',
     description: 'Game server hosting in 14 regions, NVMe everywhere.',
     logoUrl: '/fulllogo.png',
+    logoTone: 'light',
     link: 'https://example.com/',
     since: '2026-09-13T07:41:11Z',
   },
@@ -47,6 +51,7 @@ const DEMO_SECTIONS: SponsorSection[] = [
     name: 'Demo Metal',
     description: 'Bare metal built for Minecraft networks.',
     logoUrl: '/fulllogo.png',
+    logoTone: 'dark',
     link: null,
     since: '2026-09-13T07:41:11Z',
   },
@@ -55,6 +60,7 @@ const DEMO_SECTIONS: SponsorSection[] = [
     name: 'Demo Studios',
     description: 'We build and run modded servers for communities.',
     logoUrl: null,
+    logoTone: null,
     link: null,
     since: '2026-09-13T07:41:11Z',
   },
@@ -63,6 +69,7 @@ const DEMO_SECTIONS: SponsorSection[] = [
     name: 'Demo Collective',
     description: null,
     logoUrl: null,
+    logoTone: null,
     link: null,
     since: '2026-09-13T07:41:11Z',
   },
@@ -71,6 +78,7 @@ const DEMO_SECTIONS: SponsorSection[] = [
     name: 'Demo Networks',
     description: null,
     logoUrl: null,
+    logoTone: null,
     link: null,
     since: '2026-09-13T07:41:11Z',
   },
@@ -79,6 +87,7 @@ const DEMO_SECTIONS: SponsorSection[] = [
     name: 'Demo Labs',
     description: null,
     logoUrl: null,
+    logoTone: null,
     link: null,
     since: '2026-09-13T07:41:11Z',
   },
@@ -98,16 +107,19 @@ async function fetchSections(): Promise<SponsorSectionsData> {
     return { sections: [] };
   }
 
-  return {
-    sections: api.sections.map((section) => ({
+  const sections = await Promise.all(
+    api.sections.map(async (section) => ({
       id: section.discord_user_id,
       name: section.name,
       description: section.description,
       logoUrl: section.logo_url,
+      logoTone: section.logo_url ? await fetchLogoTone(section.logo_url) : null,
       link: section.link,
       since: section.since,
     })),
-  };
+  );
+
+  return { sections };
 }
 
 export function loadSponsorSections(): Promise<SponsorSectionsData> {
