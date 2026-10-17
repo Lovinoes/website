@@ -5,7 +5,7 @@ description: Browse, edit, upload, and organize your server's files from the Cal
 
 # Files
 
-The Files tab is a full file manager for your server: browse and sort, upload and download, edit with a code editor, pack and unpack archives, and roll files back to earlier revisions. Everything is gated by the `files.*` permissions, see the [Permissions Reference](../dashboard/permissions.md).
+The Files tab is a full file manager for your server: browse and sort, upload and download, edit with a code editor, pack and unpack archives, roll files back to earlier revisions, and get deleted files back from the [trash](#trash). Everything is gated by the `files.*` permissions, see the [Permissions Reference](../dashboard/permissions.md).
 
 ![File manager list view](./images/files/list.webp)
 
@@ -101,7 +101,7 @@ Backups can be browsed read-only through the same file manager; the breadcrumb r
 
 ## Selecting Files and Mass Actions
 
-Use the row checkboxes, `Ctrl`-click to toggle, `Shift`-click for a range, drag a selection box across rows, or the breadcrumb checkbox / `Ctrl+A` for everything. As soon as anything is selected, an action bar appears with quick buttons for download (as a `.zip`), remote copy, copy, archive, rename, move, and delete.
+Use the row checkboxes, `Ctrl`-click to toggle, `Shift`-click for a range, drag a selection box across rows, or the breadcrumb checkbox / `Ctrl+A` for everything. As soon as anything is selected, an action bar appears with quick buttons for download (as a `.zip`), remote copy, copy, archive, rename, move, and delete. With the [trash](#trash) on, the delete button turns blue and reads **Move to Trash**.
 
 ![Files selected with download, copy, archive, rename, move and delete controls](./images/files/bulk-actions.webp)
 
@@ -115,7 +115,7 @@ Right-clicking a selected row opens the mass action menu:
 | **Archive** | Packs the selection into an archive on the server. |
 | **Rename** | Opens the batch [Rename Files](#renaming) modal. |
 | **Move** | Marks the selection for moving. |
-| **Delete** | Deletes the selection after confirmation. |
+| **Delete** | Deletes the selection after confirmation. Called **Move to Trash** while the [trash](#trash) is on. |
 
 **Copy** and **Move** work like cut and paste: the marked files stay highlighted while you navigate to the target directory, then the action bar offers **Copy ... here** or **Move ... here** (or `Ctrl+V`), with a cancel button to back out.
 
@@ -140,7 +140,9 @@ Right-click a row (or use its menu button) for the single-file context menu belo
 | **More** > **Details** | Shows **Path**, **Mode**, **Logical Size**, **Physical Size**, **MIME Type**, **Last Modified At**, and **Created At**. |
 | **More** > **Fingerprint** | Computes a checksum: MD5, CRC32, SHA-1, SHA-224, SHA-256, SHA-384, SHA-512, or CurseForge. |
 | **More** > **Permissions** | Unix permissions editor, see below. |
-| **Delete** | Deletes the file after confirmation. Deletion is permanent. |
+| **Delete** | Deletes the file after confirmation. While the [trash](#trash) is on, the item reads **Move to Trash** and the file can be restored later. |
+
+The folder a [mount](./mounts.md) appears at can't be renamed, moved, or deleted, so those items are missing from its menu. Wings (1.2.6 and newer) also refuses to delete, rename, or change the permissions of a folder that contains a mount point, with "path is a mount point or virtual directory".
 
 ### Permissions (chmod)
 
@@ -168,7 +170,15 @@ A live preview shows every resulting name and flags conflicts before anything is
 
 ### Remote Copy
 
-**Remote Copy Files** sends files to a different server you have access to: pick the target **Server**, browse to a destination directory, and optionally give a single file a new name. You need `files.create` on the destination server.
+**Remote Copy Files** sends files to other servers you have access to. Pick one or more **Destination Servers** (or **Add servers from a group** to add a whole [server group](../dashboard/servers.md#grouped-servers)), browse to a destination directory, and optionally give a single file a new name. The browser shows the first server you picked, and the path you choose is used on every destination. You need `files.create` on each destination server; the modal names the ones where you lack it and won't copy until you remove them.
+
+![Remote Copy Files dialog with Survival SMP and paper picked as destination servers and the destination directory browser](./images/files/remote-copy-modal.webp)
+
+Before copying, Wings checks each destination for files that already exist. Those are left out of the copy and listed in the **Resolve Copy Conflicts** modal, each labelled with its server, where you can **Skip**, **Overwrite**, or **Rename** each one, the same as for a local paste. Everything without a conflict is already on its way. **Always overwrite existing files** in the file-manager settings skips the check and overwrites straight away.
+
+::: info
+The check needs Wings 1.2.6 or newer on both the source and the destination node. If only the destination is older, a copy without overwrite fails with "failed to check the destination for existing files", reported by the source node. If the source node is older, no check happens at all and the conflicts modal never appears.
+:::
 
 ### Archives
 
@@ -178,6 +188,54 @@ A live preview shows every resulting name and flags conflicts before anything is
 
 Both run in the background; progress appears next to the toolbar, where operations (compressing, extracting, pulling, copying) can be cancelled individually or all at once via **Cancel all operations**.
 
+## Trash
+
+While the trash is on, deleting doesn't remove anything straight away. **Delete** turns into **Move to Trash**, and the confirmation says the files will be moved to the trash and how long they can be restored for, using the server's retention. The files leave the listing but stay on the node until they expire, and the toast that follows has an **Undo** button that puts them back. Turn on **Delete permanently instead of moving to the trash** in the same dialog to skip the trash for that delete.
+
+<img src="./images/files/trash-delete-modal.webp" width="220" alt="Move to Trash dialog saying ops.json.old can be restored for 7 days, with the Delete permanently switch off" />
+
+Out of the box the trash keeps files for 7 days. Admins set that default under [Settings > Server](../admin/settings.md#trash), and a server can have its own values on its [Settings](./settings.md#trash) page. A retention of 0 turns the trash off, and deleting is permanent again.
+
+::: warning
+The trash needs Wings 1.2.6 or newer. On a node with an older Wings, **Move to Trash** fails with "route not found". Switch on **Delete permanently instead of moving to the trash**, or set the server's retention to 0, until the node is updated.
+:::
+
+### The Trash Page
+
+The trash can button in the toolbar, between **Connect** and **New**, opens the trash at `/files/trash`, as does the **Open Trash** [quick action](../dashboard/index.md#quick-actions). The subtitle says how long deleted files are kept. Entries are listed newest first with their **Name**, **Original Location**, **Size**, and when they were **Deleted**.
+
+![Trash page with four deleted entries, one selected, and the Restore, Restore to and Delete Permanently action bar](./images/files/trash.webp)
+
+Each row's menu, and the action bar that appears once you select rows, offer:
+
+| Action | What it does |
+| --- | --- |
+| **Restore** | Puts the entry back where it was deleted from, recreating missing parent folders. |
+| **Restore to...** | Opens **Restore to Directory**: pick a **Destination Directory** and, per entry, the name it should get. |
+| **Delete Permanently** | Removes the entry for good, after confirmation. |
+
+**Empty Trash** in the header deletes every entry at once. All of these need the `files.delete` permission; opening the page only needs `files.read`.
+
+If something already exists where an entry would be restored, **Resolve Restore Conflicts** lists each clash with both sides' size and date. Choose **Skip**, **Overwrite**, or **Rename** per entry, or **Skip all** / **Overwrite all**. **Overwrite** deletes the existing file or folder permanently; it doesn't go to the trash. A restore can be undone from its toast, which moves the entries back into the trash, unless you overwrote something to make it. If any entry in the conflict dialog overwrote something, that toast has no **Undo** at all, not even for the entries you renamed.
+
+A subuser only sees entries whose original path their [ignored files](./subusers.md#ignored-files) don't hide, and **Empty Trash** leaves the hidden ones alone.
+
+### What Goes to the Trash
+
+Only deletes made in the file manager on the server's own disk go to the trash. Files inside a [mount](./mounts.md) are always deleted permanently, and when a selection mixes both, the toast says so: "3 Files moved to the trash, 1 File deleted permanently." Deleting over SFTP, or from inside the game server, is permanent too. A schedule's [Delete Files](./schedules.md#files) step can use the trash with its **Move to Trash** switch.
+
+### Storage and Expiry
+
+The trash lives in a `.trash` folder at the root of the server's disk. The file manager and SFTP never show it, the container sees an empty read-only folder at `/home/container/.trash`, and backups leave it out.
+
+Files in the trash still count towards the server's disk limit, so Wings removes them on its own:
+
+- Entries older than the retention go when Wings next checks, which it does every 5 minutes.
+- Once disk usage reaches the **Clear at Disk Usage** percentage (90% by default), the oldest entries go until usage is below it again. This is not immediate: it happens on the same 5-minute check, or sooner when a write checks for free space.
+- When an upload, a save, or the running server would go over the disk limit, the oldest entries go first to make room. Only when the trash is empty and the server is still over the limit does Wings stop it.
+
+The percentage rule does nothing on a server with unlimited disk. Each automatic clean-up shows up in the [activity log](./activity.md) as `server:file.trash.purge` with the number of entries removed. A reinstall that deletes all files, or a backup restore that does, empties the trash as well.
+
 ## Uploading
 
 Drag files from your device anywhere onto the page and a **Drop files here to upload** overlay appears; drop to start. Alternatively use **New** > **File from Upload** or **Directory from Upload**. Upload progress lives in a popover next to the toolbar, where uploads can be paused, resumed, and cancelled.
@@ -185,7 +243,7 @@ Drag files from your device anywhere onto the page and a **Drop files here to up
 Uploads keep going when you leave the page, and a progress toast follows you around the panel until they finish, one per destination, reading "Uploading 3 files to `server`...". Its **Show files** button takes you back to the directory being uploaded into, and its close button cancels every upload still heading there.
 
 ::: info
-The maximum size per uploaded file is set by the Wings option [`api.upload_limit`](../../../wings/configuration.md#api-upload-limit) (default 100 MiB). For anything bigger, use SFTP.
+The maximum size per uploaded file is set by the Wings option [`api.upload_limit`](../../../wings/configuration.md#api-upload-limit). From Wings 1.2.6 the default is `0`, no limit; older versions default to 100 MiB. Configs generated by the Panel always set the key, to `0` since Panel 1.1.1, so that old default only applied to enrolled or hand-written configs. If a node sets a limit, use SFTP for anything bigger.
 :::
 
 ### Upload Conflicts
@@ -268,6 +326,8 @@ Openable files launch a code editor at `/files/edit` with syntax highlighting an
 
 While you type, the editor keeps a local draft in your browser (for up to three days). If you come back to a file with an abandoned draft, a **Restore Draft** modal offers to **Restore** or **Discard** it, and warns if the file changed on the server in the meantime. A revert button next to the title discards your unsaved changes and reloads the file from disk.
 
+A single compressed file whose contents are text, such as a rotated `latest.log.gz`, opens decompressed and read-only: there is no **Save**, no file history, and no live collaboration for it.
+
 Files above the panel-wide view-size limit ([Settings > Server](../admin/settings.md#server)) show a warning instead of opening; images open in a zoomable viewer (its own gear has a **Smoothen Image (Anti-Aliasing)** toggle, turn it off to inspect pixel art), and audio files open in a player with a waveform, 15-second skips, and playback speed control.
 
 ## SQLite Databases
@@ -306,6 +366,6 @@ The file manager is fully keyboard-driven: `Ctrl+A` select all, `Ctrl+X`/`Ctrl+C
 
 ## Undo
 
-Four operations can be taken back: moving files by dragging them, a single rename, a batch rename, and a permissions change. Each one shows an **Undo** button on its confirmation toast, and `Ctrl+Z` undoes the most recent one without having to reach for the toast.
+These operations can be taken back: moving files by dragging them, a single rename, a batch rename, a permissions change, moving files to the trash, and restoring them from it. Each one shows an **Undo** button on its confirmation toast, and `Ctrl+Z` undoes the most recent one without having to reach for the toast.
 
-The window is short: an entry expires when its toast does, after about seven and a half seconds, and only the last ten are kept. **Deleting and copying are not undoable**, so deletion is permanent.
+The window is short: an entry expires when its toast does, after about seven and a half seconds, and only the last ten are kept. **Permanent deletes and copies are not undoable.** A file moved to the trash can still be restored from the [Trash](#trash) page after its toast is gone.

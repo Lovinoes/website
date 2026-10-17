@@ -5,7 +5,7 @@ description: Extend the Panel's file manager - component slots, context menu int
 
 # File Manager
 
-The file manager has twelve slot points, three handler lists and its own editor plugin system, which makes it the widest extension surface on any single Panel page. All of it hangs off one registry:
+The file manager has twelve slot points, three handler lists, its own editor plugin system and a nested registry for the trash page, which makes it the widest extension surface on any single Panel page. All of it hangs off one registry:
 
 ```ts
 ctx.extensionRegistry.pages.server.files;
@@ -122,6 +122,40 @@ Push your items **during render, on every render**. The item array is rebuilt fr
 :::
 
 Two more things about the items themselves: submenus are exactly one level deep, so an item's `items` array cannot hold further nested items, and menu items only fire on real user clicks, which is worth knowing if you drive the Panel from a test script.
+
+## The Trash Page
+
+When a server has the trash enabled, deleting a file moves it to `/server/<id>/files/trash` instead of removing it. That page has its own nested registry with three slot points:
+
+```ts
+ctx.extensionRegistry.pages.server.files.trash;
+```
+
+| Slot | Enter with | Renders | Visible when |
+| ---- | ---------- | ------- | ------------ |
+| `container` | `enterContainer` | Around the whole trash page | Always |
+| `actionBar` | `enterActionBar` | Either side of the **Restore**, **Restore to...** and **Delete Permanently** buttons | While entries are selected |
+| `entryContextMenu` | `enterEntryContextMenu` | The row menu, interceptors receive `{ entry }` | Always |
+
+The trash page is its own route and does not render `FileManagerProvider`, so nothing slotted here can call `useFileManager`. An `entry` carries `uuid`, `name`, `path` (where it was deleted from, relative to the server root), `directory`, `size` and `deletedAt`.
+
+```ts
+import { faCopy } from '@fortawesome/free-solid-svg-icons';
+
+ctx.extensionRegistry.pages.server.files.enterTrash((trash) =>
+  trash.enterEntryContextMenu((menu) =>
+    menu.addItemInterceptor((items, { entry }) => {
+      items.push({
+        type: 'action',
+        icon: faCopy,
+        label: 'Copy Original Path',
+        color: 'gray',
+        onClick: () => navigator.clipboard.writeText(`/${entry.path}`),
+      });
+    }),
+  ),
+);
+```
 
 ## Icons and Openability
 
@@ -311,7 +345,7 @@ The Pierre handler receives the Panel's `PierreEditorHandle` (`getValue`, `setVa
 
 ## Permissions
 
-The file manager surfaces read `files.read-content`, `files.create`, `files.update`, `files.archive`, `files.delete`, and `files.query-raw` for the SQLite query page. Gate your own UI with `ServerCan` as described in [Permissions](./permissions.md).
+The file manager surfaces read `files.read-content`, `files.create`, `files.update`, `files.archive`, `files.delete`, and `files.query-raw` for the SQLite query page. The trash page needs `files.read` to open, and `files.delete` covers everything you can do to an entry there: restoring it, deleting it permanently and emptying the trash. Gate your own UI with `ServerCan` as described in [Permissions](./permissions.md).
 
 One file-manager-specific difference: context menu items take a `canAccess` boolean rather than being wrapped, and an item with `canAccess: false` is removed from the menu entirely. If every item ends up removed the row's whole menu affordance disappears, so a permission-gated item should set `canAccess`, not render an empty menu.
 
@@ -340,5 +374,6 @@ The component slots, the context menus and `addFileIconHandler` have been there 
 | `reason: 'tooLarge'` | 1.1.3 |
 | `fileTreeToolbar`, `FileEditorActionContext`, the `surface` prop on file context menus, `readOnly` on editor content props | 1.2.0 |
 | `enterFileMassContextMenu`, `elements.enterPierreEditor` | 1.2.3 |
+| `trash`, `enterTrash` | 1.2.6 |
 
 An extension using the 1.2.0 additions will not build against an older Panel.

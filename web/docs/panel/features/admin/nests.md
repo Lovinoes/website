@@ -15,6 +15,8 @@ The list shows each nest's ID, name, author, description, and created timestamp.
 
 A nest is just three fields: **Name**, **Author**, and an optional **Description**. **Save** creates it, **Save & Stay** creates it without leaving the form.
 
+Nests can also be created without leaving the page you're on: the nest pickers in the egg install dialogs and the egg repository form have a **Can't find one? Create a new nest** link (needs `nests.create`) that opens the same form in a modal and selects the new nest.
+
 Opening an existing nest shows two tabs: **General**, the same form plus a **Delete** button, and **Eggs**. Deleting a nest asks whether you also want to delete all eggs inside it, via the **Do you want to delete all eggs in this nest?** switch in the confirmation.
 
 ![Games nest General tab with the Update Nest form, Save and Delete buttons](./images/nests/general.webp)
@@ -37,13 +39,15 @@ Eggs support bulk operations: drag across rows to select, Ctrl/Cmd-click or use 
 
 ### Importing Eggs
 
-**Import** is a dropdown with two sources: **from File** and **from URL**.
+**Import** is a dropdown with three sources: **from File**, **from URL**, and **from Repository**.
 
 **from File** accepts an egg file in JSON or YAML format (`.json`, `.yml`, `.yaml`), including eggs exported from Pterodactyl. You can also drag files from your file manager anywhere onto the page and drop them to import several at once.
 
 **from URL** fetches the eggs instead. Paste up to 25 `http`/`https` URLs and the panel downloads them (5 at a time), auto-detecting JSON or YAML. Each egg may be at most 1 MiB. If some URLs fail, the import still succeeds for the rest and lists the failures with a reason next to each URL. Eggs imported this way are not linked to a repository, so they won't be updated automatically - **Update** on an existing egg also offers **from URL** for refreshing one by hand.
 
-To pull eggs from a Git repository and keep them updated, use [Egg Repositories](./egg-repositories.md).
+**from Repository** opens a search over the eggs of every synced [egg repository](./egg-repositories.md). Use the arrow keys and Enter (or click) to pick an egg, open its **README** if you want to check it first, then click **Install** to add it to this nest. It needs `egg-repositories.read` on top of `eggs.create`, and stays greyed out without it. Each result shows its repository and, as badges, the nests it's already installed in: yellow when the panel knows the repository has a newer version than that copy, green otherwise. If the nest already has an egg with the same name, nothing is imported; the panel uses the existing egg and tells you so ("This egg was already installed in Games, the existing egg was used."). Eggs installed this way stay linked to their repository egg, so **Update from Repository** works on them later.
+
+To browse every repository's eggs as cards and see which installed eggs have updates waiting, use the [Egg Library](./egg-library.md).
 
 ## Editing an Egg
 
@@ -76,19 +80,21 @@ The rest of the form:
 
 | Field | What it does |
 |---|---|
-| **Startup Commands** | Named startup command presets as key/value pairs. Users pick between them on the server's [Startup page](../server/startup.md). |
+| **Startup Commands** | Named startup command presets as key/value pairs. Users pick between them on the server's [Startup page](../server/startup.md). An egg needs at least one, and none may be empty or whitespace-only or repeat another. |
 | **Force Outgoing IP** | Forces the server's outgoing traffic through its allocation IP. |
 | **Separate IP and Port** | Shows the primary IP and port separately on the Console page instead of joining them with `:`. |
 | **Features** | Feature tags for this egg. |
 | **File Deny List** | File patterns users cannot touch in the file manager. |
-| **Docker Images** | Named Docker images as key/value pairs (label to image). Users switch between them on the Startup page. |
+| **Docker Images** | Named Docker images as key/value pairs (label to image). Users switch between them on the Startup page. No image may be empty or whitespace-only, and the same image can't be listed twice. |
 
 The tag-style inputs (Startup Done, Features, File Deny List) share a clipboard menu with **Copy All** and **Paste (Replace)** for carrying lists between eggs.
+
+The startup command and Docker image rules apply wherever an egg is written: saving this form, creating an egg, importing one from a file or URL, and installing one from a repository. An egg that breaks them is rejected with "at least one startup command is required", "startup commands cannot be empty", "docker images cannot be empty", or a "duplicate startup command" / "duplicate docker image" error naming the value. When you install several repository eggs at once, an egg that fails these checks is skipped and left out of the installed count. Updating an existing egg from its repository, with **Update from Repository** here or **Update** in the [Egg Library](./egg-library.md#installed), does not re-check them, so a repository egg that breaks the rules can still overwrite one of yours.
 
 
 At the bottom, next to **Save**:
 
-- **Update**: dropdown with **from File** (upload a `.json`/`.yml`/`.yaml` egg to overwrite this one) and **from Repository** (re-pull from the linked egg repository egg; disabled if none is linked).
+- **Update**: dropdown with **from File** (upload a `.json`/`.yml`/`.yaml` egg to overwrite this one) and **from Repository** (re-pull from the linked egg repository egg; disabled if none is linked). Installing or updating from a repository records which version of the repository egg you have, which is how the [Egg Library](./egg-library.md#installed) knows an update is waiting. Overwriting the egg from a file or URL keeps the repository link but forgets that version, so the egg shows no pending update until you next run **from Repository**.
 - **Export**: dropdown with **Export as JSON**, **Export as YAML**, and **Export as Pterodactyl** (JSON in Pterodactyl's egg format, for taking eggs back the other way).
 - **Move** (to another nest), **Duplicate** (copy under a new name, optionally into a different nest), and **Delete**.
 

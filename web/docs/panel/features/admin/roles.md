@@ -34,6 +34,8 @@ Below that sit the two permission pickers, **Server Permissions** and **Admin Pe
 
 Finish with **Save** (or **Save & Stay** when creating). An existing role also offers **Duplicate** (requires `roles.create`; asks for a new name, prefilled with "(copy)") and **Delete** (requires `roles.delete`, with a confirmation).
 
+Changing a role's permissions or **Require Two Factor**, or deleting the role, applies to its holders' open console and SFTP sessions too: Wings fetches their permissions again, and anyone who no longer has access (for example a holder without 2FA once it becomes required) is disconnected. See [When access changes](../../../about/security.md#when-access-changes).
+
 ::: warning
 Selecting `users.impersonate` shows a warning for good reason: it lets holders of this role impersonate other users. Be cautious assigning it to roles with less trusted users, see [Impersonation](./users.md#impersonation) for the exact rules.
 

@@ -184,7 +184,7 @@ Downloads the backup as an archive. For server backups stored in a driver that c
 
 Restores the backup onto the server. Two switches control how:
 
-- **Do you want to delete all files of this server before performing this action? This cannot be undone.** wipes the server first for a clean restore.
+- **Do you want to delete all files of this server before performing this action? This cannot be undone.** wipes the server first for a clean restore, including its [trash](./files.md#trash).
 - **Restore the startup command, image, and variables from this backup.** is only available when the backup captured that metadata.
 
 The server switches into a restoring state and you're taken back to the console while it runs. A progress toast showing the bytes and files restored so far stays in the corner on every page of the server until the restore finishes.

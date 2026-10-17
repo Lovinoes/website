@@ -261,7 +261,7 @@ Items 3 and 4 only reach this proxy on the All-in-One image or a node in Wings P
 
 Browsers normally reach Wings directly for the console, uploads and downloads. Two setups route that traffic through the Panel instead, under `/wings-proxy/<node-uuid>/`: the [All-in-One image](../../panel/installation/docker.md#option-a-all-in-one-recommended-for-single-node-setups), which does it for its bundled Wings automatically and never publishes port `8080`, and any node with [Wings Proxy Mode](../../wings/advanced/exposing-wings-in-a-homelab.md) turned on.
 
-That path carries a WebSocket, uploads in chunks of up to 95 MiB, and downloads of any size, so it needs the `Upgrade` and `Connection` headers, buffering off in both directions, no compression, and timeouts above the usual 60 second defaults. The All-in-One image also raises the bundled Wings' `api.upload_limit` to 10 GiB, leaving the proxy as the only cap on an upload.
+That path carries a WebSocket, uploads in chunks of up to 95 MiB, and downloads of any size, so it needs the `Upgrade` and `Connection` headers, buffering off in both directions, no compression, and timeouts above the usual 60 second defaults. The All-in-One image also sets the bundled Wings' `api.upload_limit` to 10 GiB on every start, overriding its config file. Before Wings 1.2.6 that raised the 100 MiB default; on newer versions, where a standalone node has no limit by default, it is a cap of its own.
 
 [Step 2](#step-2-configure-the-proxy) covers it: Nginx, Apache and Nginx Proxy Manager get a dedicated block for the path, Caddy and Traefik stream by default.
 

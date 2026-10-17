@@ -149,7 +149,7 @@ Permissions that control the ability to modify the filesystem for this server.
 | `files.read` | Allows viewing the contents of a directory, but not reading or downloading individual files. |
 | `files.read-content` | Allows viewing the contents of a specific file. Also permits downloading files. |
 | `files.update` | Allows updating the contents of an existing file or directory. |
-| `files.delete` | Allows deleting files or directories. |
+| `files.delete` | Allows deleting files or directories, restoring them from the trash and emptying the trash. |
 | `files.archive` | Allows archiving the contents of a directory and decompressing files. |
 | `files.sftp` | Allows connecting via SFTP to manage files. |
 | `files.query-raw` | Allows running arbitrary SQL against a SQLite database file on this server. This grants full read and write access to that file's contents, equivalent to reading and updating it directly. |
@@ -303,6 +303,7 @@ Permissions that control the ability to manage settings on this server.
 | `settings.timezone` | Allows changing the server's timezone. |
 | `settings.auto-kill` | Allows changing the server's auto-kill settings. |
 | `settings.auto-start` | Allows changing the server's auto-start settings. |
+| `settings.trash` | Allows changing the server's trash settings. |
 | `settings.install` | Allows triggering a reinstall of the server. |
 | `settings.cancel-install` | Allows canceling the server's installation process. |
 

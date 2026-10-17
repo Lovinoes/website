@@ -48,11 +48,13 @@ Click **Create** (or go to `/admin/servers/new`). The form is a set of cards; an
 | --- | --- |
 | **Node** | Required. Where the server will be deployed. |
 | **Owner** | Required. The user who owns the server. The dropdown searches by username *and* email, and each entry shows both. If nobody matches, a **Can't find them? Create a new user** link opens a create-user modal inline and selects the new account as the owner (needs `users.create`). |
-| **Nest** | Required. Selecting one unlocks the egg dropdown. |
-| **Egg** | Required. Determines images, startup commands, and variables. |
+| **Nest** | Narrows the egg dropdown to one nest. Optional when creating: picking an egg fills it in, and changing it clears the egg. |
+| **Egg** | Required. Determines images, startup commands, and variables. Without a nest selected, the dropdown searches the eggs of every nest, grouped by nest name. |
 | **Backup Configuration** | Optional; defaults to "Inherit from Node/Location". |
 
-All five are searchable dropdowns. Picking an egg immediately prefills the Docker image and startup command from the egg's defaults. Backup configurations are covered in the [backup configurations guide](../../../wings/advanced/backup-configurations.md).
+All five are searchable dropdowns. Picking an egg immediately prefills the Docker image and startup command from the egg's defaults.
+
+If the egg you need isn't installed, the **Can't find it? Install one from a repository** link under the egg dropdown (needs `eggs.create` and `egg-repositories.read`) opens a search over every synced [egg repository](./egg-repositories.md). Pick an egg, choose a nest (the repository's default nest is preselected), and click **Install & Select**. The egg is installed and selected for the server, along with its first Docker image and its `Default` startup command, or its first one if none is called that. If the nest already has an egg with that name, the existing egg is selected instead. On a panel with no eggs at all, the form opens with a "No eggs installed yet" notice and an **Install from Repository** button that does the same. Backup configurations are covered in the [backup configurations guide](../../../wings/advanced/backup-configurations.md).
 
 ### Resource Limits
 
@@ -126,7 +128,7 @@ Read-only summary cards. Status badges at the top flag special states: **Suspend
 
 - **Owner**: user (with an **Admin** badge where applicable), language, and account creation date.
 - **Node & Location**: node, location, SFTP address, and the node's own memory and disk limits.
-- **Server Details**: UUID, external ID, primary allocation, nest, egg, Docker image, timezone, auto-kill setting, and creation date.
+- **Server Details**: UUID, external ID, primary allocation, nest, egg, Docker image, timezone, auto-kill setting, trash settings, and creation date.
 - **Resource Limits**: CPU, memory, disk, and swap tiles. `0` shows as **Unlimited** (swap: `-1` is **Unlimited**, `0` is **Disabled**).
 - **Feature Limits**: the allocation, database, backup, and schedule caps.
 
@@ -221,6 +223,10 @@ Requires `servers.update`. The card shows **Suspend** or **Unsuspend** depending
 ::: warning
 Suspending stops any running processes and immediately blocks the user from accessing files or otherwise managing the server through the panel or API. The server cannot start again until you unsuspend it.
 :::
+
+#### Trash
+
+Requires `servers.update`. Sets the server's [trash](../server/files.md#trash) retention and disk-usage threshold, the same fields users get on the server's [Settings](../server/settings.md#trash) page. Leave **Use custom trash settings for this server** off to follow the panel defaults from [Settings > Server](./settings.md#trash); the Overview tab then shows them as "Panel default: ...". This card works even when users aren't allowed to change trash settings. The admin API also accepts a `trash` object (`retention` in seconds, `usage_threshold` in percent) when creating a server.
 
 #### Clear State
 

@@ -64,6 +64,8 @@ The **Update User** form, the same fields as [creating a user](#creating-a-user)
 | **Impersonate** | `users.impersonate` | Switches your session to this user, see [below](#impersonation). |
 | **Delete** | `users.delete` | Deletes the user after a confirmation. |
 
+These changes also reach the user's open console and SFTP/SSH sessions on every node. Suspending them, toggling **Admin**, changing their role or disabling their two-factor makes Wings fetch their permissions again, and whatever access they lost ends there and then; a suspended user is disconnected everywhere. Setting a new password or deleting the user closes all of their sessions outright. See [When access changes](../../../about/security.md#when-access-changes).
+
 ### Servers
 
 Every server the user has access to, with the same columns as the admin [Servers](./servers.md) list. The **Only show users' owned servers** switch narrows the list to servers they own, hiding ones where they're only a [subuser](../server/subusers.md).

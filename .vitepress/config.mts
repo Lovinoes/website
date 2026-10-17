@@ -414,6 +414,7 @@ export default withMermaid({
                     collapsed: true,
                     items: [
                       { text: 'Nests', link: '/docs/panel/features/admin/nests' },
+                      { text: 'Egg Library', link: '/docs/panel/features/admin/egg-library' },
                       { text: 'Egg Configurations', link: '/docs/panel/features/admin/egg-configurations' },
                       { text: 'Egg Repositories', link: '/docs/panel/features/admin/egg-repositories' },
                     ],

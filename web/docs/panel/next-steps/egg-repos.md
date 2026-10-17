@@ -13,7 +13,7 @@ Calagopus has backwards compatibility for Pterodactyl eggs, so you can use the o
 - [pterodactyl/generic-eggs](https://github.com/pterodactyl/generic-eggs)
 
 ::: info
-You can also add egg repositories directly from the OOBE when first setting up Calagopus - select the repositories you want and click Import.
+You can also add egg repositories directly from the OOBE when first setting up Calagopus - select the repositories you want and click Import. Each one gets its own nest (**Games**, **Applications**, or **Generic**, reusing a nest of that name if it already exists) as its default nest, with automatic sync on. The setup wizard's server step then installs your chosen egg into that nest, and only asks for a nest name when the repository has no default nest.
 
 ![Setup wizard Egg Repositories step with three Pterodactyl egg repositories ticked and an Import button](./images/egg-repos/oobe.webp)
 :::
@@ -32,18 +32,24 @@ Fill in the fields:
 - **Name**: A label to distinguish this repository from others.
 - **Git Repository**: The full URL of the Git repository (e.g. `https://github.com/pterodactyl/game-eggs`).
 - **Description**: Optional description.
+- **Default Nest**: Optional. The nest eggs from this repository are installed into unless you pick another one. **Can't find one? Create a new nest** creates one on the spot.
+- **Automatic Sync**: On by default. Re-syncs the repository once a day so new and updated eggs show up on their own.
 
-![Create Egg Repository form with Name, Git Repository, and Description fields](./images/egg-repos/add-2.webp)
+![Create Egg Repository form with Name, Git Repository, Description, Default Nest, and Automatic Sync fields](./images/egg-repos/add-2.webp)
 
-Click **Save**, then click **Sync** to pull the egg list from the repository.
+Click **Save**. The panel starts syncing the repository in the background right away. To sync again later, for example after pushing a change to your own repository, open it and click **Sync**.
 
 ![Update Egg Repository form for Games with the Sync button highlighted](./images/egg-repos/sync.webp)
 
-This doesn't install any eggs - it populates the Eggs tab with the full list from the repository so you can choose which ones to import.
+Syncing doesn't install any eggs - it populates the repository's Eggs tab and the [Egg Library](../features/admin/egg-library.md) with the full list from the repository so you can choose which ones to import.
 
 ## Importing Eggs
 
-Head to the **Eggs** tab for the repository. You'll see a list of all available eggs.
+The quickest way is the **Available** tab of **Admin → Egg Library**. It shows the eggs of all your repositories as cards. Search for the egg, click **Install**, confirm the nest (the repository's default nest is preselected), and click **Install** again. **README** shows the egg's documentation first if you want it.
+
+You can also install eggs while creating a server (**Can't find it? Install one from a repository** under the egg dropdown) or from a nest's **Import** > **from Repository** menu.
+
+To install several eggs at once, use the repository itself. Head to the **Eggs** tab for the repository. You'll see a list of all available eggs.
 
 ![Egg repository Eggs tab listing available eggs, each with an install button](./images/egg-repos/import.webp)
 
@@ -53,13 +59,15 @@ Select the eggs you want by dragging them into the selection area or searching b
 
 ![alt text](./images/egg-repos/drag.webp)
 
-A popup will ask which nest to import into. A nest is a category for eggs, such as Minecraft. If you don't have one yet, [create a nest](../features/admin/nests.md#creating-and-editing-a-nest) under **Admin → Nests**, then return to the repository. Select the nest and click **Install**. This imports the template; it does not create or start a game server.
+A popup will ask which nest to import into, preselecting the repository's default nest if it has one. A nest is a category for eggs, such as Minecraft. If you don't have one yet, click **Can't find one? Create a new nest** in the popup, or [create a nest](../features/admin/nests.md#creating-and-editing-a-nest) under **Admin → Nests**. Select the nest and click **Install**. Eggs whose name already exists in that nest are skipped. This imports the template; it does not create or start a game server.
 
-![Install Egg Repository Egg dialog with a Nest dropdown set to Games and an Install button](./images/egg-repos/install.webp)
+![Install 1 Egg dialog with the Nest dropdown set to Games and a link to create a new nest](./images/egg-repos/install.webp)
 
 ## Updating Eggs
 
-When an egg in the repository has been updated, re-sync the repository first, then update the egg in the panel.
+When an egg in the repository has been updated, the repository needs to be synced before the panel notices. Repositories with **Automatic Sync** do that once a day; otherwise, or if you don't want to wait, sync it by hand. Then update the egg in the panel.
+
+The **Installed** tab of **Admin → Egg Library** marks eggs whose repository version has changed with **Update Available** and gives them an **Update** button. This only works for eggs that were installed or last updated from a repository: eggs from before the Egg Library existed, or last overwritten from a file, need one manual **Update from Repository** first (below) before they're tracked.
 
 ### Updating a Single Egg
 

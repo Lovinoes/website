@@ -41,6 +41,8 @@ Right-click a key (or open the menu at the end of its row) for **Edit**, **Disab
 
 **Recreate** issues a new key value with the same name and permissions, immediately invalidating the old value; the new one appears once in an **API Key Recreated** modal. Use this if a key may have leaked. **Remove** deletes the key outright.
 
+Saving a key's **Edit** form, disabling it, or removing it also cuts off what was already handed out through it on the nodes: console connections opened with the key are closed, and upload and download links issued through it stop working. The edit form always sends the permissions, allowed IPs and expiry, so this happens on every save, even when you only changed the name. Sessions you started by logging in are not affected. **Recreate** does not do this, so console tokens and upload and download links issued through the old value keep working until they expire, after 10, 15 and 15 minutes. To cut those off as well, disable the key and enable it again. See [When access changes](../../../about/security.md#when-access-changes).
+
 ### Bulk Actions
 
 Select rows with their checkboxes, by dragging across them, or with `Ctrl+A` (`Esc` clears); only rows on the current page are selected. The action bar can **Enable**, **Disable** or **Delete** the selected keys; enabling and disabling skip keys already in that state, and deleting asks for confirmation first. Each action reports how many items it changed, skipped or failed in a toast.

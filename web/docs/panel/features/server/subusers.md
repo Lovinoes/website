@@ -68,6 +68,8 @@ Toggle **Preview ignored files** for a small file browser where everything the p
 
 Right-click a subuser (or open the row menu) for **Edit** and **Remove**. **Edit** opens the same permissions and ignored files editor; the email can't be changed. **Remove** asks for confirmation and only revokes access to this server, it doesn't touch their account.
 
+Changes reach the node straight away. A subuser who already has the console or an SFTP session open keeps it with the new permissions and ignored files, and a removed subuser, or one left without access, is disconnected. See [When access changes](../../../about/security.md#when-access-changes).
+
 With `subusers.delete`, select several subusers (checkboxes, drag, or `Ctrl+A`) and **Remove** them together after one confirmation.
 
 ![Subuser selected with the bulk Remove control](./images/subusers/bulk-actions.webp)

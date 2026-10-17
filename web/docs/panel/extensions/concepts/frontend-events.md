@@ -9,6 +9,10 @@ description: Intercept, change or cancel things the Panel frontend is about to d
 
 Every frontend event is registered in `initialize()` through `enterEvents`, and every event is a `CancellableEvent`.
 
+::: info
+Frontend events arrived in Panel 1.2.6. On 1.2.5 and older there is no `enterEvents` and no events registry, so an extension using this API won't build against an older Panel.
+:::
+
 ## `CancellableEvent<D>`
 
 All frontend events share one shape:

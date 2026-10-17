@@ -204,6 +204,36 @@ scope limits that authority, but does not make a leaked token harmless.
 
 Sources: [node API authentication](https://github.com/calagopus/wings/blob/f79492ea5ad89c8e7c844fbd77dac32933eb5ef2/application/src/routes/api/mod.rs#L22-L53), [JWT validation and reuse](https://github.com/calagopus/wings/blob/f79492ea5ad89c8e7c844fbd77dac32933eb5ef2/application/src/remote/jwt.rs#L49-L201), [file-download claims](https://github.com/calagopus/wings/blob/f79492ea5ad89c8e7c844fbd77dac32933eb5ef2/application/src/routes/download/file.rs#L25-L94), [WebSocket action permissions](https://github.com/calagopus/wings/blob/f79492ea5ad89c8e7c844fbd77dac32933eb5ef2/application/src/server/websocket/message_handler.rs#L120-L134).
 
+### When access changes
+
+Console, upload and download tokens name the user they were issued to, and the API
+key when one was used. When something changes who may do what, the Panel tells
+every node (or only the server's node, for a subuser or owner change), and Wings
+re-checks the sessions it holds:
+
+| Change in the Panel | What happens on Wings |
+| --- | --- |
+| Subuser added, edited or removed; server owner changed; role permissions or **Require Two Factor** changed, or role deleted; user suspended or unsuspended, **Admin** toggled, or role reassigned; 2FA disabled by the user or an admin; security key deleted; any admin setting saved | Wings fetches the user's current permissions from the Panel. Open console and SFTP/SSH sessions carry on with the new permissions, and a session that has lost access is closed. |
+| Password changed, password login turned off, SSH key deleted, user deleted | Every console and SFTP/SSH session of the user is closed, and tokens issued to them before the change are refused. |
+| API key edited (permissions, allowed IPs, expiry, enabled state), disabled or deleted | Tokens issued through that key before the change are refused, and console connections opened with them are closed. Sessions started any other way are unaffected. |
+
+A refetch that finds the account suspended, missing required two-factor
+authentication, or missing a required email verification removes the user's
+access just as if the permission had been taken away. If Wings cannot reach the
+Panel to refetch, it drops the permissions it held rather than keep them. In the
+browser, a closed console takes the user back to the server list with
+"Connection closed: your access to this server has been revoked."
+
+The Panel sends these notices in the background and only logs a failure, so a node
+that is offline or unreachable at that moment keeps what it had until those
+sessions end or their tokens expire. Nodes running Wings older than 1.2.6 do not
+know the invalidation call. The Panel then deauthorizes each affected user with
+no server list, which on those versions ends the user's sessions on every server
+of that node, not just the one that changed. API key changes and saved admin
+settings do not reach these nodes at all.
+
+Sources: [Panel invalidation](https://github.com/calagopus/panel/blob/4f33b77b819c08d281e1173d2aa270bb47f28dba/shared/src/models/node/mod.rs#L816-L941), [Wings invalidation route](https://github.com/calagopus/wings/blob/bdad2bfea0a3aa1cc538db5b12c79d6c3142a283/application/src/routes/api/permissions/invalidate.rs), [token revocation](https://github.com/calagopus/wings/blob/bdad2bfea0a3aa1cc538db5b12c79d6c3142a283/application/src/remote/jwt.rs), [held permissions](https://github.com/calagopus/wings/blob/bdad2bfea0a3aa1cc538db5b12c79d6c3142a283/application/src/server/permissions.rs).
+
 ## Network boundaries
 
 ### Outbound requests made by Wings

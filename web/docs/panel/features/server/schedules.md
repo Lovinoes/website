@@ -125,11 +125,13 @@ Restoring stops the server and overwrites its files; avoid combining **Restore B
 | **Create Directory** | Create a new folder in the server files. | **Root Path**, **Directory Name** |
 | **Write File** | Write or append text to a file. | **File Path**, **Content**, **Append to File** |
 | **Copy File** | Copy a file to a new location. | **Source File**, **Destination**, **Run in Foreground** |
-| **Delete Files** | Delete files or folders. | **Root Path**, **Files to Delete** |
+| **Delete Files** | Delete files or folders, or move them to the [trash](./files.md#trash). | **Root Path**, **Files to Delete**, **Move to Trash** |
 | **Rename Files** | Rename or move files. | **Root Path**, file pairs (**from** / **to**) |
 | **Compress Files** | Compress files into an archive. | **Root Path**, **Files to Compress**, **Archive Format** (`.tar` family, `.zip`, `.7z`), **Archive Name**, **Run in Foreground** |
 | **Decompress File** | Extract an archive into a folder. | **Root Path**, **File**, **Run in Foreground** |
 | **Pull File** | Download a file from a URL into a folder. | **File URL**, **Root Path**, **File Name** (derived from the URL or the response when left empty), **Use Response File Name**, **Run in Foreground** |
+
+**Move to Trash** on a **Delete Files** step is off by default, so a step deletes permanently unless you turn it on. It only takes effect while the trash is enabled for the server; with the trash off, or on a node older than Wings 1.2.6, the files are deleted permanently. Files inside a mount are always deleted permanently. When the trash is used, the step is logged as `server:file.trash` instead of `server:file.delete`, even if some of its files were on a mount and deleted permanently.
 
 #### Startup Settings
 

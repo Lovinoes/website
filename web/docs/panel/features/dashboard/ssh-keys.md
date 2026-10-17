@@ -29,6 +29,8 @@ The maximum number of SSH keys per account is set by the instance administrator 
 
 Right-click a key (or open the menu at the end of its row) to edit or delete it. Editing only changes the key's name, not the key material itself; add a new key instead if the underlying key pair changed.
 
+Deleting a key logs you out of Wings everywhere: every SFTP and SSH session you have open on any node is closed, whichever key or password it used, and so is any server console you have open in the browser. Reconnect with your password or another key.
+
 <img src="./images/ssh-keys/edit-form.webp" width="220" alt="Edit SSH Key dialog with the Name field and Edit button" />
 
 To remove several keys at once, select them (checkboxes, drag, or `Ctrl+A`) and use **Delete** in the action bar, which asks for confirmation. Each action reports how many items it changed, skipped or failed in a toast.

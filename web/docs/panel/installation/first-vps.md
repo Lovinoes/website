@@ -382,7 +382,7 @@ An **egg** describes how a game server is installed and run; a **nest** is a cat
 
 1. Go to **Admin → Nests → Create**, set **Name** to `Minecraft` and **Author** to your email address, and save.
 2. Go to **Admin → Egg Repositories → Create**, set **Name** to `Pterodactyl Game Eggs` and **Git Repository** to `https://github.com/pterodactyl/game-eggs`, and save.
-3. Open the repository, click **Sync**, and wait for it to finish.
+3. Open the repository. Saving it already started a sync in the background, so wait until its **Eggs** tab lists eggs. Click **Sync** only if it stays empty.
 4. In its **Eggs** tab, search for `Paper`, select the egg, click **Install**, and choose the `Minecraft` nest.
 
 ![Paper selected in the egg repository search results](./images/first-vps/paper-egg.webp)

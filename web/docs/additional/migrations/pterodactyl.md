@@ -11,6 +11,17 @@ API keys and active login sessions do not migrate. Users need to sign in again. 
 
 This guide covers the panel database migration only. Wings also needs to be updated to point at the new panel. See [Wings Updating](../../wings/updating.md) for that step.
 
+## Pterodactyl 2.x
+
+The importer reads both Pterodactyl 1.x and, from Panel 1.2.6, Pterodactyl 2.x databases. Pterodactyl 2.x organises eggs with tags rather than nests, so the importer works out a nest for every egg:
+
+1. An egg that still points at an existing nest stays in it.
+2. Otherwise a tag that was converted from one of the old nests puts the egg back in that nest.
+3. Otherwise the egg goes into a nest named after its tag, preferring your own tags over the built-in game tags (`srcds`, `bedrock`, `minecraft`, `rust`, `garrysmod`, `fivem`, `voice`). If a nest with that name already exists, ignoring case, the egg joins it.
+4. Eggs without any tag go into a nest called "Pterodactyl".
+
+Nests created this way say in their description which tag they came from. An egg imports into exactly one nest, so an egg with several tags only shows up under one of them. Check the result under [Nests](../../panel/features/admin/nests.md) after the import. Egg variable order carries over on both versions.
+
 ## Pick Your Path
 
 Pterodactyl comes in two flavors and the import process is slightly different for each. Figure out which one you're running and follow the matching guide:

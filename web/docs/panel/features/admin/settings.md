@@ -15,27 +15,29 @@ The **Application** tab has an **Advanced mode** toggle in the top right. It rev
 
 ## Application
 
-![Admin Settings Application tab with name, icon, URL, session, two-factor, telemetry, and registration options](./images/settings/application.webp)
+![Admin Settings Application tab grouped into General, Branding, Authentication, Sessions, and Telemetry sections](./images/settings/application.webp)
+
+The tab is split into **General**, **Branding**, **Authentication**, **Sessions** (shown in advanced mode only), and **Telemetry** sections, in the order of the table below.
 
 | Field | Description |
 | --- | --- |
 | **Name** | The name of this panel installation |
 | **Language** | The panel's default language |
+| **URL** | The public URL of the panel |
+| **Additional URLs** | Other addresses the panel is also reachable at, up to 32 (*advanced*). See [Additional URLs](#additional-urls) |
 | **Icon** | URL of the panel icon; suggests files uploaded under [Assets](./assets.md) |
 | **Icon (Light Mode)** | Optional separate icon for light mode (*advanced*) |
 | **Banner** | Optional banner image URL, also suggested from Assets |
 | **Banner (Light Mode)** | Optional separate banner for light mode (*advanced*) |
-| **URL** | The public URL of the panel |
-| **Additional URLs** | Other addresses the panel is also reachable at, up to 32 (*advanced*). See [Additional URLs](#additional-urls) |
-| **Session Cookie** | Name of the session cookie (*advanced*) |
-| **Session Duration (seconds)** | How long login sessions last (*advanced*) |
 | **Two-Factor Authentication Requirement** | Who must enable 2FA: **Admins**, **All Users**, or **None**. Affected users without 2FA are blocked from everything except setting it up and logging out |
-| **Email Two-Factor** | Let users receive a one-time login code by email as a second factor. Requires a mail transport |
 | **Accepted Two-Factor Methods** | Which enrolled factors satisfy the requirement above: **TOTP**, **Security Key**, and/or **Email**. Defaults to TOTP and security keys |
+| **Email Two-Factor** | Let users receive a one-time login code by email as a second factor. Requires a mail transport |
 | **Require Email Verification** | New accounts must open a verification link before they can use the panel, including SFTP and SSH. Requires a mail transport |
-| **Enable Telemetry** | Allow Calagopus to collect limited and anonymous usage data to help improve the application. [What is collected and published](/docs/about/telemetry) |
 | **Enable Registration** | Let anyone create an account on this panel |
 | **Enable Password Login** | Let users sign in with a username and password. Turning it off leaves OAuth providers and security keys as the only way in |
+| **Session Cookie** | Name of the session cookie (*advanced*) |
+| **Session Duration (seconds)** | How long login sessions last (*advanced*) |
+| **Enable Telemetry** | Allow Calagopus to collect limited and anonymous usage data to help improve the application. [What is collected and published](/docs/about/telemetry) |
 
 **Preview Telemetry** (requires `stats.read`) shows the payload your panel would send, so you can judge for yourself. The receiving server adds two fields the panel does not send, so they are not in the preview: the country the submission arrived from, and its arrival time. [Telemetry](/docs/about/telemetry) covers both, and what gets published. Disabling telemetry asks for confirmation.
 
@@ -185,37 +187,46 @@ Changing the **RP Id** breaks all existing WebAuthn credentials and forces users
 
 ## Server
 
-![Admin Settings Server tab with limits for file manager, schedules, subusers, backups, and databases](./images/settings/server.webp)
+![Admin Settings Server tab grouped into File Manager, Limits, Networking, Database Instances, Console & Lifecycle, and Trash sections](./images/settings/server.webp)
 
-Limits and behavior toggles that apply to all servers on the panel.
+Limits and behavior toggles that apply to all servers on the panel, split into **File Manager**, **Limits**, **Networking**, **Database Instances**, **Console & Lifecycle**, and **Trash** sections.
 
 | Field | Description |
 | --- | --- |
 | **Max File Manager View Size** | Largest file the file manager will open |
-| **Max Schedule Steps** | Maximum number of steps per schedule |
 | **Max File Manager Content Search Size** | Largest file the file-content search will look inside |
 | **Max File Manager Search Results** | Cap on results returned by a file search |
 | **Max Subuser Count** | Maximum subusers per server |
+| **Max Schedule Steps** | Maximum number of steps per schedule |
 | **Max Backup Groups per Server** | Maximum backup groups each server can have |
-| **Max Databases per Database Instance** | Database cap per managed database instance |
-| **Max Users per Database Instance** | User cap per managed database instance |
 | **Max Firewall Rules** | Maximum [firewall](../server/network/firewall.md) rules per server |
 | **Max Firewall Rule Sources** | Maximum sources a single firewall rule may list |
 | **Max Private Connections per Server** | Maximum [private network](../server/network/connections.md) connections a server may open to other servers |
 | **Max Private Ports per Server** | Maximum ports a server may offer to the servers connected to it privately |
+| **Max Databases per Database Instance** | Database cap per managed database instance |
+| **Max Users per Database Instance** | User cap per managed database instance |
 | **Allow Overwriting Custom Docker Image** | Users can pick a different Docker image from the Eggs list even when an admin has set a custom image |
 | **Allow Viewing Installation Logs** | Users with console read permission can watch installation logs; otherwise they're admin-only |
 | **Allow Acknowledging Installation Failure** | Users can acknowledge a failed install and try starting the server instead of waiting for an admin |
 | **Allow Viewing Transfer Progress** | Users with console read permission can watch transfer progress logs; otherwise they're admin-only |
 | **Container Prelude** | The terminal prelude used for some status-related messages in the server console |
+| **Trash Retention** | How long deleted files stay in a server's [trash](../server/files.md#trash), in days. Defaults to 7; 0 turns the trash off |
+| **Clear Trash at Disk Usage** | Percentage of a server's disk limit at which the oldest trash entries are removed. Defaults to 90; 0 only clears the trash when a write would exceed the limit |
+| **Allow Changing Trash Settings** | Users with the `settings.trash` permission can give their server its own trash settings. On by default |
 
 The database instance limits apply to [managed databases](../../../db-agent/index.md) created through database agent hosts.
 
+### Trash
+
+The two trash values are defaults for every server that has no trash settings of its own. A server gets its own values from its [Settings](../server/settings.md#trash) page, or from the admin [Management](./servers.md#trash) tab, which works even with **Allow Changing Trash Settings** off. Turning that switch off hides the card from users but leaves custom values that were already saved in place.
+
+Files in the trash count towards the server's disk limit, and Wings clears them as described under [Storage and Expiry](../server/files.md#storage-and-expiry). Saving these settings does not sync servers to Wings. The Panel decides whether a delete goes to the trash from the new defaults, but Wings keeps the old values until it loads that server's configuration again. After raising the default retention from 0, **Move to Trash** fails with `trash is disabled for this server` on every server still using the defaults. Restart Wings, or sync each affected server, for example by saving its trash card on the server's Settings page. Changing a single server's trash settings applies right away.
+
 ## User
 
-![Admin Settings User tab with per-user limits and a collapsed Client Route Order section](./images/settings/user.webp)
+![Admin Settings User tab with per-user limits, the Allow Changing Language and Allow Changing Avatar switches, and a collapsed Client Route Order section](./images/settings/user.webp)
 
-Per-account limits for [Dashboard](../dashboard/index.md) features.
+Per-account limits for [Dashboard](../dashboard/index.md) features, followed by a **Permissions** section with what users may change about their own account.
 
 | Field | Description |
 | --- | --- |
@@ -227,6 +238,7 @@ Per-account limits for [Dashboard](../dashboard/index.md) features.
 | **Max Synced Settings** | Cap on how many settings an account may sync across devices |
 | **Max Synced Setting Size (bytes)** | Largest value a single synced setting may hold |
 | **Allow Changing Language** | If enabled, users can change their language preferences. The login, register, and other auth pages then show a language picker when more than one language is available, and a first-time visitor gets the closest match to their browser languages, falling back to the panel default. New accounts are created with the language picked during registration |
+| **Allow Changing Avatar** | If enabled, users can upload and remove their own [avatar](../dashboard/account.md#avatar). With it off, the Avatar card is hidden from the Account page. On by default |
 
 Below the limits, **Client Route Order** is a collapsible section: enable it to reorder the pages of the user dashboard sidebar for everyone. Drag entries to reorder, and use the row at the bottom to insert extra entries: a **Route**, a **Divider**, or a **Redirect** (a name plus an external URL). It's the same editor egg configurations use for the [server sidebar](./egg-configurations.md#route-configuration).
 

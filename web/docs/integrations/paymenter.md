@@ -209,6 +209,40 @@ Neither creates panel accounts; they only add missing links. A customer is linke
 The provided template is configured as **login only** - customers use it to authenticate, and the provider does not let them manage the link themselves. For more on OAuth providers in general, see [Setting up OAuth](../additional/setting-up-oauth/index.md).
 :::
 
+## Migrating from the Pterodactyl extension
+
+If you sold servers through Paymenter's built-in **Pterodactyl** extension and have migrated your panel to Calagopus, this module can move your existing products and services over.
+
+Before importing:
+
+1. Migrate the panel with the [Pterodactyl migration](../additional/migrations/pterodactyl.md). It keeps the UUIDs of servers, users, nodes, nests and eggs, and the servers' external IDs, so services keep working without changes. Eggs and nodes are matched by UUID, then by name. Locations are matched by name, short name first.
+2. Keep the Pterodactyl server in Paymenter with its URL and application API key, and keep that panel reachable. The import uses it to translate the stored Pterodactyl IDs.
+3. Add a Calagopus server in Paymenter, as described under [Installation](#installation).
+
+While both a Pterodactyl and a Calagopus server exist, the admin area has a **Calagopus Pterodactyl Import** page under **Extensions**. Pick the Pterodactyl server to import from and the Calagopus server to import into. The page shows how many products and services are left on the Pterodactyl server.
+
+![Paymenter Import from Pterodactyl page with Pterodactyl and Calagopus server dropdowns, a re-check checkbox, and Preview and Import buttons](./images/paymenter/pterodactyl-import.webp)
+
+Click **Preview** to see what the import would do without changing anything, then **Import** to apply it. The results count the products imported and skipped, the services checked, the services with no server on the panel and the customers linked, followed by a line for everything that needs your attention.
+
+![Pterodactyl import preview with 2 products to import, 1 skipped, 3 services checked, 1 without a server, 1 user to link, and warnings about an upgrade path and a renamed config option](./images/paymenter/pterodactyl-import-preview.webp)
+
+The import:
+
+- Moves each product to the Calagopus server and converts its settings. `io` becomes **IO Weight**, the database and backup limits carry over, additional allocations become the total **Allocations** limit, CPU pinning ranges like `0-3` are expanded to single cores, and skip scripts becomes **Skip Egg Install Script**. Schedules get a limit of `10`, like servers migrated by the panel importer.
+- Checks each service's server on the panel. A server that lost its external ID is found through Pterodactyl and given the service ID back.
+- Links each server's owner to their Paymenter account by setting the panel user's `external_id`. This only happens when the owner isn't linked to anything yet, isn't a panel admin, has the same email as the customer, and the customer has verified their email. Run [Sync All Users](#link-existing-customers) afterwards to also create OAuth links.
+
+Anything that can't be matched is skipped and listed in the results. Fix it on the panel and run the import again. Products already moved are left alone, so tick **Also re-check services** to retry the services and owners of products an earlier run moved.
+
+::: warning
+Config options named after Pterodactyl settings (`io`, `databases`, `backups`, `additional_allocations`, `cpu_pinning`, `skip_scripts`, `servername`, `node`, `location`, `egg_id`, `nest_id`) are listed as warnings and are not renamed for you. Rename them to the [Calagopus names](#overriding-settings-with-configurable-options), such as `io_weight`, `database_limit`, `backup_limit` and `allocations_limit`, or customers who paid for extras lose them on their next upgrade. `allocations_limit` is the total, so add one to the old `additional_allocations` values.
+:::
+
+Upgrades run through the extension of the product being upgraded to, so products linked by upgrades should be migrated together. The results warn about upgrade paths that still point at a Pterodactyl product.
+
+`port_array`, `port_range`, `dedicated_ip` and `oom_killer` have no Calagopus equivalent and are dropped. Use egg configurations on the panel to assign ports.
+
 ## Troubleshooting
 
 | Symptom | Fix |
@@ -219,3 +253,4 @@ The provided template is configured as **login only** - customers use it to auth
 | "Server already exists on the panel" | A server is already linked to this service's ID (`external_id`). Remove or re-link the existing panel server before re-provisioning. |
 | "User with this email/username already exists on the panel" | A panel user already has the customer's email or username, and the module couldn't link it because the customer's email isn't verified or only the username matches. After checking that the customer owns that panel account, set its `external_id` to the Paymenter user ID given in the message, then retry. |
 | The service page says "Unable to load server information from the panel." | Paymenter couldn't reach the panel with the server's API key. Check the panel is up and use **Test Connection** on the server. |
+| "Preview failed: Pterodactyl API Error (HTTP 401)" on the import page | The Pterodactyl server in Paymenter no longer has a working application API key. Edit it and enter a key from the Pterodactyl panel, or create a new application key there if the old one was removed. |

@@ -40,8 +40,9 @@ The sidebar starts with **Back** (returns to the dashboard) and **Home**, follow
 | Page | Description |
 | --- | --- |
 | [Nests](./nests.md) | Collections of eggs, the server type definitions |
+| [Egg Library](./egg-library.md) | Installed eggs and every egg your repositories offer, with installs and updates |
 | [Egg Configurations](./egg-configurations.md) | Allocation, startup, sidebar and feature settings (firewall, private network), applied to servers by egg, nest, node or location |
-| [Egg Repositories](./egg-repositories.md) | Git repositories to import eggs from |
+| [Egg Repositories](./egg-repositories.md) | Git repositories to import eggs from, with optional daily sync |
 
 ## Databases
 
