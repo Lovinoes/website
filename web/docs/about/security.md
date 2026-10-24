@@ -120,7 +120,17 @@ separate container configuration and are trusted administrator-supplied code.
 Administrator-approved host mounts and device passthrough also widen the resources
 available to a container; review them as part of the server's privileges.
 
-Sources: [runtime container configuration](https://github.com/calagopus/wings/blob/f79492ea5ad89c8e7c844fbd77dac32933eb5ef2/application/src/server/executor/docker/mod.rs#L532-L644), [installer configuration](https://github.com/calagopus/wings/blob/f79492ea5ad89c8e7c844fbd77dac32933eb5ef2/application/src/server/executor/docker/mod.rs#L2884-L2943), [device passthrough](https://github.com/calagopus/wings/blob/f79492ea5ad89c8e7c844fbd77dac32933eb5ef2/application/src/server/executor/docker/mod.rs#L323-L354).
+Device passthrough only binds devices listed in `allowed_devices` in the node's
+`config.yml`, which is empty by default. An entry can be a single device or a
+directory, and a directory admits every device beneath it: listing `/dev` would
+allow `/dev/sda` and `/dev/mem`. Wings resolves symlinks on both sides before
+comparing, accepts only character and block devices, and limits cgroup
+permissions to a combination of `r`, `w` and `m` (all three when none are given).
+A device that fails a check is left out with a warning and the server starts
+without it. KVM passthrough (`/dev/kvm`) is a separate per-server switch set by
+the Panel; it does not go through this list and has no node-side setting.
+
+Sources: [runtime container configuration](https://github.com/calagopus/wings/blob/f79492ea5ad89c8e7c844fbd77dac32933eb5ef2/application/src/server/executor/docker/mod.rs#L532-L644), [installer configuration](https://github.com/calagopus/wings/blob/f79492ea5ad89c8e7c844fbd77dac32933eb5ef2/application/src/server/executor/docker/mod.rs#L2884-L2943), [device passthrough](https://github.com/calagopus/wings/blob/e1db91c8f1e20e3164f3cb3b56fe1ecf0558f7cd/application/src/server/executor/docker/mod.rs#L349-L396), [device allowlist checks](https://github.com/calagopus/wings/blob/e1db91c8f1e20e3164f3cb3b56fe1ecf0558f7cd/application/src/server/configuration/mod.rs#L150-L260).
 
 ## Filesystem safety: keeping a root daemon in its lane
 
@@ -136,7 +146,60 @@ filesystems authorized for that server, not a promise that every operation touch
 one physical directory. This confinement applies to Wings file operations;
 container access to bind mounts is controlled by the container and host.
 
-Sources: [capability root and path handling](https://github.com/calagopus/wings/blob/f79492ea5ad89c8e7c844fbd77dac32933eb5ef2/application/src/server/filesystem/cap/mod.rs#L27-L118), [filesystem implementation](https://github.com/calagopus/wings/blob/f79492ea5ad89c8e7c844fbd77dac32933eb5ef2/application/src/server/filesystem/virtualfs/cap.rs).
+Archive extraction (zip, tar, 7z, rar, ddup-bak, pxar, itaf and single
+compressed files), server transfers, and restores from Wings and S3 backups share
+one entry check. An entry whose path contains `..` or starts at the filesystem
+root is skipped, as is one with a drive prefix on Windows. The remaining entries
+are written through the server's filesystem handle, so they get the same
+confinement as any other file write. Restic and Kopia restores are different: those
+tools write into the server directory themselves, outside this check and the
+capability-scoped handle.
+
+Sources: [capability root and path handling](https://github.com/calagopus/wings/blob/f79492ea5ad89c8e7c844fbd77dac32933eb5ef2/application/src/server/filesystem/cap/mod.rs#L27-L118), [filesystem implementation](https://github.com/calagopus/wings/blob/f79492ea5ad89c8e7c844fbd77dac32933eb5ef2/application/src/server/filesystem/virtualfs/cap.rs), [archive entry check](https://github.com/calagopus/wings/blob/e1db91c8f1e20e3164f3cb3b56fe1ecf0558f7cd/application/src/server/filesystem/archive/extract/mod.rs#L51-L66).
+
+## SQLite queries
+
+A user with `files.read-content` and `files.query-raw` can run SQL against a
+SQLite file on their server. Queries open the database read-only by default;
+writing also needs `files.update`. That is full access to the file's contents, so
+the controls below keep a query confined to the directory that holds it, and the
+SQL itself to that one file.
+
+On Linux, Wings runs every query in a new helper process. It starts its own binary
+with an empty environment and passes only an open handle to the directory that
+holds the database. Before opening the database, the helper applies these layers
+in order and skips any the host cannot provide:
+
+| Layer | Effect |
+| --- | --- |
+| Resource limits | 256 MiB data segment, 30 seconds of CPU, no core dumps, 32 open files. |
+| chroot | Makes the database directory the root, when the helper has `CAP_SYS_CHROOT`. |
+| User namespace | Performs the same chroot from a private user namespace when `CAP_SYS_CHROOT` is missing. |
+| Landlock | Limits filesystem access to the database directory. |
+| Capability bounding set | Emptied, when the helper has `CAP_SETPCAP`. |
+| Server user | When Wings runs as root, switches to the `system.user` uid and gid with no supplementary groups, and refuses to run if either is `0`. The user namespace layer makes the same switch before it unshares. |
+| Privilege lock | Clears every capability and sets `no_new_privs`. |
+
+SQLite inside the helper runs in defensive mode with schemas untrusted,
+memory-mapped I/O off and temporary data kept in memory. The database is opened
+with `NOFOLLOW`, so it cannot be a symlink, and it must live on the server's own
+filesystem rather than a mount. An authorizer refuses to attach any file other
+than an in-memory database, which also blocks `VACUUM INTO`, and refuses pragmas
+that set storage directories, heap limits, `mmap_size` or `temp_store`. Each query
+is limited to 64 KiB of SQL, a 128 MiB SQLite heap, 15 seconds, 1000 rows and
+4 MiB of results, and a server can run two at a time. A helper that overruns the
+deadline is killed.
+
+At startup Wings logs which layers the host allowed. If none of chroot, user
+namespaces or Landlock is available, it warns that queries cannot be confined to
+their directory and still runs them. Check that log line on each node.
+
+On Windows the query runs inside the Wings process, under its account, with the
+same connection settings and authorizer. There is no heap limit, the deadline
+interrupts the query instead of killing a process, and the path check only
+compares the resolved path against the server root.
+
+Sources: [sandbox layers](https://github.com/calagopus/wings/tree/e1db91c8f1e20e3164f3cb3b56fe1ecf0558f7cd/application/src/server/filesystem/sqlite/sandbox), [helper process](https://github.com/calagopus/wings/blob/e1db91c8f1e20e3164f3cb3b56fe1ecf0558f7cd/application/src/server/filesystem/sqlite/helper.rs#L98-L273), [connection hardening and authorizer](https://github.com/calagopus/wings/blob/e1db91c8f1e20e3164f3cb3b56fe1ecf0558f7cd/application/src/server/filesystem/sqlite/mod.rs#L21-L142), [query route](https://github.com/calagopus/wings/blob/e1db91c8f1e20e3164f3cb3b56fe1ecf0558f7cd/application/src/routes/api/servers/_server_/files/sqlite_query.rs#L83-L160), [startup probe](https://github.com/calagopus/wings/blob/e1db91c8f1e20e3164f3cb3b56fe1ecf0558f7cd/application/src/main.rs#L433-L464).
 
 ## Disk quota enforcement
 
@@ -233,6 +296,81 @@ of that node, not just the one that changed. API key changes and saved admin
 settings do not reach these nodes at all.
 
 Sources: [Panel invalidation](https://github.com/calagopus/panel/blob/4f33b77b819c08d281e1173d2aa270bb47f28dba/shared/src/models/node/mod.rs#L816-L941), [Wings invalidation route](https://github.com/calagopus/wings/blob/bdad2bfea0a3aa1cc538db5b12c79d6c3142a283/application/src/routes/api/permissions/invalidate.rs), [token revocation](https://github.com/calagopus/wings/blob/bdad2bfea0a3aa1cc538db5b12c79d6c3142a283/application/src/remote/jwt.rs), [held permissions](https://github.com/calagopus/wings/blob/bdad2bfea0a3aa1cc538db5b12c79d6c3142a283/application/src/server/permissions.rs).
+
+### Settings the Panel cannot change
+
+The Panel can push configuration changes to Wings. Before merging a patch, Wings
+removes a fixed list of keys from it. The list covers the node identity, token and
+Panel URL; the data, backup and temporary directories; the system user; the Docker
+socket and the paths of binaries and images Wings runs; `allowed_mounts` and
+`allowed_devices`; the API listen address, TLS and trusted proxies; and the remote
+download and scheduled HTTP request settings, including their blocked CIDRs. These
+change only when someone edits `config.yml` on the node.
+
+Treat this list as hardening, not as protection from a compromised Panel. Other
+settings that weaken isolation can still be patched, including seccomp, AppArmor,
+user-namespace mode, sysctls, the container network, SFTP and allowed origins.
+The Panel also supplies settings per operation outside this patch, such as backup
+adapter configuration, and decides per server whether `/dev/kvm` is passed
+through.
+
+`ignore_panel_config_updates: true` makes Wings ignore Panel configuration patches
+entirely, and `ignore_panel_wings_upgrades: true` does the same for upgrade
+requests. Both keys are on the protected list, so the Panel cannot turn them off.
+
+Sources: [protected config keys](https://github.com/calagopus/wings/blob/e1db91c8f1e20e3164f3cb3b56fe1ecf0558f7cd/application/src/config.rs#L1519-L1557), [config patch route](https://github.com/calagopus/wings/blob/e1db91c8f1e20e3164f3cb3b56fe1ecf0558f7cd/application/src/routes/api/update.rs).
+
+### Pairing a new node
+
+When Wings starts without a `config.yml`, it opens a setup server over plain HTTP
+on `api.host` and `api.port` (all interfaces by default) and prints an
+eight-character pairing code. Anyone can read the version from the status page,
+but the probe and enroll requests must be signed. The code itself never crosses
+the network: the Panel uses it as an HMAC-SHA256 key over the method, path and
+body of the request. After five bad signatures Wings prints a new code. One enrollment runs at a time, and
+the setup server will not start if the data directory already contains server
+data.
+
+The signed body carries the Panel URL and a one-time enrollment code. Wings
+redeems that code with the Panel and gets its node token in the response, so the
+token never passes through the setup server. Enrollment codes are 32 random
+characters, expire after 30 minutes, work once and are rate limited per IP
+(`remote_enroll`). Redeeming one rotates the node token, which also stops older
+enrollment commands from working.
+
+The setup request is unencrypted and its signature has no nonce or timestamp.
+Someone who can watch that traffic can read the enrollment code and try to redeem
+it first, replay a signed request, or guess the code offline from a captured
+request (it has about 40 bits) and pair Wings with a Panel they control. Pair over
+a network you trust and soon after Wings starts, give it an HTTPS Panel URL, and
+avoid `--ignore-certificate-errors` on the setup server and `--allow-insecure` on
+`calagopus-wings configure`, which both turn off certificate checks on the
+connection to the Panel.
+
+Sources: [pairing signatures](https://github.com/calagopus/wings/blob/e1db91c8f1e20e3164f3cb3b56fe1ecf0558f7cd/application/src/setup/pairing.rs), [setup server](https://github.com/calagopus/wings/blob/e1db91c8f1e20e3164f3cb3b56fe1ecf0558f7cd/application/src/setup/mod.rs#L78-L365), [enrollment codes](https://github.com/calagopus/panel/blob/28e9fcb8fe2c8a53611a6247de31145da7bae57c/shared/src/models/node/enrollment.rs).
+
+### Self-upgrades
+
+Wings installed as a binary can replace itself when the Panel asks. On the Panel
+this needs the `nodes.upgrade` admin permission. The release source is fixed when
+Wings is built (GitHub releases of `calagopus/wings` for official builds), and the
+request only picks a version. Wings runs one upgrade at a time and refuses a
+downgrade. It also refuses while it is still booting its servers, while a server
+is installing, restoring or transferring, or while backups or file operations are
+running, and checks that again right before the restart. The download is capped
+at 512 MiB, and its size and SHA-256 must match the digest GitHub reports for
+that release asset. A GitHub token in the request is sent only when the download
+URL is on the GitHub API origin. Wings then executes the downloaded binary with
+`--version` and swaps it in only if it reports the requested version.
+
+The digest comes from the same GitHub release as the binary. It catches a corrupt
+or truncated download; it is not a signature and does not show who published the
+release. Anyone holding the node token can start an upgrade to any release at or
+above the running version, including a pre-release named by its exact version. Wings running in a container refuses the request, and those installs
+update by pulling a new image. Set `ignore_panel_wings_upgrades: true` to update
+by hand instead.
+
+Sources: [upgrade route](https://github.com/calagopus/wings/blob/e1db91c8f1e20e3164f3cb3b56fe1ecf0558f7cd/application/src/routes/api/system/upgrade/mod.rs), [download and verification](https://github.com/calagopus/wings/blob/e1db91c8f1e20e3164f3cb3b56fe1ecf0558f7cd/application/src/upgrade.rs#L79-L369).
 
 ## Network boundaries
 
@@ -519,6 +657,10 @@ The Panel and Wings CI image workflows configure:
 - **Signed container images** using cosign / sigstore (GHCR and Docker Hub).
 - **Build provenance** and **SBOM attestations** attached to the images, so a
   consumer can verify what was built and from what.
+- **Actions pinned to commit SHAs.** Every third-party action in the build and
+  release workflows is referenced by its full commit SHA, so a moved or hijacked
+  tag cannot change the code that runs with the registry, OIDC and signing
+  credentials. Dependabot bumps the pins.
 
 Signatures and provenance establish where an artifact came from; they do not
 prove its code or dependencies are free of vulnerabilities. Verification is a
@@ -529,7 +671,7 @@ receive application state, including database, cache, and environment access.
 Installing one extends the trusted codebase; the tenant permission model does not
 sandbox it.
 
-Sources: [Panel image workflow](https://github.com/calagopus/panel/blob/7e5c1b2ec4b050c9b078548f7557abee9843ce74/.github/workflows/build.yml#L148-L274), [Wings image workflow](https://github.com/calagopus/wings/blob/f79492ea5ad89c8e7c844fbd77dac32933eb5ef2/.github/workflows/build.yml#L81-L171), [extension entrypoints](https://github.com/calagopus/panel/blob/7e5c1b2ec4b050c9b078548f7557abee9843ce74/shared/src/extensions/mod.rs#L294-L331), [application state](https://github.com/calagopus/panel/blob/7e5c1b2ec4b050c9b078548f7557abee9843ce74/shared/src/lib.rs#L155-L166).
+Sources: [Panel image workflow](https://github.com/calagopus/panel/blob/28e9fcb8fe2c8a53611a6247de31145da7bae57c/.github/workflows/build-and-publish.yml), [Wings image workflow](https://github.com/calagopus/wings/blob/f79492ea5ad89c8e7c844fbd77dac32933eb5ef2/.github/workflows/build.yml#L81-L171), [pinned Wings actions](https://github.com/calagopus/wings/blob/e1db91c8f1e20e3164f3cb3b56fe1ecf0558f7cd/.github/workflows/build.yml), [pinned Panel actions](https://github.com/calagopus/panel/blob/28e9fcb8fe2c8a53611a6247de31145da7bae57c/.github/workflows/build-and-publish.yml), [extension entrypoints](https://github.com/calagopus/panel/blob/7e5c1b2ec4b050c9b078548f7557abee9843ce74/shared/src/extensions/mod.rs#L294-L331), [application state](https://github.com/calagopus/panel/blob/7e5c1b2ec4b050c9b078548f7557abee9843ce74/shared/src/lib.rs#L155-L166).
 
 ## Known residual risks
 
@@ -551,3 +693,14 @@ The residual risks, listed directly:
   inconsistent application data. Restore testing and application quiescing matter.
 - **Secret and cache access.** The running Panel has decryption authority. The
   optional decrypted-secret cache increases where those plaintext values live.
+- **SQLite confinement depends on the host.** Without chroot, user namespaces or
+  Landlock, the query helper still runs with resource limits, the server user and
+  no capabilities, but it is not restricted to the database directory.
+- **Pairing and upgrades trust the network and GitHub.** The setup server speaks
+  plain HTTP with replayable signatures, so pairing on an untrusted network can
+  hand the node to someone else. Self-upgrades check a digest from the same
+  release that serves the binary, and the node token is enough to request one.
+- **The node token is close to host access.** The protected config keys limit
+  what a Panel patch can change, but the Panel still controls container hardening
+  settings and backup adapter configuration. Protect the Panel and node token as
+  you would root on the node.

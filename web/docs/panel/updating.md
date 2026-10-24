@@ -16,16 +16,16 @@ Pick the method matching how you installed the panel:
 
 #### 1. Pull and restart
 
-Return to the directory containing your existing `compose.yml`, then update the `web` service used by the supplied Compose files:
+Return to the directory containing your existing `compose.yml`, then pull and recreate the whole stack:
 
 ```bash
-docker compose pull web
-docker compose up -d --no-deps web
+docker compose pull
+docker compose up -d
 docker compose ps
-docker compose logs --tail 50 web
+docker compose logs --tail 50
 ```
 
-This updates the Panel image, including bundled Wings for AIO. Database and cache updates are separate maintenance tasks. Keep your existing Compose file and encryption key.
+This updates every service in the stack: the Panel image (including bundled Wings for AIO), the database, and the cache. Only containers whose image changed are recreated. Keep your existing Compose file and encryption key.
 
 #### 2. Clean up old images (optional)
 If you're on the `:heavy` image or have limited disk space, old image layers can pile up quickly. Remove unused ones:

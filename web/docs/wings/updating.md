@@ -18,13 +18,13 @@ Pick the method matching how you installed Wings:
 ::::tabs
 === Docker (Recommended)
 
-Return to the directory containing your Wings `compose.yml`. Pull the latest image and recreate the `wings` service:
+Return to the directory containing your Wings `compose.yml`. Pull the latest images and recreate the stack:
 
 ```bash
-docker compose pull wings
-docker compose up -d --no-deps wings
+docker compose pull
+docker compose up -d
 docker compose ps
-docker compose logs --tail 50 wings
+docker compose logs --tail 50
 ```
 
 Docker handles the restart as part of `up -d`. Keep the existing configuration and data mounts.

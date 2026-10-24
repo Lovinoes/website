@@ -479,14 +479,14 @@ Treat the export, the Compose file, and the Wings configuration as secrets. When
 
 ## Updating later
 
-Read the [release notes](../../releases/index.md) and take a recovery copy first, then update the AIO image, which includes Wings:
+Read the [release notes](../../releases/index.md) and take a recovery copy first, then update the whole stack: the AIO image (which includes Wings), the database, and the cache:
 
 ```bash
 cd /opt/calagopus-panel
-docker compose pull web
-docker compose up -d --no-deps web
+docker compose pull
+docker compose up -d
 docker compose ps
-docker compose logs --tail 50 web
+docker compose logs --tail 50
 ```
 
 The Panel and console disconnect briefly. Afterwards, check the version in Admin and open your game's console. Keep your existing Compose file and encryption key rather than downloading a fresh copy over them. Operating system, Docker, and Caddy updates are separate; the [Panel update guide](../updating.md) covers other installation methods.
