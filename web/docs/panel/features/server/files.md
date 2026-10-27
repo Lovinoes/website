@@ -276,7 +276,7 @@ Uploads are not private to the tab that started them. Wings tracks each one and 
 
 ![File list with an Incomplete Uploads banner, a modpack.zip upload at 18 percent, and an incomplete file](./images/files/uploads.webp)
 
-Seeing an upload needs the `files.read` permission, and a subuser whose [ignored files](./subusers.md#ignored-files) hide the destination does not see the upload either - the deny rule is matched against the name the file will end up with, so a partial cannot be used to peek at a path that is otherwise hidden.
+Seeing an upload needs the `files.read` permission, and a subuser whose [ignored files](./subusers.md#ignored-files) hide the destination does not see the upload either; the deny rule is matched against the name the file will end up with, so a partial cannot be used to peek at a path that is otherwise hidden.
 
 ### Incomplete Uploads
 
@@ -303,7 +303,7 @@ The 30-second threshold only decides when the panel calls an upload incomplete. 
 :::
 
 ::: warning
-Staging appends `.upload-part` to the name, so a file whose name is longer than 243 bytes cannot be uploaded through the file manager at all - wings rejects it with `file name too long`. Use SFTP for those, or shorten the name.
+Staging appends `.upload-part` to the name, so a file whose name is longer than 243 bytes cannot be uploaded through the file manager at all: Wings rejects it with `file name too long`. Use SFTP for those, or shorten the name.
 :::
 
 ### Pulling from a URL
@@ -332,7 +332,7 @@ Files above the panel-wide view-size limit ([Settings > Server](../admin/setting
 
 ## SQLite Databases
 
-SQLite files (`.db`, `.db3`, `.sqlite`, `.sqlite3`) don't open in the editor: they open the same [data explorer](./databases/index.md#data-explorer) the panel uses for managed databases, at `/files/sqlite` - browsing rows, inspecting and editing the schema, and a raw query console. This requires the `files.query-raw` permission, which grants full read and write access to the file's contents; changing rows or structure additionally needs `files.update`.
+SQLite files (`.db`, `.db3`, `.sqlite`, `.sqlite3`) don't open in the editor: they open the same [data explorer](./databases/index.md#data-explorer) the panel uses for managed databases, at `/files/sqlite`, browsing rows, inspecting and editing the schema, and a raw query console. This requires the `files.query-raw` permission, which grants full read and write access to the file's contents; changing rows or structure additionally needs `files.update`.
 
 Wings (1.2.4 and newer) fences raw queries in: `ATTACH` only works for `:memory:` and temporary databases, setting the `temp_store_directory`, `data_store_directory`, `hard_heap_limit` and `soft_heap_limit` pragmas is refused, `PRAGMA threads` is ignored, a single string or blob value can be at most 32 MiB, and all queries running on one server at the same time share 128 MiB of memory.
 

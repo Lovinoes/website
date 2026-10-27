@@ -12,7 +12,7 @@ The panel connects using a connection string and a privileged account to provisi
 :::
 
 ::: warning
-MongoDB starts **without authentication enabled** by default. This guide walks you through creating a superuser first and then enabling authentication - do not skip this step.
+MongoDB starts **without authentication enabled** by default. This guide creates a superuser first and then enables authentication. Don't skip this step.
 :::
 
 ## Installation
@@ -86,7 +86,7 @@ mongosh
 Before enabling authentication, you must create an admin account. Inside the `mongosh` shell:
 
 ::: danger
-This account can connect from **any IP address**. Use a long, randomly generated password - a weak password on an exposed port is a critical security risk.
+This account can connect from **any IP address**. Use a long, randomly generated password; a weak password on an exposed port is a serious security risk.
 :::
 
 ```js
@@ -164,7 +164,7 @@ mongosh --username calagopus --password --authenticationDatabase admin
 By default, MongoDB only listens on `127.0.0.1`. To accept connections from the panel and Wings nodes, update the bind address.
 
 ::: info
-If you used Docker Compose, the `ports` entry already handles exposure - skip this section.
+If you used Docker Compose, the `ports` entry already handles exposure; skip this section.
 :::
 
 Edit `/etc/mongod.conf`:

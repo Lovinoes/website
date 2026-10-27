@@ -81,3 +81,7 @@ If you run into issues, check the logs:
 ```bash
 docker compose logs -f db-agent
 ```
+
+## Next Steps
+
+With DB Agent running, connect it to the Panel and secure its connections. See [Next Steps](../next-steps/index.md).

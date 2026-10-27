@@ -78,7 +78,7 @@ Two status badges up top: **Deployment Enabled** / **Deployment Disabled** and *
 ![Node Overview tab with node details, system information, and allocated memory, disk, and CPU gauges](./images/nodes/overview.webp)
 
 - **Node Details**: Location, Internal URL, Public URL, SFTP Address, Backup Configuration (shows **Inherited from Location** when the node has none of its own), Description, and Created.
-- **System Information**: live data from wings - Wings Version (with an **Update Available** badge when outdated), CPU model and core count, Memory, Servers (online / total), Kernel Version, and Architecture. Shows **Unavailable** when the node can't be reached.
+- **System Information**: live data from Wings: Wings Version (with an **Update Available** badge when outdated), CPU model and core count, Memory, Servers (online / total), Kernel Version, and Architecture. Shows **Unavailable** when the node can't be reached.
 - **Allocated Resources**: what servers on this node have been promised, with a **Servers** count. Memory and Disk show allocated / limit gauges with the free remainder (the gauge turns red at 90% and caps at 100% even when over-allocated); a limit of `0` shows **No node limit**. CPU is always uncapped and shows the total allocated percentage as "cores allocated". Reserved container memory overhead is listed separately.
 
 ## General

@@ -103,4 +103,4 @@ If lxcfs stops, existing containers can report `Transport endpoint is not connec
 
 ## Next Steps
 
-With Wings running, the next step is to set up allocations - the IP and port combinations you can assign to servers. See [Setting up Allocations](../next-steps/setting-up-allocations.md).
+With Wings running, the next step is to set up allocations, the IP and port combinations you can assign to servers. See [Setting up Allocations](../next-steps/setting-up-allocations.md).

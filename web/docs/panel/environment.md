@@ -172,7 +172,7 @@ Directory where the Panel writes log files. Unset by default (logs are not persi
 
 ## APP_ENCRYPTION_KEY <Badge type="tip" text="Required" />
 
-The encryption key used to protect sensitive data such as tokens. Must be set - the Panel will not start without it. Keep this value secret and do not lose it; rotating it requires re-encrypting all stored secrets.
+The encryption key used to protect sensitive data such as tokens. Must be set; the Panel will not start without it. Keep this value secret and do not lose it; rotating it requires re-encrypting all stored secrets.
 
 ::: danger Never leak this key
 The Panel encrypts its stored secrets with this key: node tokens, database host and DB Agent credentials, server database passwords, backup storage credentials (S3, restic, Proxmox Backup Server), egg repository credentials, OAuth provider secrets, SMTP and S3 storage settings, and users' TOTP secrets. Anyone holding the key and a copy of your database, such as a leaked backup, can decrypt all of them. It also signs the tokens issued during the two-factor login step. Keep it out of version control, screenshots and support chats, and store it separately from your database backups.

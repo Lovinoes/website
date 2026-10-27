@@ -82,3 +82,7 @@ This creates and enables a systemd or OpenRC service (auto-detected) that starts
 ```bash
 systemctl status db-agent
 ```
+
+## Next Steps
+
+With DB Agent running, connect it to the Panel and secure its connections. See [Next Steps](../next-steps/index.md).

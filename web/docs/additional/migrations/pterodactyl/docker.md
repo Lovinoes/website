@@ -357,6 +357,6 @@ Log in with your existing Pterodactyl credentials.
 
 ## What's Next
 
-Wings also needs to point at the new panel. See [Updating Wings](../../../wings/updating.md) for that step.
+Your nodes keep their existing Wings install, so don't follow the Wings installation guide. On each node, replace the binary as described in [Updating Wings](../../../wings/updating.md), and point `remote:` in the Wings config at the new panel if its address changed.
 
 After migrating, regenerate any API keys used by external scripts. The old Pterodactyl keys won't work, and the Calagopus API differs from Pterodactyl's, so those integrations need updating regardless.

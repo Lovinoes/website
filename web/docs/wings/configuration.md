@@ -276,7 +276,7 @@ max_jwt_uses: 5
 ```
 
 ### api.request_log_limit
-The number of HTTP requests Wings writes a log line for each second, which keeps a busy node from drowning its own log. Once the budget for a second is spent the remaining requests are counted rather than logged, and the count is reported as a `suppressed N http request log lines (api.request_log_limit = 250)` line the next time a request gets through - if traffic stops, the summary waits until it resumes. The budget covers the whole process, not each route or client. Set to `0` to log every request.
+The number of HTTP requests Wings writes a log line for each second, which keeps a busy node from drowning its own log. Once the budget for a second is spent the remaining requests are counted rather than logged, and the count is reported as a `suppressed N http request log lines (api.request_log_limit = 250)` line the next time a request gets through; if traffic stops, the summary waits until it resumes. The budget covers the whole process, not each route or client. Set to `0` to log every request.
 
 Default value:
 ```yaml
@@ -355,7 +355,7 @@ blocked_cidrs:
 ## System Configuration
 
 ::: info Path placeholders
-`data`, `diffs_directory`, `vmount_directory`, `log_directory`, `archive_directory`, `backup_directory` and `tmp_directory` accept the `{root_directory}` placeholder in their value. It's substituted with the configured `system.root_directory` every time the path is used, so these default to living under `root_directory` and move together if you repoint it. This is also how a freshly generated `config.yml` writes these values: literally as `{root_directory}/...`, not pre-resolved, so editing `root_directory` alone is enough to relocate everything else that still uses the placeholder. `log_directory` defaults to a fixed, independent path on Unix - see its entry below.
+`data`, `diffs_directory`, `vmount_directory`, `log_directory`, `archive_directory`, `backup_directory` and `tmp_directory` accept the `{root_directory}` placeholder in their value. It's substituted with the configured `system.root_directory` every time the path is used, so these default to living under `root_directory` and move together if you repoint it. This is also how a freshly generated `config.yml` writes these values: literally as `{root_directory}/...`, not pre-resolved, so editing `root_directory` alone is enough to relocate everything else that still uses the placeholder. `log_directory` defaults to a fixed, independent path on Unix; see its entry below.
 :::
 
 ### system.root_directory
@@ -592,7 +592,7 @@ websocket_log_count: 150
 ```
 
 ### system.tcp_congestion_control
-The TCP congestion control algorithm applied to the sockets Wings owns: the API listener, the SFTP listener, and the outgoing connections used for server transfers and S3 backup uploads (those are routed through a loopback proxy so the algorithm applies to them as well). Linux only, and the algorithm has to be available to the kernel - Wings looks it up in `/proc/sys/net/ipv4/tcp_available_congestion_control`, tries `modprobe tcp_<algorithm>` once if it is missing, and keeps the system default with a warning if it still is not there. Set to an empty string to leave congestion control alone entirely.
+The TCP congestion control algorithm applied to the sockets Wings owns: the API listener, the SFTP listener, and the outgoing connections used for server transfers and S3 backup uploads (those are routed through a loopback proxy so the algorithm applies to them as well). Linux only, and the algorithm has to be available to the kernel: Wings looks it up in `/proc/sys/net/ipv4/tcp_available_congestion_control`, tries `modprobe tcp_<algorithm>` once if it is missing, and keeps the system default with a warning if it still is not there. Set to an empty string to leave congestion control alone entirely.
 
 Default value:
 ```yaml
@@ -1340,11 +1340,11 @@ gateway: fdba:17c8:6c94::1011
 ### docker.firewall.backend
 Which backend Wings uses to apply per-server firewall rules on the host.
 
-- `auto` - Pick a backend on boot. Wings prefers `nftables`, falls back to `iptables`, and uses the helper container when it runs inside a container that has its own network namespace.
-- `nftables` - Run `nft` directly on the host.
-- `iptables` - Run `iptables` directly on the host.
-- `container` - Run `nft` through a helper container started from the Wings image. Use this when Wings runs as a container without host networking, where rules applied in its own network namespace would never see server traffic.
-- `disabled` - Never apply rules.
+- `auto`: pick a backend on boot. Wings prefers `nftables`, falls back to `iptables`, and uses the helper container when it runs inside a container that has its own network namespace.
+- `nftables`: run `nft` directly on the host.
+- `iptables`: run `iptables` directly on the host.
+- `container`: run `nft` through a helper container started from the Wings image. Use this when Wings runs as a container without host networking, where rules applied in its own network namespace would never see server traffic.
+- `disabled`: never apply rules.
 
 Default value:
 ```yaml
@@ -1352,9 +1352,9 @@ backend: auto
 ```
 
 ::: warning
-Server firewalls are Linux only, and are not supported with a rootless container engine - published port traffic does not traverse the host netfilter forward path there.
+Server firewalls are Linux only, and are not supported with a rootless container engine, because published port traffic does not traverse the host netfilter forward path there.
 
-When no backend ends up usable - an unsupported platform, a rootless engine, neither `nft` nor `iptables` present, or a helper container that fails to start - a server that has firewall rules configured refuses to start rather than running unprotected. Set this to `disabled` to start such servers anyway, in which case Wings logs a warning per server and leaves its rules unapplied.
+When no backend ends up usable (an unsupported platform, a rootless engine, neither `nft` nor `iptables` present, or a helper container that fails to start), a server that has firewall rules configured refuses to start rather than running unprotected. Set this to `disabled` to start such servers anyway, in which case Wings logs a warning per server and leaves its rules unapplied.
 
 The `container` backend runs `nft` out of the Wings image itself, so that image has to carry the binary. The official Wings and All-in-One images do; a custom image may not, and Wings then reports that `nft` is missing from the image the helper container runs.
 :::
@@ -1935,7 +1935,7 @@ ignore_panel_wings_upgrades: false
 ## SSL Configuration
 
 ::: info
-This section assumes you've already generated a certificate. See [Generating SSL Certificates](../additional/ssl-certificates.md) if you haven't. Replace `<domain>` with your actual node domain.
+This section is a quick reference. [Securing Wings with SSL](./next-steps/ssl.md) covers the full setup, including getting a certificate, Docker installs, pointing the Panel at the node and renewal. Replace `<domain>` with your actual node domain.
 :::
 
 ### Enabling SSL

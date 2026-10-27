@@ -44,7 +44,7 @@ This page is written by the Calagopus project. Calagopus is a third option, and 
 
 **Authentication and administration.** OAuth login, passkeys, admin roles and permissions, and webhooks are all new. These were the most requested Pterodactyl features that never landed upstream.
 
-**Panel database choice.** Pterodactyl requires MySQL. Pelican's own panel can run on MySQL, MariaDB with a dedicated driver, PostgreSQL or SQLite. Note that this is the panel's database only; databases provisioned for game servers are still MySQL/MariaDB.
+**Panel database choice.** Pterodactyl requires MySQL. Pelican's own panel can run on MySQL, MariaDB with a dedicated driver, PostgreSQL or SQLite. This is the panel's database only; databases provisioned for game servers are still MySQL/MariaDB.
 
 **Structure.** Nests and locations were replaced by tags, which is simpler for small deployments and a habit change for large ones.
 
@@ -75,4 +75,4 @@ A built-in importer reads a Pterodactyl or Pelican database directly, so if you 
 ## Migrating
 
 - **Pterodactyl to Pelican:** the two share a stack, so an in-place move is possible in principle; Pelican's own documentation is the authority on which versions it supports. Blueprint extensions need replacing.
-- **Either to Calagopus:** the [Pterodactyl migration guide](/docs/additional/migrations/pterodactyl) and [Pelican migration guide](/docs/additional/migrations/pelican) cover Docker and standalone installs. Users, servers, nodes and eggs import; API keys and Wings are recreated.
+- **Either to Calagopus:** the [Pterodactyl migration guide](/docs/additional/migrations/pterodactyl) and [Pelican migration guide](/docs/additional/migrations/pelican) cover Docker and standalone installs. Users, servers, nodes and eggs import; API keys are recreated, and each node's Wings binary is replaced.

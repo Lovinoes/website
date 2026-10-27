@@ -61,7 +61,7 @@ ln -s $(whereis -b calagopus-wings | awk '{print $2}') /usr/local/bin/wings
 Wings needs either Docker or Podman installed and running. RHEL-family distributions ship Podman by default, so you may already have it.
 
 ::: info Already have Podman?
-You can keep it. Skip ahead to [Add the Repository](#add-the-repository-1). After Wings is installed, follow the [Running Wings with Podman](../../wings/advanced/running-wings-with-podman.md) guide to configure Wings to use the Podman socket instead of Docker.
+You can keep it. Skip ahead to [Add the Repository](#add-the-repository-1). After Wings is installed, follow the [Running Wings with Podman](../advanced/running-wings-with-podman.md) guide to configure Wings to use the Podman socket instead of Docker.
 :::
 
 To use Docker instead, remove Podman first:
@@ -242,4 +242,4 @@ On Alpine/OpenRC, check it with `rc-service wings status`; if the pairing code i
 
 ## Next Steps
 
-With Wings running, the next step is to set up allocations - the IP and port combinations you can assign to servers. See [Setting up Allocations](../next-steps/setting-up-allocations.md).
+With Wings running, the next step is to set up allocations, the IP and port combinations you can assign to servers. See [Setting up Allocations](../next-steps/setting-up-allocations.md).

@@ -261,17 +261,22 @@ export default withMermaid({
         items: [
           { text: 'What is Calagopus?', link: '/docs/about/what-is-calagopus' },
           { text: 'Feature Reference', link: '/docs/about/features' },
-          { text: 'Panel Benchmarks', link: '/docs/about/benchmarks' },
-          { text: 'Daemon Benchmarks', link: '/docs/about/daemon-benchmarks' },
-          { text: 'Security', link: '/docs/about/security' },
+          {
+            text: 'Benchmarks',
+            collapsed: true,
+            items: [
+              { text: 'Panel', link: '/docs/about/benchmarks' },
+              { text: 'Daemon', link: '/docs/about/daemon-benchmarks' },
+            ],
+          },
           { text: 'Sponsors', link: '/docs/about/sponsors' },
-          { text: 'Telemetry', link: '/docs/about/telemetry' },
-          { text: 'Documentation MCP Server', link: '/docs/about/mcp-server' },
           {
             text: 'Principles',
             collapsed: true,
             items: [
               { text: 'Architecture', link: '/docs/about/architecture' },
+              { text: 'Security', link: '/docs/about/security' },
+              { text: 'Telemetry', link: '/docs/about/telemetry' },
               { text: 'Branding', link: '/docs/about/branding' },
               { text: 'Translations', link: '/docs/about/translations' },
               { text: 'Licenses', link: '/docs/about/licenses' },
@@ -470,7 +475,10 @@ export default withMermaid({
             text: 'Next Steps',
             link: '/docs/panel/next-steps/',
             collapsed: true,
-            items: [{ text: 'Adding egg repositories', link: '/docs/panel/next-steps/egg-repos' }],
+            items: [
+              { text: 'Adding egg repositories', link: '/docs/panel/next-steps/egg-repos' },
+              { text: 'Setting up a Reverse Proxy', link: '/docs/panel/next-steps/reverse-proxy' },
+            ],
           },
           {
             text: 'Extensions',
@@ -547,6 +555,8 @@ export default withMermaid({
             items: [
               { text: 'Configuring a New Node', link: '/docs/wings/next-steps/configure-node' },
               { text: 'Setting up Allocations', link: '/docs/wings/next-steps/setting-up-allocations' },
+              { text: 'Setting up SSL', link: '/docs/wings/next-steps/ssl' },
+              { text: 'Setting up a Reverse Proxy', link: '/docs/wings/next-steps/reverse-proxy' },
             ],
           },
           {
@@ -590,13 +600,22 @@ export default withMermaid({
               { text: 'Package Manager', link: '/docs/db-agent/installation/pkgmanager' },
             ],
           },
+          { text: 'Updating', link: '/docs/db-agent/updating' },
+          {
+            text: 'Next Steps',
+            link: '/docs/db-agent/next-steps/',
+            collapsed: true,
+            items: [
+              { text: 'Setting up SSL', link: '/docs/db-agent/next-steps/ssl' },
+              { text: 'Setting up a Reverse Proxy', link: '/docs/db-agent/next-steps/reverse-proxy' },
+            ],
+          },
           {
             text: 'Advanced',
             link: '/docs/db-agent/advanced/',
             collapsed: true,
             items: [{ text: 'Running DB Agent Rootless', link: '/docs/db-agent/advanced/running-db-agent-rootless' }],
           },
-          { text: 'Updating', link: '/docs/db-agent/updating' },
         ],
       },
       {
@@ -637,15 +656,7 @@ export default withMermaid({
             ],
           },
           { text: 'SSL Certificates', link: '/docs/additional/ssl-certificates' },
-          {
-            text: 'Reverse Proxies',
-            link: '/docs/additional/reverse-proxies/',
-            collapsed: true,
-            items: [
-              { text: 'Panel', link: '/docs/additional/reverse-proxies/panel' },
-              { text: 'Wings', link: '/docs/additional/reverse-proxies/wings' },
-            ],
-          },
+          { text: 'Reverse Proxies', link: '/docs/additional/reverse-proxies' },
           {
             text: 'Setting up OAuth',
             link: '/docs/additional/setting-up-oauth/',
@@ -666,6 +677,7 @@ export default withMermaid({
         link: '/docs/integrations/',
         items: [
           { text: 'VS Code', link: '/docs/integrations/vscode' },
+          { text: 'Docs MCP', link: '/docs/integrations/docs-mcp' },
           { text: 'Paymenter', link: '/docs/integrations/paymenter' },
           { text: 'WHMCS', link: '/docs/integrations/whmcs' },
           { text: 'Blesta', link: '/docs/integrations/blesta' },

@@ -88,7 +88,7 @@ sudo -u postgres psql
 By default, PostgreSQL only listens on `127.0.0.1` and uses `ident` authentication for local connections. You need to update both the listen address and the client authentication rules.
 
 ::: info
-If you used Docker Compose, the `ports` entry already exposes the port - you still need to update `pg_hba.conf` for non-Docker installs if you want password auth.
+If you used Docker Compose, the `ports` entry already exposes the port, but you still need to update `pg_hba.conf` for non-Docker installs if you want password auth.
 :::
 
 ::::tabs
@@ -143,7 +143,7 @@ sudo systemctl restart postgresql
 Inside the `psql` shell, create a dedicated role that the panel uses to provision user databases:
 
 ::: danger
-The role below can connect from **any IP address**. Use a long, randomly generated password - a weak password on an exposed port is a critical security risk.
+The role below can connect from **any IP address**. Use a long, randomly generated password; a weak password on an exposed port is a serious security risk.
 :::
 
 ```sql

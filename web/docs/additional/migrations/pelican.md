@@ -9,7 +9,7 @@ Calagopus includes an importer that reads a Pelican database and writes equivale
 
 API keys and active login sessions do not migrate. Users need to sign in again. Generate new API keys and update your integrations: the Calagopus API differs from Pelican's, so existing API scripts also need changes.
 
-This guide covers the panel database migration only. Wings also needs to be updated to point at the new panel. See [Wings Updating](../../wings/updating.md) for that step.
+This guide covers the panel database migration only. Your nodes already run Pelican Wings, so they don't need a fresh install: on each node, replace the binary with Calagopus Wings as described in [Updating Wings](../../wings/updating.md), and point `remote:` in its config at the new panel if the address changed. Calagopus Wings picks up the existing config from `/etc/pelican/config.yml` on its own ([Configuration](../../wings/configuration.md)) and finds server data where that config says it is. The [Wings installation guide](../../wings/installation/index.md) is only for new nodes.
 
 ## Pick Your Path
 
@@ -51,5 +51,6 @@ The importer shares its code with the Pterodactyl one, so connection and data er
 
 | Symptom | Fix |
 | --- | --- |
+| Login fails with "Invalid username or password" for an account that had an empty password on Pelican | Signing in with an empty password doesn't work on Calagopus. Set a new password from the CLI with `calagopus-panel users reset-password`, prefixed with `docker compose exec web` on Docker, then sign in with it. |
 | Wings logs a JSON parse error naming a missing field such as `oom_disabled`, and the panel can't connect | The `remote:` URL in the Wings config still points at the Pelican panel. Set it to the Calagopus panel's address and restart Wings. |
 | Config file replacements such as `{{server.environment.SERVER_NAME}}` are written literally, and the Wings log says `unknown server variable: server.environment.SERVER_NAME` | Calagopus Wings exposes the environment as `server.env`. Wings from 1.1.4 on accepts `server.environment` as an alias. On older versions, edit the egg's config file replacements to use `{{server.env.SERVER_NAME}}`. |

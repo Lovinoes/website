@@ -5,7 +5,7 @@ description: Overview of the Calagopus Panel, the central web UI and backend for
 
 # Panel
 
-The Calagopus **Panel** is the central management interface for game servers and related services. It provides the web UI and backend that handle server orchestration, user management, and integrations. The panel alone doesn't host game servers - for that you also need [Wings](../wings/overview.md) running on at least one node.
+The Calagopus **Panel** is the central management interface for game servers and related services. It provides the web UI and backend that handle server orchestration, user management, and integrations. The panel alone doesn't host game servers; for that you also need [Wings](../wings/overview.md) running on at least one node.
 
 The interface works on phones and tablets as well as desktops. The sidebar becomes a drawer on small screens, the console and file manager support touch selection and long-press menus, layouts account for the on-screen keyboard, and the file editor defaults to a touch-oriented engine on those devices.
 

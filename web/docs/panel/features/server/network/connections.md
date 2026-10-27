@@ -49,7 +49,7 @@ A connection only grants access to the ports the destination server *offers*. **
 
 Each entry is a port and one or both of **TCP** and **UDP**. **Add Port** appends a row; when the server has allocations whose ports aren't offered yet, they appear as `+ 25565` badges next to the button that add themselves in one click. The counter on the right reads "1 of 10 used" against the administrator's [per-server cap](../../admin/settings.md#server), and listing the same port twice is refused.
 
-Offered ports are not limited to the server's allocations. Anything the server listens on inside its container can be offered, including ports that were never published publicly - a database or an RCON port, say, that you deliberately never gave a public allocation.
+Offered ports are not limited to the server's allocations. Anything the server listens on inside its container can be offered, including ports that were never published publicly, such as a database or an RCON port that you deliberately never gave a public allocation.
 
 Offer nothing and the card says "You offer no ports, so nothing on this server can be reached." Connecting to a server in that state gives you a hostname that resolves and refuses every connection.
 
@@ -74,7 +74,7 @@ Each peer card lists the addresses and ports *you* would use to reach it. A peer
 
 ## Connecting a Server
 
-**Connect a Server** opens a picker of servers already on the private network - a server has to have joined before it can be connected - and then a switch per direction. Each switch previews the addresses it would make reachable. Admins get a **Show other user's servers** toggle to reach beyond their own.
+**Connect a Server** opens a picker of servers already on the private network (a server has to join before it can be connected), and then a switch per direction. Each switch previews the addresses it would make reachable. Admins get a **Show other user's servers** toggle to reach beyond their own.
 
 <img src="./images/connections/connect-form.webp" width="220" alt="Connect a Server dialog with a server selector and toggles for each connection direction" />
 

@@ -76,7 +76,7 @@ websocket_log_count: 150
 ```
 
 ### tcp_congestion_control
-The TCP congestion control algorithm applied to the listeners DB Agent owns: the management API and every enabled database proxy. Linux only, and the algorithm has to be available to the kernel - DB Agent looks it up in `/proc/sys/net/ipv4/tcp_available_congestion_control`, tries `modprobe tcp_<algorithm>` once if it is missing, and keeps the system default with a warning if it still is not there. Set to an empty string to leave congestion control alone entirely.
+The TCP congestion control algorithm applied to the listeners DB Agent owns: the management API and every enabled database proxy. Linux only, and the algorithm has to be available to the kernel: DB Agent looks it up in `/proc/sys/net/ipv4/tcp_available_congestion_control`, tries `modprobe tcp_<algorithm>` once if it is missing, and keeps the system default with a warning if it still is not there. Set to an empty string to leave congestion control alone entirely.
 
 Default value:
 ```yaml
@@ -376,7 +376,7 @@ disable_openapi_docs: false
 ```
 
 ### api.request_log_limit
-The number of HTTP requests the agent writes a log line for each second, which keeps a busy agent from drowning its own log. Once the budget for a second is spent the remaining requests are counted rather than logged, and the count is reported as a `suppressed N http request log lines (api.request_log_limit = 250)` line the next time a request gets through - if traffic stops, the summary waits until it resumes. The budget covers the whole process, not each route or client. Set to `0` to log every request.
+The number of HTTP requests the agent writes a log line for each second, which keeps a busy agent from drowning its own log. Once the budget for a second is spent the remaining requests are counted rather than logged, and the count is reported as a `suppressed N http request log lines (api.request_log_limit = 250)` line the next time a request gets through; if traffic stops, the summary waits until it resumes. The budget covers the whole process, not each route or client. Set to `0` to log every request.
 
 Default value:
 ```yaml
@@ -459,7 +459,7 @@ ignore_upgrades: false
 ## TLS Configuration
 
 ::: info
-This section assumes you've already generated a certificate. See [Generating SSL Certificates](../additional/ssl-certificates.md) if you haven't.
+This section is a quick reference. [Securing DB Agent with SSL](./next-steps/ssl.md) covers the full setup, including getting a certificate, Docker installs, pointing the Panel at the agent and renewal.
 :::
 
 Every proxy (`postgres`, `mariadb`, `mongodb`, `redis`) as well as the management API (`api`) has its own independent `tls` block with the same four options:

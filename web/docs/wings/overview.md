@@ -32,7 +32,7 @@ Only Linux and macOS are officially supported, due to reliance on Unix-specific 
 
 Wings uses several directories on the host. Knowing where each one is matters for troubleshooting, backups, and disk management.
 
-Most of these live under `root_directory` by default (see [path placeholders](configuration.md#system-configuration) for how that works), so the paths below are shown already resolved.
+Most of these live under `root_directory` by default (see [path placeholders](./configuration.md#system-configuration) for how that works), so the paths below are shown already resolved.
 
 | Volume | Description | Default Paths |
 | :--- | :--- | :--- |

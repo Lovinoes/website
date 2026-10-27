@@ -21,7 +21,7 @@ If your setup differs significantly (custom database hosts, unusual configuratio
 
 ## Overview
 
-Here's what you'll be doing at a high level:
+The steps:
 
 - Grab your `APP_ENCRYPTION_KEY` and database password from your existing installation
 - Create the Docker Compose file and plug in those values
@@ -60,13 +60,13 @@ APP_ENCRYPTION_KEY=Ab3xZ9qR2mKp7vLw
 DATABASE_URL="postgresql://calagopus:yourPassword@localhost:5432/panel"
 ```
 
-The password is the segment between the second `:` and the `@` - in the example above, that is `yourPassword`.
+The password is the segment between the second `:` and the `@`; in the example above, that is `yourPassword`.
 
 ::: warning
 The `APP_ENCRYPTION_KEY` must be copied exactly as-is. It is used to decrypt sensitive data stored in your database. If it is wrong or missing, that data cannot be recovered.
 :::
 
-Keep both values handy. You'll need them in the next step.
+Note both values for the next step.
 
 ## Set up your Docker directory
 
@@ -135,7 +135,7 @@ services:
 Replace:
 
 - `YOUR_ENCRYPTION_KEY` with the `APP_ENCRYPTION_KEY` value collected above
-- `YOUR_DB_PASSWORD` (both occurrences) with your old database password, or a new one - the value must match in both the `web` and `db` service definitions.
+- `YOUR_DB_PASSWORD` (both occurrences) with your old database password, or a new one. The value must match in both the `web` and `db` service definitions.
 
 ## Start the database and cache
 
@@ -184,7 +184,7 @@ docker exec -i calagopus-db-1 pg_restore \
   < panel.backup
 ```
 
-You may see some harmless notices about dropping objects that don't exist yet - that's normal. The restore is successful as long as the command exits without errors.
+You may see some harmless notices about dropping objects that don't exist yet; that's normal. The restore is successful as long as the command exits without errors.
 
 ## Start the full stack
 
@@ -200,7 +200,7 @@ Once the stack is up, open Calagopus in your browser and check:
 
 - You can log in with your existing credentials
 - Your servers are visible and intact
-- No setup wizard (OOBE) appears (if it does, the database import likely did not work - see below)
+- No setup wizard (OOBE) appears (if it does, the database import likely did not work; see below)
 - Wings nodes are still connected
 
 ## Troubleshooting

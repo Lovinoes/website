@@ -55,7 +55,7 @@ These bundle the Panel and Wings in a single container. Pick one of these if you
 
 ### Install Docker
 
-Ensure you have Docker and Docker Compose installed on your system. You can validate your Docker installation by running:
+You need Docker and Docker Compose installed on your system. You can validate your Docker installation by running:
 
 ```bash
 docker --version
@@ -73,7 +73,7 @@ This should automatically install Docker Compose as well. If not, you can follow
 
 ## Option A: All-in-One (recommended for single-node setups)
 
-The AIO image runs the Panel and Wings inside the same container. You do not need to install Wings separately or register a node manually - the bundled Wings is wired up through the Panel automatically.
+The AIO image runs the Panel and Wings inside the same container. You do not need to install Wings separately or register a node manually; the bundled Wings is connected to the Panel automatically.
 
 ### 1. Download the AIO Compose Stack
 
@@ -100,7 +100,7 @@ ls -lh # should show you the compose.yml file
 :::
 
 The **Basic AIO** compose uses the `:aio` image and is the right choice for most single-node installations.
-The **Heavy AIO** compose uses the `:heavy-aio` image and adds the volume mounts needed to install [extensions](../extensions/index.md) - pick this one only if you know you'll be using extensions.
+The **Heavy AIO** compose uses the `:heavy-aio` image and adds the volume mounts needed to install [extensions](../extensions/index.md). Only pick it if you'll use extensions.
 
 ### 2. Create the Wings configuration file
 
@@ -112,7 +112,7 @@ This step is **mandatory before the first `docker compose up`**. The compose fil
 echo 'app_name: Calagopus' > wings-config.yml
 ```
 
-You can leave the file empty - the AIO container will populate it on first startup. You only need to make sure the file exists so the bind mount attaches correctly.
+You can leave the file empty; the AIO container fills it on first startup. You only need to make sure the file exists so the bind mount attaches correctly.
 
 ### 3. Change the Docker Image Variant (Optional)
 
@@ -182,7 +182,7 @@ ls -lh # should show you the compose.yml file
 
 The **Basic** compose uses the `:latest` image and is the right choice for most standalone Panel installations.
 The **Basic with automatic Database Backups** variant adds a small sidecar that periodically backs up the Postgres database.
-The **Heavy** compose uses the `:heavy` image and includes the volume mounts needed to install [extensions](../extensions/index.md) - pick this one only if you know you'll be using extensions.
+The **Heavy** compose uses the `:heavy` image and includes the volume mounts needed to install [extensions](../extensions/index.md). Only pick it if you'll use extensions.
 
 ### 2. Change the Docker Image Variant (Optional)
 

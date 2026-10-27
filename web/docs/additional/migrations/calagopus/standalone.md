@@ -21,13 +21,13 @@ Make sure you have:
 - A running Calagopus Docker Compose installation
 - Access to your `compose.yml` file
 - PostgreSQL and Valkey installed on the target host (follow the [binary installation guide](/docs/panel/installation/binary) if not)
-- The Calagopus binary installed but not yet configured - you need to land on the OOBE screen and stop there
+- The Calagopus binary installed but not yet configured: open the OOBE screen and stop there
 
 ::: warning Don't click through the OOBE
 The OOBE creates database records that can conflict with the import. If you've already clicked through, drop and recreate the database first.
 ![Calagopus Panel OOBE](../../../panel/oobe.webp)
 
-::: details I already clicked through - how do I undo it?
+::: details I already clicked through. How do I undo it?
 You'll need to drop and recreate the database. Pick the matching tab for how Calagopus is installed:
 
 ::::tabs
@@ -91,7 +91,7 @@ Open your `compose.yml` and find the `web` service environment variables. You ne
 The `APP_ENCRYPTION_KEY` must be copied exactly as-is. It is used to decrypt sensitive data stored in your database. If it is wrong or missing, that data cannot be recovered.
 :::
 
-Keep both values handy. You'll need them shortly.
+Note both values; you need them shortly.
 
 ## Configure the binary installation
 
@@ -103,7 +103,7 @@ Set `APP_ENCRYPTION_KEY` to the value copied above:
 APP_ENCRYPTION_KEY=Ab3xZ9qR2mKp7vLw
 ```
 
-Set `DATABASE_URL` to point at your host PostgreSQL instance. Use the same password from your Docker setup, or a new one - it must match what you set when creating the database user:
+Set `DATABASE_URL` to point at your host PostgreSQL instance. Use the same password from your Docker setup, or a new one. It must match what you set when creating the database user:
 
 ```txt
 DATABASE_URL="postgresql://calagopus:yourPassword@localhost:5432/panel"

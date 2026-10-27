@@ -71,8 +71,8 @@ Name a file after its sidebar entry, not its H1. The two don't have to match.
 
 | Filename | Sidebar entry | H1 |
 | --- | --- | --- |
-| `ssl-certificates.md` | `SSL Certificates` | Generating SSL Certificates |
-| `reverse-proxies/panel.md` | `Panel` | Putting the Panel Behind a Reverse Proxy |
+| `additional/ssl-certificates.md` | `SSL Certificates` | Generating SSL Certificates |
+| `panel/next-steps/reverse-proxy.md` | `Setting up a Reverse Proxy` | Putting the Panel Behind a Reverse Proxy |
 
 Keeping filenames aligned with sidebar entries keeps `link:` paths predictable.
 
@@ -90,23 +90,26 @@ Currently installed:
 
 | Plugin | Purpose | Docs |
 | ------ | ------- | ---- |
-| `vite-plugin-image-optimizer`         | Optimizes images at build time               | [npm](https://www.npmjs.com/package/vite-plugin-image-optimizer)   |
-| `vitepress-plugin-mermaid`            | Mermaid diagram support                      | [Docs](https://emersonbottero.github.io/vitepress-plugin-mermaid/) |
-| `vitepress-plugin-tabs`               | Powers the `:::: tabs` syntax                | [Docs](https://vitepress-plugins.sapphi.red/tabs/)                 |
-| `vitepress-plugin-viewerjs`           | Click-to-zoom lightbox for images            | [Repo](https://github.com/Lovinoes/vitepress-plugin-viewerjs)      |
-| `aiDocPlugin` (`./plugins/ai-doc.ts`) | Internal, intentionally undocumented, ignore | n/a                                                                |
+| `vite-imagetools`                     | Converts imported PNG and JPEG images to WebP and caps images at 1600px wide | [Repo](https://github.com/JonasKruckenberg/imagetools)             |
+| `vite-plugin-image-optimizer`         | Compresses PNG, JPEG and SVG images at build time, skipping WebP             | [npm](https://www.npmjs.com/package/vite-plugin-image-optimizer)   |
+| `vitepress-plugin-mermaid`            | Mermaid diagram support                                                      | [Docs](https://emersonbottero.github.io/vitepress-plugin-mermaid/) |
+| `vitepress-plugin-tabs`               | Powers the `:::: tabs` syntax                                                | [Docs](https://vitepress-plugins.sapphi.red/tabs/)                 |
+| `aiDocPlugin` (`./plugins/ai-doc.ts`) | Internal, intentionally undocumented, ignore                                 | n/a                                                                |
+
+The click-to-zoom image viewer is not a plugin. It lives in `.vitepress/components/ImageViewer.vue`.
 
 ## Before Opening a PR
 
 Run the same checks CI runs:
 
 ```bash
-pnpm docs:build
-pnpm exec biome check
+pnpm run biome:validate
 pnpm run typecheck
+pnpm docs:build
+pnpm run check-worker-routes
 ```
 
-If `biome check` reports dozens of unrelated files needing reformatting, it's almost certainly CRLF line endings from a Windows checkout, not a real issue. A `.gitattributes` in the repo root forces LF on checkout, but it only applies to files checked out *after* it's in place. If you cloned before it existed, run `git add --renormalize .` once (and `git config core.autocrlf false` if you have it set globally), then re-run the check.
+If `biome:validate` reports dozens of unrelated files needing reformatting, it's almost certainly CRLF line endings from a Windows checkout, not a real issue. A `.gitattributes` in the repo root forces LF on checkout, but it only applies to files checked out *after* it's in place. If you cloned before it existed, run `git add --renormalize .` once (and `git config core.autocrlf false` if you have it set globally), then re-run the check.
 
 Then confirm in the dev server:
 

@@ -23,7 +23,7 @@ docker compose pull
 docker compose up -d
 ```
 
-That's it, Docker handles the restart as part of `up -d`.
+Docker handles the restart as part of `up -d`.
 
 === APT / RPM / APK
 

@@ -4,7 +4,7 @@ description: Migrate to Calagopus from Pterodactyl or Pelican, or move an existi
 
 # Migrations
 
-Whether you're moving from another panel, or just changing how your existing Calagopus install is deployed, pick the guide that matches what you're doing:
+Pick the guide for what you're doing: moving from another panel, or changing how your existing Calagopus install is deployed.
 
 ::::tabs
 === Pterodactyl

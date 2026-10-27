@@ -12,7 +12,7 @@ This module is based on the official [Blesta Pterodactyl module](https://github.
 :::
 
 ::: danger
-This module authenticates with an **admin API key**, which grants full administrative access to your panel - creating users and servers, reading every resource, and more. Treat it like a root password: never share it, and rotate it immediately if it is ever exposed.
+This module authenticates with an **admin API key**, which grants full administrative access to your panel: creating users and servers, reading every resource, and more. Treat it like a root password: never share it, and rotate it immediately if it is ever exposed.
 :::
 
 ## What it does

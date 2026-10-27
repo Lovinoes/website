@@ -47,7 +47,7 @@ doubt, read the `LICENSE` file in the repository itself.
 
 ### Container images
 
-These repositories contain only packaging - a `Dockerfile` and a build workflow.
+These repositories contain only packaging: a `Dockerfile` and a build workflow.
 The license shown covers that packaging; the software inside the published
 images remains under its own upstream license.
 
@@ -77,8 +77,8 @@ before shipping Wings as part of a commercial product.
 
 Wings also contains a `pbs-client` crate used for
 [Proxmox Backup Server backups](../wings/advanced/backup-configurations.md). It
-is a first-party implementation of the PBS wire protocol - no Proxmox source is
-vendored - and is covered by the Wings MIT license, not by Proxmox's AGPL.
+is a first-party implementation of the PBS wire protocol (no Proxmox source is
+vendored) and is covered by the Wings MIT license, not by Proxmox's AGPL.
 
 ## Full dependency licenses
 

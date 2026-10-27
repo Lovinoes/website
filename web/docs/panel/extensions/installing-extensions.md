@@ -5,7 +5,7 @@ description: Install a .c7s.zip extension into your Calagopus Panel.
 
 # Installing Extensions
 
-Extensions ship as `.c7s.zip` files - a single archive containing both backend and frontend code. This page covers how to install one in your Calagopus Panel.
+Extensions ship as `.c7s.zip` files, a single archive containing both backend and frontend code. This page covers installing one.
 
 ::: warning Requires the `:heavy` image or a development environment
 Installing extensions requires the Panel to compile new code (yours, plus whatever the extension brings) at install time. The regular `:latest` and `:nightly` Docker images don't include the toolchain for that. You need either:
@@ -27,7 +27,7 @@ The steps depend on which environment you're running. Pick the matching tab:
 
 Once your stack is on `:heavy` or `:nightly-heavy`, you have two options.
 
-**Option 1: Upload through the admin UI.** Open the Panel's extension management page, drop the `.c7s.zip` file into the upload area, and the Panel handles the rest - install, compile, and load.
+**Option 1: Upload through the admin UI.** Open the Panel's extension management page, drop the `.c7s.zip` file into the upload area, and the Panel installs, compiles and loads it.
 
 ![Placeholder: extension upload UI](./admin-extensions-ui-empty.webp)
 
@@ -37,7 +37,7 @@ Once your stack is on `:heavy` or `:nightly-heavy`, you have two options.
 docker compose restart web
 ```
 
-The Panel detects the new file on startup and installs it. Watch the progress in the admin UI from Option 1, or wait - it shouldn't take more than a minute or two, even for complex extensions. To update an extension this way, overwrite the existing archive; a second archive for the same package under another filename makes the build fail with "already installed".
+The Panel detects the new file on startup and installs it. Follow the progress in the admin UI from Option 1. It usually takes a minute or two, even for complex extensions. To update an extension this way, overwrite the existing archive; a second archive for the same package under another filename makes the build fail with "already installed".
 
 === With Development Environment
 
@@ -70,7 +70,7 @@ cargo b --profile heavy-release
 # binary lands at ./target/heavy-release/panel-rs
 ```
 
-Same end result; just more granular if you're debugging a build issue. If you manually added files/reset your internal-list meta extension, run `panel-rs extensions resync` to refresh the internal state before building.
+The result is the same, with more control when debugging a build issue. If you manually added files/reset your internal-list meta extension, run `panel-rs extensions resync` to refresh the internal state before building.
 :::
 
 ::::

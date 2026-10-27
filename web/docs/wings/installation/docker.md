@@ -17,7 +17,7 @@ description: How to install Calagopus Wings using Docker. Wings is the node daem
 
 
 ::: info Using Podman instead?
-Podman is supported as an alternative to Docker. If you'd prefer to use Podman, install Wings via the [Docker](../../wings/installation/docker.md#configure-wings), [Binary](../../wings/installation/binary.md#configure-wings), or [Package Manager](../../wings/installation/pkgmanager.md#configure-wings) method and follow the [Running Wings with Podman](../../wings/advanced/running-wings-with-podman.md) guide. The Docker Compose method requires Docker.
+Podman is supported as an alternative to Docker. If you'd prefer to use Podman, install Wings via the [Docker](./docker.md#configure-wings), [Binary](./binary.md#configure-wings), or [Package Manager](./pkgmanager.md#configure-wings) method and follow the [Running Wings with Podman](../advanced/running-wings-with-podman.md) guide. The Docker Compose method requires Docker.
 :::
 
 Verify your Docker installation:
@@ -114,7 +114,7 @@ docker compose logs -f wings
 | Symptom | Fix |
 | --- | --- |
 | `failed to load config from /etc/calagopus-wings/config.yml: ... No such file or directory` | On current Wings, a missing config normally starts pairing mode. This error can indicate an older build or `--no-setup`; update Wings or write the file manually as described above. If you changed the compose file to bind-mount the config file itself rather than the `config/` directory, you can also see `Is a directory (os error 21)`, because Docker created a directory at the file's path; delete it and write the real file. |
-| `failed to load SSL certificate and key ... No such file or directory` | The certificate lives on the host but isn't mounted into the container. Add `- /etc/letsencrypt:/etc/letsencrypt:ro` under the `wings` service's `volumes:` and recreate it. |
+| `failed to load SSL certificate and key ... No such file or directory` | The certificate lives on the host but isn't mounted into the container. Copy it into `/etc/ssl/certs/wings/` as described in the Docker tab of [Securing Wings with SSL](../next-steps/ssl.md#enable-ssl-in-wings), or add `- /etc/letsencrypt:/etc/letsencrypt:ro` under the `wings` service's `volumes:` and recreate it. |
 | The panel can't connect even though Wings logs look fine | Compare three numbers: `api.port` in `config/config.yml`, the container side of the `ports:` mapping in `compose.yml`, and the port in the node URL on the panel. They must agree, or the host port must map to `api.port`. A compose line of `7777:8080` with a node URL ending in `:8080` connects to nothing. |
 | `localhost` doesn't work in `remote:` | Inside the container `localhost` is the container. When the panel runs on the same host, use the host's LAN IP, or `network_mode: host` on the `wings` service. |
 | `system.data_directory '...' is not covered by any mount of the wings container` at startup | A directory from `config/config.yml` isn't inside any volume of the `wings` service. Add a volume for it, see the warning above. `bind source path does not exist` during a server install means the same thing on Wings older than 1.1.0, which didn't translate paths yet; update Wings. |
@@ -125,4 +125,4 @@ Other node problems, such as the panel and the browser reaching Wings on differe
 
 ## Next Steps
 
-With Wings running, the next step is to set up allocations - the IP and port combinations you can assign to servers. See [Setting up Allocations](../next-steps/setting-up-allocations.md).
+With Wings running, the next step is to set up allocations, the IP and port combinations you can assign to servers. See [Setting up Allocations](../next-steps/setting-up-allocations.md).
