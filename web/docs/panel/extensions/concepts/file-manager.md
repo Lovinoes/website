@@ -5,7 +5,7 @@ description: Extend the Panel's file manager - component slots, context menu int
 
 # File Manager
 
-The file manager has twelve slot points, three handler lists, its own editor plugin system and a nested registry for the trash page, which makes it the widest extension surface on any single Panel page. All of it hangs off one registry:
+The file manager has twelve slot points, three handler lists, its own editor plugin system, a nested registry for the trash page and one for the disk usage bar, which makes it the widest extension surface on any single Panel page. All of it hangs off one registry:
 
 ```ts
 ctx.extensionRegistry.pages.server.files;
@@ -156,6 +156,56 @@ ctx.extensionRegistry.pages.server.files.enterTrash((trash) =>
   ),
 );
 ```
+
+## The Disk Usage Bar
+
+Servers with a disk limit get a usage bar above the file list. It is split into sections, and its registry lets you add your own or change the stock ones:
+
+```ts
+ctx.extensionRegistry.pages.server.files.diskUsageBar;
+```
+
+A section is `{ id, label, color, bytes }`. The Panel ships two:
+
+| `id` | `bytes` | Shown when |
+| ---- | ------- | ---------- |
+| `files` | `null`, the remainder | Always |
+| `trash` | The total size of the trash | The node reports it (Wings 1.2.8 and newer) |
+
+The section whose `bytes` is `null` is sized last, to whatever disk usage the other sections leave over. That is what lets you carve something out of the total: push a section with its own byte count and `files` shrinks by the same amount, the same way the trash does. Once any section other than the remainder takes up space, a legend appears under the bar.
+
+There are two ways in. `addSectionInterceptor` takes a plain function, which is enough for recolouring, relabelling, reordering or removing a section:
+
+```ts
+ctx.extensionRegistry.pages.server.files.enterDiskUsageBar((bar) =>
+  bar.addSectionInterceptor((sections) => {
+    const trash = sections.find((section) => section.id === 'trash');
+    if (trash) trash.color = 'orange';
+  }),
+);
+```
+
+When the section needs data you have to fetch, use `addSectionHook`. It is called as a React hook on every render of the bar, so it can use `useQuery` or any other hook, and returns the interceptor to run once the plain ones are done:
+
+```ts
+function useWorldSection({ diskBytes }: DiskUsageBarProps) {
+  const server = useServerStore((state) => state.server);
+  const { data } = useQuery({
+    queryKey: ['my-extension', server.uuid, 'world-size'],
+    queryFn: () => getWorldSize(server.uuid),
+  });
+
+  return (sections: DiskUsageSection[]) => {
+    if (data === undefined) return;
+
+    sections.splice(1, 0, { id: 'world', label: 'World', color: 'teal.7', bytes: Math.min(data, diskBytes) });
+  };
+}
+
+ctx.extensionRegistry.pages.server.files.enterDiskUsageBar((bar) => bar.addSectionHook(useWorldSection));
+```
+
+Both receive `{ diskBytes, limitBytes }`. The usual hook rules apply to the hook itself: call the same hooks in the same order every time, and keep any condition inside the returned function. The bar is not rendered in the tree workspace or on servers without a disk limit.
 
 ## Icons and Openability
 
@@ -375,5 +425,6 @@ The component slots, the context menus and `addFileIconHandler` have been there 
 | `fileTreeToolbar`, `FileEditorActionContext`, the `surface` prop on file context menus, `readOnly` on editor content props | 1.2.0 |
 | `enterFileMassContextMenu`, `elements.enterPierreEditor` | 1.2.3 |
 | `trash`, `enterTrash` | 1.2.6 |
+| `diskUsageBar`, `enterDiskUsageBar` | 1.2.8 |
 
 An extension using the 1.2.0 additions will not build against an older Panel.

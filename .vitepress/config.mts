@@ -490,6 +490,7 @@ export default withMermaid({
                 collapsed: true,
                 items: [
                   { text: 'Theming', link: '/docs/panel/extensions/concepts/theming' },
+                  { text: 'File Overrides', link: '/docs/panel/extensions/concepts/file-overrides' },
                   { text: 'Events', link: '/docs/panel/extensions/concepts/events' },
                   { text: 'Settings', link: '/docs/panel/extensions/concepts/settings' },
                   { text: 'User Settings', link: '/docs/panel/extensions/concepts/user-settings' },

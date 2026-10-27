@@ -282,5 +282,6 @@ Hooking the parent (`Spinner`) doesn't hook the children (`Spinner.Centered`), a
 | Force or rewrite props on one component everywhere | `addPropsInterceptor` |
 | Wrap or conditionally swap a component's output | `addRenderInterceptor` |
 | Replace a component's implementation wholesale | `replaceBaseComponent` (last resort) |
+| Replace a file that has no hookable export or slot | [File overrides](./file-overrides.md) |
 
 When more than one layer would work, prefer the one higher up the list - it's less coupled to internals and less likely to surprise anyone.

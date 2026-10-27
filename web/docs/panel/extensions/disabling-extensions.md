@@ -34,7 +34,7 @@ Nothing is removed. Disabling only stops code from running:
 - **Its columns stay, its hooks do not.** An extension that added a column to a core table through a migration and filled it from a create handler no longer fills it while disabled. If that column is `NOT NULL` without a default, creating the model it extends will fail until you enable the extension again.
 - **Other extensions calling into it** get nothing back: extension calls are not dispatched to a disabled extension, and looking up its settings from another extension fails.
 - **CLI commands stay registered.** They are set up before the Panel reads which extensions are disabled, so an extension's own commands remain available.
-- **Its frontend code is still shipped, but inert.** The browser still downloads and evaluates a disabled extension's frontend module - it just never runs its entrypoint, and the extension's stylesheet is loaded in a disabled state, so none of its CSS applies. What does survive is what gets baked into the shared bundle: a core component the extension replaces through `overrides.ts` stays replaced. Uninstall the extension if you need the original component back.
+- **Its frontend code is still shipped, but inert.** The browser still downloads and evaluates a disabled extension's frontend module - it just never runs its entrypoint, and the extension's stylesheet is loaded in a disabled state, so none of its CSS applies. What does survive is what gets baked into the shared bundle: a core component the extension replaces through [`overrides.ts`](/docs/panel/extensions/concepts/file-overrides) stays replaced. Uninstall the extension if you need the original component back.
 
 ## Uninstalling Instead
 

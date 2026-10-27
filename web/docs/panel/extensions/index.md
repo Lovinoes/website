@@ -25,6 +25,7 @@ If you are new to extensions, start here:
 Extensions are built around several core systems:
 
 - [Theming](./concepts/theming.md) - Customize the look and feel of the Panel interface
+- [File Overrides](./concepts/file-overrides.md) - Replace a whole Panel frontend file with your own at build time
 - [Events](./concepts/events.md) - React to system and user actions
 - [Settings](./concepts/settings.md) - Define configurable extension options
 - [Routing](./concepts/routing.md) - Add custom backend routes
